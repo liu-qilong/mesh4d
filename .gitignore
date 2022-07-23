@@ -1,0 +1,11 @@
+# gitignore
+.DS_Store
+.idea/
+__pycache__/
+media/
+dataset/
+param/
+*.png
+*.jpg
+*.gif
+*.mov
