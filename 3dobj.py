@@ -1,10 +1,68 @@
+import copy
 import numpy as np
 import open3d as o3d
 from probreg import cpd, bcpd
 
 class obj3d(object):
-    def __init__(self):
-        pass
+    def __init__(
+            self,
+            filedir,
+            scale_rate=0.01,
+            scale_center=(0, 0, 0),
+            sample_ld=1000,
+            sample_hd=10000):
+        self.mesh = o3d.io.read_triangle_mesh(filedir).scale(scale_rate, center=scale_center)
+        self.mesh.compute_vertex_normals()
+        self.sampling(sample_ld, sample_hd)
+
+    def sampling(self, sample_ld, sample_hd):
+        self.pcd_ld = self.mesh.sample_points_poisson_disk(number_of_points=sample_ld, init_factor=5)
+        self.pcd_hd = self.mesh.sample_points_poisson_disk(number_of_points=sample_hd, init_factor=5)
+
+    def show(self):
+        o3d.visualization.draw_geometries([
+            self.mesh,
+            copy.deepcopy(self.pcd_ld).translate((10, 0, 0)),
+            copy.deepcopy(self.pcd_hd).translate((20, 0, 0)),
+        ])
+
+    def get_o3d(self):
+        return copy.deepcopy(self.mesh)
+
+
+def mesh2pcd(mesh, sample_d):
+    return mesh.sample_points_poisson_disk(number_of_points=sample_d, init_factor=5)
+
+
+def mesh_crop(mesh):
+    pass
+
+
+def pcd2np(pcd):
+    return np.asarray(pcd.points)
+
+
+def np2pcd(points):
+    """ Transform obj numpy cloud point to Open3D cloud point. """
+    pcd = o3d.geometry.PointCloud()
+    pcd.points = o3d.utility.Vector3dVector(points)
+    return pcd
+
+
+def pcd_crop(pcd, min_bound=[-1000, -1000, -1000], max_bound=[1000, 1000, 1000]):
+    points = pcd2np(pcd)
+    points_crop = []
+
+    for point in points:
+        min_to_point = point - min_bound
+        point_to_max = max_bound - point
+        less_than_zero = np.sum(min_to_point < 0) + np.sum(point_to_max < 0)
+        if less_than_zero == 0:
+            points_crop.append(point)
+
+    return np2pcd(np.array(points_crop))
+
 
 if __name__ == '__main__':
-    o3 = obj3d()
+    o3 = obj3d('dataset/45kmh_26markers_12fps/speed_45km_h_26_marker_set_1.000001.obj')
+    o3.show()
