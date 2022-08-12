@@ -3,6 +3,7 @@ import numpy as np
 import open3d as o3d
 from probreg import cpd, bcpd
 
+
 class obj3d(object):
     def __init__(
             self,
@@ -64,8 +65,29 @@ def pcd_crop(pcd, min_bound=[-1000, -1000, -1000], max_bound=[1000, 1000, 1000])
     return np2pcd(np.array(points_crop))
 
 
+def pcd_get_center(pcd):
+    points = pcd2np(pcd)
+    return np.mean(points, 0)
+
+
+def pcd_get_max_bound(pcd):
+    points = pcd2np(pcd)
+    return np.ndarray.max(points, 0)
+
+
+def pcd_get_min_bound(pcd):
+    points = pcd2np(pcd)
+    return np.ndarray.min(points, 0)
+
+
 if __name__ == '__main__':
     o3 = obj3d('dataset/45kmh_26markers_12fps/speed_45km_h_26_marker_set_1.000001.obj')
+
+    o3_center = pcd_get_center(o3.pcd_ld)
+    print("center: {}".format(o3_center))
+    print("max bound: {}".format(pcd_get_max_bound(o3.pcd_ld)))
+    print("min bound: {}".format(pcd_get_min_bound(o3.pcd_ld)))
+
     o3.show()
-    o3d.visualization.draw_geometries([pcd_crop(o3.pcd_hd, min_bound=[0, 0, 0])])
-    o3d.visualization.draw_geometries([mesh_crop(o3.mesh, min_bound=[0, 0, 0])])
+    o3d.visualization.draw_geometries([pcd_crop(o3.pcd_hd, min_bound=o3_center)])
+    o3d.visualization.draw_geometries([mesh_crop(o3.mesh, min_bound=o3_center)])
