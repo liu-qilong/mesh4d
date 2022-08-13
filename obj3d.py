@@ -1,3 +1,4 @@
+import os
 import copy
 import numpy as np
 import open3d as o3d
@@ -11,7 +12,7 @@ class obj3d(object):
             scale_rate=0.01,
             scale_center=(0, 0, 0),
             sample_ld=1000,
-            sample_hd=10000):
+            sample_hd=1000):
         self.mesh = o3d.io.read_triangle_mesh(filedir).scale(scale_rate, center=scale_center)
         self.mesh.compute_vertex_normals()
         self.sampling(sample_ld, sample_hd)
@@ -27,8 +28,13 @@ class obj3d(object):
             copy.deepcopy(self.pcd_hd).translate((20, 0, 0)),
         ])
 
-    def get_o3d(self):
-        return copy.deepcopy(self.mesh)
+    def get_o3ds(self):
+        objs = [
+            copy.deepcopy(self.mesh),
+            copy.deepcopy(self.pcd_ld).translate((10, 0, 0)),
+            copy.deepcopy(self.pcd_hd).translate((20, 0, 0)),
+        ]
+        return objs
 
 
 def mesh2pcd(mesh, sample_d):
@@ -78,6 +84,31 @@ def pcd_get_max_bound(pcd):
 def pcd_get_min_bound(pcd):
     points = pcd2np(pcd)
     return np.ndarray.min(points, 0)
+
+def search_nearest_point(point, target_points):
+    dist = np.linalg.norm(
+        target_points - point, axis=1
+    )
+    idx = np.argmin(dist)
+    return target_points[idx]
+
+
+def load_obj_series(
+        folder,
+        start=0,
+        end=1,
+        stride=1):
+    """ load a series of point cloud obj files from a folder """
+    files = os.listdir(folder)
+    files = [folder + f for f in files if '.obj' in f]
+    files.sort()
+
+    o3_ls = []
+    for n in range(start, end + 1, stride):
+        o3_ls.append(obj3d(files[n]))
+        print("loaded 1 mesh file")
+
+    return o3_ls
 
 
 if __name__ == '__main__':
