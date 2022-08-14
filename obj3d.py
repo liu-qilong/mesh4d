@@ -2,10 +2,9 @@ import os
 import copy
 import numpy as np
 import open3d as o3d
-from probreg import cpd, bcpd
 
 
-class obj3d(object):
+class Obj3d(object):
     def __init__(
             self,
             filedir,
@@ -35,6 +34,75 @@ class obj3d(object):
             copy.deepcopy(self.pcd_hd).translate((20, 0, 0)),
         ]
         return objs
+
+
+class Kps(object):
+    def __init__(self):
+        self.kps_source_points = None
+        self.kps_deform_points = None
+        self.trans = None
+
+    def select_kps_points(self, source, save=False):
+        def pick_points(pcd):
+            vis = o3d.visualization.VisualizerWithEditing()
+            vis.create_window()
+            vis.add_geometry(pcd)
+            vis.run()
+            vis.destroy_window()
+            return vis.get_picked_points()
+
+        pick = pick_points(source)
+        points = pcd2np(source)
+        self.kps_source_points = points[pick, :]
+        print("selected key points:\n{}".format(self.kps_source_points))
+
+        if save:
+            pass
+
+    def set_kps_points(self, points):
+        self.kps_source_points = points
+
+    def set_trans(self, trans):
+        self.trans = trans
+
+    def get_kps_source_points(self):
+        if self.kps_source_points is None:
+            print("source key points haven't been set")
+        else:
+            return self.kps_source_points
+
+    def get_kps_deform_points(self):
+        if self.kps_source_points is None:
+            print("source key points haven't been set")
+        elif self.trans is None:
+            print("transformation of the key points haven't been set")
+        else:
+            self.kps_deform_points = self.trans.deform(self.kps_source_points)
+            return self.kps_deform_points
+
+
+class Obj3d_Deform(Obj3d):
+    def __init__(self, **param):
+        Obj3d.__init__(self, **param)
+        self.trans_rigid = None
+        self.trans_nonrigid = None
+
+    def set_trans_rigid(self, trans_rigid):
+        self.trans_rigid = trans_rigid
+
+    def set_trans_nonrigid(self, trans_nonrigid):
+        self.trans_nonrigid = trans_nonrigid
+
+
+class Obj3d_Kps(Obj3d_Deform):
+    def setup_kps(self):
+        pass
+
+    def get_kps_source_points(self):
+        pass
+
+    def get_kps_deform_points(self):
+        pass
 
 
 def mesh2pcd(mesh, sample_d):
@@ -105,14 +173,14 @@ def load_obj_series(
 
     o3_ls = []
     for n in range(start, end + 1, stride):
-        o3_ls.append(obj3d(files[n]))
+        o3_ls.append(Obj3d(files[n]))
         print("loaded 1 mesh file")
 
     return o3_ls
 
 
 if __name__ == '__main__':
-    o3 = obj3d('dataset/45kmh_26markers_12fps/speed_45km_h_26_marker_set_1.000001.obj')
+    o3 = Obj3d('dataset/45kmh_26markers_12fps/speed_45km_h_26_marker_set_1.000001.obj')
 
     o3_center = pcd_get_center(o3.pcd_ld)
     print("center: {}".format(o3_center))
