@@ -76,22 +76,20 @@ class Trans_hl_Nonrigid(Trans_hl):
         self.deform_fix = obj3d.np2pcd(self.deform_fix_points)
         print("fixed 1 nonrigid transformation")
 
-    def deform(self, points):
-        pass
+    def points_disp(self, points):
+        idxs = []
+        for point in points:
+            idx = obj3d.search_nearest_point_idx(point, self.source_points)
+            idxs.append(idx)
+        return self.deform_fix_points[idx]
+
 
 
 class Obj4d(object):
     def __init__(self, enable_rigid=True, enable_nonrigid=True):
         self.obj_ls = []
-
         self.enable_rigid = enable_rigid
         self.enable_nonrigid = enable_nonrigid
-
-        if self.enable_rigid:
-            self.rigid_trans_ls = []
-
-        if self.enable_nonrigid:
-            self.nonrigid_trans_ls = []
 
     def add_obj(self, *objs, **param):
         """ add object(s) and parse its 4d movement between adjacent frames """
@@ -99,7 +97,7 @@ class Obj4d(object):
             self.obj_ls.append(obj)
 
             if len(self.obj_ls) == 1:
-                self.first_obj()
+                self.process_first_obj()
                 continue
 
             if self.enable_rigid:
@@ -129,6 +127,12 @@ class Obj4d(object):
 
 
 class Obj4d_Kps(Obj4d):
+    def process_first_obj(self):
+        init_obj = self.obj_ls[0]
+        front_pcd = obj3d.pcd_crop_front(init_obj.pcd_hd, 0.6)
+        init_obj.kps.select_kps_points(front_pcd)
+        # init_obj.kps.set_kps_source_points([[-1.2706666, 6.62647544, 0.36082212]])  # left nipple point
+
     def process_rigid_dynamic(self, idx_source, idx_target, **param):
         trans = Trans_hl_Rigid(self.obj_ls[idx_source], self.obj_ls[idx_target], **param)
         self.obj_ls[idx_source].set_trans_rigid(trans)
@@ -137,9 +141,29 @@ class Obj4d_Kps(Obj4d):
         trans = Trans_hl_Nonrigid(self.obj_ls[idx_source], self.obj_ls[idx_target], **param)
         self.obj_ls[idx_source].set_trans_nonrigid(trans)
 
+        source_kps = self.obj_ls[idx_source].kps
+        target_kps = self.obj_ls[idx_target].kps
+        source_kps.setup_kps_deform()
+        target_kps.set_kps_source_points(source_kps.get_kps_deform_points())
+
+    def error_analysis(self):
+        print("\nerror analysis:")
+        for obj in self.obj_ls[1:]:
+            front_pcd = obj3d.pcd_crop_front(obj.pcd_hd, 0.6)
+            obj.kps_gt.select_kps_points(front_pcd)
+            diff = obj.diff_kps_pred_gt()
+            print("\ndistance between tracked key points and ground truth:\n{:.4f}".format(diff))
+
+            max_bound = obj3d.pcd_get_max_bound(obj.pcd_hd)
+            min_bound = obj3d.pcd_get_min_bound(obj.pcd_hd)
+            width = max_bound[0] - min_bound[0]
+            print("ratio to lateral distance：\n{:.4%}".format(diff / width))
+
 
 if __name__ == '__main__':
     o3_ls = obj3d.load_obj_series('dataset/45kmh_26markers_12fps/', 0, 1)
-    o4 = Obj4d(enable_rigid=False)
-    o4.add_obj(*o3_ls, beta=1e3)
-    o4.nonrigid_trans_ls[0].show()
+    o4 = Obj4d_Kps(enable_rigid=False)
+    o4.add_obj(*o3_ls, lmd=1e3)
+    # o4.obj_ls[0].trans_nonrigid.show()
+
+    o4.error_analysis()

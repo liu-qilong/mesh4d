@@ -11,7 +11,7 @@ class Obj3d(object):
             scale_rate=0.01,
             scale_center=(0, 0, 0),
             sample_ld=1000,
-            sample_hd=1000):
+            sample_hd=5000):
         self.mesh = o3d.io.read_triangle_mesh(filedir).scale(scale_rate, center=scale_center)
         self.mesh.compute_vertex_normals()
         self.sampling(sample_ld, sample_hd)
@@ -43,6 +43,8 @@ class Kps(object):
         self.trans = None
 
     def select_kps_points(self, source, save=False):
+        print("please select key points")
+
         def pick_points(pcd):
             vis = o3d.visualization.VisualizerWithEditing()
             vis.create_window()
@@ -59,7 +61,7 @@ class Kps(object):
         if save:
             pass
 
-    def set_kps_points(self, points):
+    def set_kps_source_points(self, points):
         self.kps_source_points = points
 
     def set_trans(self, trans):
@@ -71,13 +73,20 @@ class Kps(object):
         else:
             return self.kps_source_points
 
+    def setup_kps_deform(self):
+        if self.kps_source_points is None:
+            print("source key points haven't been set")
+        elif self.trans is None:
+            print("transformation of the key points haven't been set")
+        else:
+            self.kps_deform_points = self.trans.points_disp(self.kps_source_points)
+
     def get_kps_deform_points(self):
         if self.kps_source_points is None:
             print("source key points haven't been set")
         elif self.trans is None:
             print("transformation of the key points haven't been set")
         else:
-            self.kps_deform_points = self.trans.deform(self.kps_source_points)
             return self.kps_deform_points
 
 
@@ -95,14 +104,25 @@ class Obj3d_Deform(Obj3d):
 
 
 class Obj3d_Kps(Obj3d_Deform):
-    def setup_kps(self):
-        pass
+    def __init__(self, **param):
+        Obj3d_Deform.__init__(self, **param)
+        self.kps = Kps()
+        self.kps_gt = Kps()
 
-    def get_kps_source_points(self):
-        pass
+    def select_kps_gt(self):
+        self.kps_gt.select_kps_points()
 
-    def get_kps_deform_points(self):
-        pass
+    def set_trans_nonrigid(self, trans_nonrigid):
+        Obj3d_Deform.set_trans_nonrigid(self, trans_nonrigid)
+        self.kps.set_trans(self.trans_nonrigid)
+
+    def cal_kps_deform(self):
+        self.kps.setup_kps_deform()
+
+    def diff_kps_pred_gt(self):
+        return np.linalg.norm(
+            self.kps.get_kps_source_points() - self.kps_gt.get_kps_source_points()
+        )
 
 
 def mesh2pcd(mesh, sample_d):
@@ -139,6 +159,13 @@ def pcd_crop(pcd, min_bound=[-1000, -1000, -1000], max_bound=[1000, 1000, 1000])
     return np2pcd(np.array(points_crop))
 
 
+def pcd_crop_front(pcd, ratio=0.5):
+    max_bound = pcd_get_max_bound(pcd)
+    min_bound = pcd_get_min_bound(pcd)
+    min_bound[2] = (1-ratio)*max_bound[2] + ratio*min_bound[2]
+    return pcd_crop(pcd, min_bound)
+
+
 def pcd_get_center(pcd):
     points = pcd2np(pcd)
     return np.mean(points, 0)
@@ -153,11 +180,17 @@ def pcd_get_min_bound(pcd):
     points = pcd2np(pcd)
     return np.ndarray.min(points, 0)
 
-def search_nearest_point(point, target_points):
+
+def search_nearest_point_idx(point, target_points):
     dist = np.linalg.norm(
         target_points - point, axis=1
     )
     idx = np.argmin(dist)
+    return idx
+
+
+def search_nearest_point(point, target_points):
+    idx = search_nearest_point_idx(point, target_points)
     return target_points[idx]
 
 
@@ -165,7 +198,8 @@ def load_obj_series(
         folder,
         start=0,
         end=1,
-        stride=1):
+        stride=1,
+        obj_type=Obj3d_Kps):
     """ load a series of point cloud obj files from a folder """
     files = os.listdir(folder)
     files = [folder + f for f in files if '.obj' in f]
@@ -173,7 +207,7 @@ def load_obj_series(
 
     o3_ls = []
     for n in range(start, end + 1, stride):
-        o3_ls.append(Obj3d(files[n]))
+        o3_ls.append(obj_type(filedir=files[n]))
         print("loaded 1 mesh file")
 
     return o3_ls
