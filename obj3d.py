@@ -3,15 +3,21 @@ import copy
 import numpy as np
 import open3d as o3d
 
+import kps
+
 
 class Obj3d(object):
-    def __init__(
+    def __init__(self, *args, **kwargs):
+        self.load(*args, **kwargs)
+
+    def load(
             self,
             filedir,
             scale_rate=0.01,
             scale_center=(0, 0, 0),
             sample_ld=1000,
-            sample_hd=5000):
+            sample_hd=5000
+    ):
         self.mesh = o3d.io.read_triangle_mesh(filedir).scale(scale_rate, center=scale_center)
         self.mesh.compute_vertex_normals()
         self.sampling(sample_ld, sample_hd)
@@ -36,63 +42,9 @@ class Obj3d(object):
         return objs
 
 
-class Kps(object):
-    def __init__(self):
-        self.kps_source_points = None
-        self.kps_deform_points = None
-        self.trans = None
-
-    def select_kps_points(self, source, save=False):
-        print("please select key points")
-
-        def pick_points(pcd):
-            vis = o3d.visualization.VisualizerWithEditing()
-            vis.create_window()
-            vis.add_geometry(pcd)
-            vis.run()
-            vis.destroy_window()
-            return vis.get_picked_points()
-
-        pick = pick_points(source)
-        points = pcd2np(source)
-        self.kps_source_points = points[pick, :]
-        print("selected key points:\n{}".format(self.kps_source_points))
-
-        if save:
-            pass
-
-    def set_kps_source_points(self, points):
-        self.kps_source_points = points
-
-    def set_trans(self, trans):
-        self.trans = trans
-
-    def get_kps_source_points(self):
-        if self.kps_source_points is None:
-            print("source key points haven't been set")
-        else:
-            return self.kps_source_points
-
-    def setup_kps_deform(self):
-        if self.kps_source_points is None:
-            print("source key points haven't been set")
-        elif self.trans is None:
-            print("transformation of the key points haven't been set")
-        else:
-            self.kps_deform_points = self.trans.points_disp(self.kps_source_points)
-
-    def get_kps_deform_points(self):
-        if self.kps_source_points is None:
-            print("source key points haven't been set")
-        elif self.trans is None:
-            print("transformation of the key points haven't been set")
-        else:
-            return self.kps_deform_points
-
-
 class Obj3d_Deform(Obj3d):
-    def __init__(self, **param):
-        Obj3d.__init__(self, **param)
+    def __init__(self, *args, **kwargs):
+        Obj3d.__init__(self, *args, **kwargs)
         self.trans_rigid = None
         self.trans_nonrigid = None
 
@@ -104,10 +56,10 @@ class Obj3d_Deform(Obj3d):
 
 
 class Obj3d_Kps(Obj3d_Deform):
-    def __init__(self, **param):
-        Obj3d_Deform.__init__(self, **param)
-        self.kps = Kps()
-        self.kps_gt = Kps()
+    def __init__(self, *args, **kwargs):
+        Obj3d_Deform.__init__(self, *args, **kwargs)
+        self.kps = kps.Kps()
+        self.kps_gt = kps.Kps()
 
     def select_kps_gt(self):
         self.kps_gt.select_kps_points()
@@ -199,7 +151,9 @@ def load_obj_series(
         start=0,
         end=1,
         stride=1,
-        obj_type=Obj3d_Kps):
+        obj_type=Obj3d_Kps,
+        *args,
+        **kwargs):
     """ load a series of point cloud obj files from a folder """
     files = os.listdir(folder)
     files = [folder + f for f in files if '.obj' in f]
@@ -207,7 +161,7 @@ def load_obj_series(
 
     o3_ls = []
     for n in range(start, end + 1, stride):
-        o3_ls.append(obj_type(filedir=files[n]))
+        o3_ls.append(obj_type(filedir=files[n], *args, **kwargs))
         print("loaded 1 mesh file")
 
     return o3_ls

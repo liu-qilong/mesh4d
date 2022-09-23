@@ -6,14 +6,14 @@ import obj3d
 
 
 class Trans_hl(object):
-    def __init__(self, source_obj, target_obj, **param):
+    def __init__(self, source_obj, target_obj, *args, **kwargs):
         self.source = source_obj.pcd_hd
         self.target = target_obj.pcd_ld
 
         self.source_points = obj3d.pcd2np(self.source)
         self.target_points = obj3d.pcd2np(self.target)
 
-        tf_param = self.regist(**param)
+        tf_param = self.regist(*args, **kwargs)
         self.parse(tf_param)
         self.fix()
 
@@ -36,9 +36,9 @@ class Trans_hl(object):
 
 
 class Trans_hl_Rigid(Trans_hl):
-    def regist(self, **param):
+    def regist(self, *args, **kwargs):
         tf_param, _, _ = cpd.registration_cpd(
-            self.source, self.target, 'rigid', **param
+            self.source, self.target, 'rigid', *args, **kwargs
         )
         print("registered 1 rigid transformation")
         return tf_param
@@ -51,9 +51,9 @@ class Trans_hl_Rigid(Trans_hl):
 
 
 class Trans_hl_Nonrigid(Trans_hl):
-    def regist(self, **param):
+    def regist(self, *args, **kwargs):
         tf_param, _, _ = cpd.registration_cpd(
-            self.source, self.target, 'nonrigid', **param
+            self.source, self.target, 'nonrigid', *args, **kwargs
         )
         print("registered 1 nonrigid transformation")
         return tf_param
@@ -91,7 +91,7 @@ class Obj4d(object):
         self.enable_rigid = enable_rigid
         self.enable_nonrigid = enable_nonrigid
 
-    def add_obj(self, *objs, **param):
+    def add_obj(self, *objs, **kwargs):
         """ add object(s) and parse its 4d movement between adjacent frames """
         for obj in objs:
             self.obj_ls.append(obj)
@@ -101,20 +101,20 @@ class Obj4d(object):
                 continue
 
             if self.enable_rigid:
-                self.process_rigid_dynamic(-2, -1, **param)
+                self.process_rigid_dynamic(-2, -1, **kwargs)
 
             if self.enable_nonrigid:
-                self.process_nonrigid_dynamic(-2, -1, **param)
+                self.process_nonrigid_dynamic(-2, -1, **kwargs)
 
     def process_first_obj(self):
         pass
 
-    def process_rigid_dynamic(self, idx_source, idx_target, **param):
-        trans = Trans_hl_Rigid(self.obj_ls[idx_source], self.obj_ls[idx_target], **param)
+    def process_rigid_dynamic(self, idx_source, idx_target, *args, **kwargs):
+        trans = Trans_hl_Rigid(self.obj_ls[idx_source], self.obj_ls[idx_target], *args, **kwargs)
         self.obj_ls[idx_source].set_trans_rigid(trans)
 
-    def process_nonrigid_dynamic(self, idx_source, idx_target, **param):
-        trans = Trans_hl_Nonrigid(self.obj_ls[idx_source], self.obj_ls[idx_target], **param)
+    def process_nonrigid_dynamic(self, idx_source, idx_target, *args, **kwargs):
+        trans = Trans_hl_Nonrigid(self.obj_ls[idx_source], self.obj_ls[idx_target], *args, **kwargs)
         self.obj_ls[idx_source].set_trans_nonrigid(trans)
 
     def show(self):
@@ -131,14 +131,14 @@ class Obj4d_Kps(Obj4d):
         init_obj = self.obj_ls[0]
         front_pcd = obj3d.pcd_crop_front(init_obj.pcd_hd, 0.6)
         init_obj.kps.select_kps_points(front_pcd)
-        # init_obj.kps.set_kps_source_points([[-1.2706666, 6.62647544, 0.36082212]])  # left nipple point
+        # init_obj.kps.set_kps_source_points([[-1.2706666, 6.62647544, 0.36082212]])  # right nipple point
 
-    def process_rigid_dynamic(self, idx_source, idx_target, **param):
-        trans = Trans_hl_Rigid(self.obj_ls[idx_source], self.obj_ls[idx_target], **param)
+    def process_rigid_dynamic(self, idx_source, idx_target, *args, **kwargs):
+        trans = Trans_hl_Rigid(self.obj_ls[idx_source], self.obj_ls[idx_target], *args, **kwargs)
         self.obj_ls[idx_source].set_trans_rigid(trans)
 
-    def process_nonrigid_dynamic(self, idx_source, idx_target, **param):
-        trans = Trans_hl_Nonrigid(self.obj_ls[idx_source], self.obj_ls[idx_target], **param)
+    def process_nonrigid_dynamic(self, idx_source, idx_target, *args, **kwargs):
+        trans = Trans_hl_Nonrigid(self.obj_ls[idx_source], self.obj_ls[idx_target], *args, **kwargs)
         self.obj_ls[idx_source].set_trans_nonrigid(trans)
 
         source_kps = self.obj_ls[idx_source].kps
@@ -146,7 +146,7 @@ class Obj4d_Kps(Obj4d):
         source_kps.setup_kps_deform()
         target_kps.set_kps_source_points(source_kps.get_kps_deform_points())
 
-    def error_analysis(self):
+    def error_estimate(self):
         print("\nerror analysis:")
         for obj in self.obj_ls[1:]:
             front_pcd = obj3d.pcd_crop_front(obj.pcd_hd, 0.6)
@@ -161,9 +161,8 @@ class Obj4d_Kps(Obj4d):
 
 
 if __name__ == '__main__':
-    o3_ls = obj3d.load_obj_series('dataset/45kmh_26markers_12fps/', 0, 1)
+    o3_ls = obj3d.load_obj_series('dataset/45kmh_26markers_12fps/', 0, 1, sample_hd=1000)
     o4 = Obj4d_Kps(enable_rigid=False)
     o4.add_obj(*o3_ls, lmd=1e3)
     # o4.obj_ls[0].trans_nonrigid.show()
-
-    o4.error_analysis()
+    o4.error_estimate()
