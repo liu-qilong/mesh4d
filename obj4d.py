@@ -3,6 +3,7 @@ import open3d as o3d
 from probreg import cpd
 
 import obj3d
+import kps
 
 
 class Trans_hl(object):
@@ -127,11 +128,22 @@ class Obj4d(object):
 
 
 class Obj4d_Kps(Obj4d):
+    def __init__(self, mode='data', markerset=None, start_time=0, fps=120, *args, **kwargs):
+        Obj4d.__init__(self, *args, **kwargs)
+        self.mode = mode  # 'data' mode or 'manual' mode
+        self.markerset = markerset
+        self.start_time = start_time
+        self.fps = fps
+
     def process_first_obj(self):
         init_obj = self.obj_ls[0]
-        front_pcd = obj3d.pcd_crop_front(init_obj.pcd_hd, 0.6)
-        init_obj.kps.select_kps_points(front_pcd)
-        # init_obj.kps.set_kps_source_points([[-1.2706666, 6.62647544, 0.36082212]])  # right nipple point
+        if self.mode == 'manual':
+            front_pcd = obj3d.pcd_crop_front(init_obj.pcd_hd, 0.6)
+            init_obj.kps.select_kps_points(front_pcd)
+        elif self.mode == 'data':
+            init_obj.kps.load_from_markerset_time(self.markerset, self.start_time)
+        else:
+            print("mode string invalid")
 
     def process_rigid_dynamic(self, idx_source, idx_target, *args, **kwargs):
         trans = Trans_hl_Rigid(self.obj_ls[idx_source], self.obj_ls[idx_target], *args, **kwargs)
@@ -148,9 +160,20 @@ class Obj4d_Kps(Obj4d):
 
     def error_estimate(self):
         print("\nerror analysis:")
-        for obj in self.obj_ls[1:]:
-            front_pcd = obj3d.pcd_crop_front(obj.pcd_hd, 0.6)
-            obj.kps_gt.select_kps_points(front_pcd)
+        for obj_id in range(1, len(self.obj_ls)):
+            obj = self.obj_ls[obj_id]
+
+            if self.mode == 'manual':
+                front_pcd = obj3d.pcd_crop_front(obj.pcd_hd, 0.6)
+                obj.kps_gt.select_kps_points(front_pcd)
+            elif self.mode == 'data':
+                obj.kps_gt.load_from_markerset_time(
+                    self.markerset,
+                    self.start_time + obj_id / self.fps
+                )
+            else:
+                print("mode string invalid")
+
             diff = obj.diff_kps_pred_gt()
             print("\ndistance between tracked key points and ground truth:\n{:.4f}".format(diff))
 
@@ -162,7 +185,18 @@ class Obj4d_Kps(Obj4d):
 
 if __name__ == '__main__':
     o3_ls = obj3d.load_obj_series('dataset/45kmh_26markers_12fps/', 0, 1, sample_hd=1000)
-    o4 = Obj4d_Kps(enable_rigid=False)
+
+    vicon = kps.MarkerSet()
+    vicon.load_from_vicon('dataset/6kmh_softbra_8markers_1.csv')
+    vicon.interp_field()
+
+    o4 = Obj4d_Kps(
+        enable_rigid=False,
+        mode='data',
+        markerset=vicon,
+        fps=120
+    )
     o4.add_obj(*o3_ls, lmd=1e3)
+
     # o4.obj_ls[0].trans_nonrigid.show()
     o4.error_estimate()

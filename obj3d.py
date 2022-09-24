@@ -58,7 +58,7 @@ class Obj3d_Deform(Obj3d):
 class Obj3d_Kps(Obj3d_Deform):
     def __init__(self, *args, **kwargs):
         Obj3d_Deform.__init__(self, *args, **kwargs)
-        self.kps = kps.Kps()
+        self.kps = kps.Kps_Deform()
         self.kps_gt = kps.Kps()
 
     def select_kps_gt(self):

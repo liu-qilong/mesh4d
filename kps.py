@@ -5,13 +5,12 @@ import matplotlib.pyplot as plt
 from scipy import interpolate
 
 import obj3d
+import utils
 
 
 class Kps(object):
     def __init__(self):
-        self.kps_source_points = None
-        self.kps_deform_points = None
-        self.trans = None
+        self.kps_source_points = None  # key points are stored in Nx3 numpy array
 
     def select_kps_points(self, source, save=False):
         print("please select key points")
@@ -26,23 +25,42 @@ class Kps(object):
 
         pick = pick_points(source)
         points = obj3d.pcd2np(source)
-        self.kps_source_points = points[pick, :]
+        self.set_kps_source_points(
+            points[pick, :]
+        )
         print("selected key points:\n{}".format(self.kps_source_points))
 
         if save:
             pass
 
+    def load_from_markerset_frame(self, markerset, calibration, frame_id=0):
+        points = markerset.get_frame_coord(frame_id)
+        points_cal = points
+        self.set_kps_source_points(points_cal)
+
+    def load_from_markerset_time(self, markerset, calibration, time=0):
+        points = markerset.get_time_coord(time)
+        points_cal = points
+        self.set_kps_source_points(points_cal)
+
     def set_kps_source_points(self, points):
         self.kps_source_points = points
-
-    def set_trans(self, trans):
-        self.trans = trans
 
     def get_kps_source_points(self):
         if self.kps_source_points is None:
             print("source key points haven't been set")
         else:
             return self.kps_source_points
+
+
+class Kps_Deform(Kps):
+    def __init__(self):
+        Kps.__init__(self)
+        self.kps_deform_points = None
+        self.trans = None
+
+    def set_trans(self, trans):
+        self.trans = trans
 
     def setup_kps_deform(self):
         if self.kps_source_points is None:
@@ -67,9 +85,12 @@ class Marker(object):
         self.start_time = start_time
         self.fps = fps
 
+        # x, y,z data are stored in 3xN numpy array
         self.coord = None  # coordinates
         self.speed = None  # speed
         self.accel = None  # acceleration
+
+        self.frame_num = None
 
         self.x_field = None
         self.y_field = None
@@ -78,6 +99,7 @@ class Marker(object):
     def fill_data(self, data_input):
         if self.coord is None:
             self.coord = data_input
+            self.frame_num = data_input.shape[1]
         elif self.speed is None:
             self.speed = data_input
         elif self.accel is None:
@@ -112,28 +134,36 @@ class Marker(object):
 
     def plot_track(
             self,
-            start_frame=0,
-            end_frame=None,
-            s=10,
-            alpha=0.5,
+            line_start_frame=0,
+            line_end_frame=None,
+            dot_start_frame=0,
+            dot_end_frame=None,
+            line_alpha=0.5,
+            line_width=1,
+            dot_s=10,
+            dot_alpha=0.5,
+            dpi=300,
+            is_show=True,
+            is_save=False,
             *args,
             **kwargs
     ):
-        fig = plt.figure(dpi=500)
+        fig = plt.figure(dpi=dpi)
         ax = fig.add_subplot(projection='3d')
 
-        ax.plot3D(
-            self.coord[0, start_frame:end_frame],
-            self.coord[1, start_frame:end_frame],
-            self.coord[2, start_frame:end_frame],
-            'gray'
-        )
+        self.plot_add_line(
+            ax,
+            line_start_frame,
+            line_end_frame,
+            line_alpha,
+            line_width)
 
-        ax.scatter3D(
-            self.coord[0, start_frame:end_frame],
-            self.coord[1, start_frame:end_frame],
-            self.coord[2, start_frame:end_frame],
-            s=s, alpha=alpha, *args, **kwargs
+        self.plot_add_dot(
+            ax,
+            dot_start_frame,
+            dot_end_frame,
+            dot_s,
+            dot_alpha,
         )
 
         font = {'family': 'Times New Roman'}
@@ -143,10 +173,50 @@ class Marker(object):
         ax.set_zlabel('Z-axis', fontdict=font)
         ax.tick_params(labelsize=7)
 
-        plt.show()
+        if is_show:
+            plt.show()
+
+        if is_save:
+            plt.savefig('figures/save-line'
+                        + str(line_start_frame) + ' ' + str(line_end_frame)
+                        + '-dot' + str(dot_start_frame) + ' ' + str(dot_end_frame))
+
+    def plot_add_line(
+            self,
+            ax,
+            line_start_frame=0,
+            line_end_frame=None,
+            line_alpha=0.5,
+            line_width=1,
+            *args,
+            **kwargs
+    ):
+        ax.plot3D(
+            self.coord[0, line_start_frame:line_end_frame],
+            self.coord[1, line_start_frame:line_end_frame],
+            self.coord[2, line_start_frame:line_end_frame],
+            'gray', alpha=line_alpha, linewidth=line_width, *args, **kwargs
+        )
+
+    def plot_add_dot(
+            self,
+            ax,
+            dot_start_frame=0,
+            dot_end_frame=None,
+            dot_s=10,
+            dot_alpha=0.5,
+            *args,
+            **kwargs
+    ):
+        ax.scatter3D(
+            self.coord[0, dot_start_frame:dot_end_frame],
+            self.coord[1, dot_start_frame:dot_end_frame],
+            self.coord[2, dot_start_frame:dot_end_frame],
+            s=dot_s, alpha=dot_alpha, *args, **kwargs
+        )
 
 
-class Kps_Markerwise(object):
+class MarkerSet(object):
     def __init__(self):
         pass
 
@@ -188,20 +258,100 @@ class Kps_Markerwise(object):
         for point in self.points.values():
             point.interp_field()
 
+    def get_frame_coord(self, frame_id):
+        points = []
+        for point in self.points.values():
+            points.append(
+                point.get_frame_coord(frame_id)
+            )
+        return np.array(points)
+
+    def get_time_coord(self, time):
+        points = []
+        for point in self.points.values():
+            points.append(
+                point.get_time_coord(time)
+            )
+        return np.array(points)
+
+    def plot_track(
+            self,
+            start_frame=0,
+            end_frame=None,
+            step=1,
+            remove=True,
+            *args,
+            **kwargs
+    ):
+        if end_frame is None:
+            first_point = list(self.points.values())[0]
+            end_frame = first_point.frame_num
+
+        for frame_id in range(start_frame, end_frame, step):
+            self.plot_frame(frame_id, is_show=False, is_save=True, *args, **kwargs)
+
+        utils.images_to_gif('figures/', remove=remove)
+
+    def plot_frame(
+            self,
+            frame_id,
+            dpi=300,
+            is_add_line=True,
+            is_show=True,
+            is_save=False,
+            *args, **kwargs
+    ):
+        fig = plt.figure(dpi=dpi)
+        ax = fig.add_subplot(projection='3d')
+
+        for point in self.points.values():
+            point.plot_add_dot(ax, frame_id, frame_id+1)
+            if is_add_line:
+                point.plot_add_line(ax)
+
+        font = {'family': 'Times New Roman'}
+        plt.title('Marker Point Trajectory', fontdict=font)
+        ax.set_xlabel('X-axis', fontdict=font)
+        ax.set_ylabel('Y-axis', fontdict=font)
+        ax.set_zlabel('Z-axis', fontdict=font)
+        ax.tick_params(labelsize=7)
+
+        plt.savefig('figures/gif-{:0>4d}'.format(frame_id))
+        if is_show:
+            plt.show()
+
+        if is_save:
+            filedir = 'figures/gif-' + str(frame_id)
+            plt.savefig(filedir)
+            print('saved ' + filedir)
+
 
 if __name__ == '__main__':
-    vicon = Kps_Markerwise()
+
+    vicon = MarkerSet()
     vicon.load_from_vicon('dataset/6kmh_softbra_8markers_1.csv')
     vicon.interp_field()
 
     # data loading verification
     print(vicon.points.keys())
     print(vicon.points['Bra_Miss Sun:CLAV'].coord)
+    '''
     print(vicon.points['Bra_Miss Sun:CLAV'].speed)
     print(vicon.points['Bra_Miss Sun:CLAV'].accel)
 
     # trajectory plot verification
-    print(vicon.points['Bra_Miss Sun:CLAV'].get_time_coord(1.1001))
+    vicon.points['Bra_Miss Sun:CLAV'].plot_track(
+        dot_alpha=0.9, line_alpha=0.5, dot_start_frame=0, dot_end_frame=1, is_show=False, is_save=True
+    )
+    vicon.plot_frame(frame_id=10, is_add_line=True)
+    vicon.plot_track(step=3, end_frame=100)
 
     # coordinates field interpolation verification
-    vicon.points['Bra_Miss Sun:CLAV'].plot_track()
+    print(vicon.points['Bra_Miss Sun:CLAV'].get_time_coord(1.1001))
+    print(vicon.get_time_coord(1.1001))
+
+    # kps test
+    kps = Kps()
+    kps.load_from_markerset_time(vicon, 1.1001)
+    print(kps.get_kps_source_points())
+    '''
