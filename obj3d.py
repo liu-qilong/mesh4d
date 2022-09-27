@@ -54,6 +54,21 @@ class Obj3d_Deform(Obj3d):
     def set_trans_nonrigid(self, trans_nonrigid):
         self.trans_nonrigid = trans_nonrigid
 
+    def offset_rotate(self):
+        if self.trans_rigid is None:
+            print("no rigid transformation")
+            return
+
+        rot = self.trans_rigid.rot
+        center = pcd_get_center(self.pcd_hd)
+        # center = (0, 0, 0)
+
+        self.mesh.rotate(rot, center)
+        self.pcd_hd.rotate(rot, center)
+        self.pcd_ld.rotate(rot, center)
+
+        print("reorientated 1 3d object")
+
 
 class Obj3d_Kps(Obj3d_Deform):
     def __init__(self, *args, **kwargs):
@@ -161,8 +176,9 @@ def load_obj_series(
 
     o3_ls = []
     for n in range(start, end + 1, stride):
-        o3_ls.append(obj_type(filedir=files[n], *args, **kwargs))
-        print("loaded 1 mesh file")
+        filedir = files[n]
+        o3_ls.append(obj_type(filedir=filedir, *args, **kwargs))
+        print("loaded 1 mesh file: {}".format(filedir))
 
     return o3_ls
 

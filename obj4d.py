@@ -1,9 +1,9 @@
 import copy
+import numpy as np
 import open3d as o3d
 from probreg import cpd
 
 import obj3d
-import kps
 
 
 class Trans_hl(object):
@@ -14,9 +14,14 @@ class Trans_hl(object):
         self.source_points = obj3d.pcd2np(self.source)
         self.target_points = obj3d.pcd2np(self.target)
 
-        tf_param = self.regist(*args, **kwargs)
-        self.parse(tf_param)
+        self.regist(*args, **kwargs)
         self.fix()
+
+    def parse(self):
+        pass
+
+    def fix(self):
+        pass
 
     def show(self):
         o3d.visualization.draw_geometries([
@@ -37,27 +42,30 @@ class Trans_hl(object):
 
 
 class Trans_hl_Rigid(Trans_hl):
-    def regist(self, *args, **kwargs):
-        tf_param, _, _ = cpd.registration_cpd(
+    def regist(self, method=cpd.registration_cpd, *args, **kwargs):
+        tf_param, _, _ = method(
             self.source, self.target, 'rigid', *args, **kwargs
         )
+        self.parse(tf_param)
         print("registered 1 rigid transformation")
-        return tf_param
 
     def parse(self, tf_param):
-        pass
+        self.rot = tf_param.rot
+        self.scale = tf_param.scale
+        self.t = tf_param.t
 
     def fix(self):
-        pass
+        if np.abs(self.scale - 1) > 0.05:
+            print("warnning: large rigid scale {}".format(self.scale))
 
 
 class Trans_hl_Nonrigid(Trans_hl):
-    def regist(self, *args, **kwargs):
-        tf_param, _, _ = cpd.registration_cpd(
+    def regist(self, method=cpd.registration_cpd, *args, **kwargs):
+        tf_param, _, _ = method(
             self.source, self.target, 'nonrigid', *args, **kwargs
         )
+        self.parse(tf_param)
         print("registered 1 nonrigid transformation")
-        return tf_param
 
     def parse(self, tf_param):
         self.deform = copy.deepcopy(self.source)
@@ -85,12 +93,14 @@ class Trans_hl_Nonrigid(Trans_hl):
         return self.deform_fix_points[idx]
 
 
-
 class Obj4d(object):
-    def __init__(self, enable_rigid=True, enable_nonrigid=True):
+    def __init__(self, enable_rigid=False, enable_nonrigid=False, start_time=0, fps=120):
         self.obj_ls = []
         self.enable_rigid = enable_rigid
         self.enable_nonrigid = enable_nonrigid
+
+        self.start_time = start_time
+        self.fps = fps
 
     def add_obj(self, *objs, **kwargs):
         """ add object(s) and parse its 4d movement between adjacent frames """
@@ -102,10 +112,10 @@ class Obj4d(object):
                 continue
 
             if self.enable_rigid:
-                self.process_rigid_dynamic(-2, -1, **kwargs)
+                self.process_rigid_dynamic(idx_source=-1, idx_target=-2, **kwargs)  # aligned to the previous one
 
             if self.enable_nonrigid:
-                self.process_nonrigid_dynamic(-2, -1, **kwargs)
+                self.process_nonrigid_dynamic(idx_source=-2, idx_target=-1, **kwargs)  # aligned to the later one
 
     def process_first_obj(self):
         pass
@@ -117,6 +127,11 @@ class Obj4d(object):
     def process_nonrigid_dynamic(self, idx_source, idx_target, *args, **kwargs):
         trans = Trans_hl_Nonrigid(self.obj_ls[idx_source], self.obj_ls[idx_target], *args, **kwargs)
         self.obj_ls[idx_source].set_trans_nonrigid(trans)
+
+    def offset_rotate(self):
+        for obj in self.obj_ls[1:]:  # the first 3d object doesn't need reorientation
+            obj.offset_rotate()
+        print("4d object reorientated")
 
     def show(self):
         o3d.visualization.draw_geometries([
@@ -128,12 +143,10 @@ class Obj4d(object):
 
 
 class Obj4d_Kps(Obj4d):
-    def __init__(self, mode='data', markerset=None, start_time=0, fps=120, *args, **kwargs):
+    def __init__(self, mode='data', markerset=None, *args, **kwargs):
         Obj4d.__init__(self, *args, **kwargs)
         self.mode = mode  # 'data' mode or 'manual' mode
         self.markerset = markerset
-        self.start_time = start_time
-        self.fps = fps
 
     def process_first_obj(self):
         init_obj = self.obj_ls[0]
@@ -145,13 +158,10 @@ class Obj4d_Kps(Obj4d):
         else:
             print("mode string invalid")
 
-    def process_rigid_dynamic(self, idx_source, idx_target, *args, **kwargs):
-        trans = Trans_hl_Rigid(self.obj_ls[idx_source], self.obj_ls[idx_target], *args, **kwargs)
-        self.obj_ls[idx_source].set_trans_rigid(trans)
-
     def process_nonrigid_dynamic(self, idx_source, idx_target, *args, **kwargs):
-        trans = Trans_hl_Nonrigid(self.obj_ls[idx_source], self.obj_ls[idx_target], *args, **kwargs)
-        self.obj_ls[idx_source].set_trans_nonrigid(trans)
+        # trans = Trans_hl_Nonrigid(self.obj_ls[idx_source], self.obj_ls[idx_target], *args, **kwargs)
+        # self.obj_ls[idx_source].set_trans_nonrigid(trans)
+        Obj4d.process_nonrigid_dynamic(self, idx_source, idx_target, *args, **kwargs)
 
         source_kps = self.obj_ls[idx_source].kps
         target_kps = self.obj_ls[idx_target].kps
@@ -175,7 +185,7 @@ class Obj4d_Kps(Obj4d):
                 print("mode string invalid")
 
             diff = obj.diff_kps_pred_gt()
-            print("\ndistance between tracked key points and ground truth:\n{:.4f}".format(diff))
+            print("distance between tracked key points and ground truth:\n{:.4f}".format(diff))
 
             max_bound = obj3d.pcd_get_max_bound(obj.pcd_hd)
             min_bound = obj3d.pcd_get_min_bound(obj.pcd_hd)
@@ -183,20 +193,38 @@ class Obj4d_Kps(Obj4d):
             print("ratio to lateral distance：\n{:.4%}".format(diff / width))
 
 
-if __name__ == '__main__':
-    o3_ls = obj3d.load_obj_series('dataset/45kmh_26markers_12fps/', 0, 1, sample_hd=1000)
+def offset_rotate_Obj4d(o4d):
+    o4d_offset = copy.deepcopy(o4d)
+    o4d_offset.offset_rotate()
+    return o4d_offset
 
+
+if __name__ == '__main__':
+    '''
+    # nonrigid - key points tracking
+    o3_ls = obj3d.load_obj_series('dataset/45kmh_26markers_12fps/', 0, 1, obj_type=Obj3d_Kps, sample_hd=1000)
     vicon = kps.MarkerSet()
     vicon.load_from_vicon('dataset/6kmh_softbra_8markers_1.csv')
     vicon.interp_field()
 
     o4 = Obj4d_Kps(
-        enable_rigid=False,
+        enable_nonrigid=True,
         mode='data',
         markerset=vicon,
         fps=120
     )
     o4.add_obj(*o3_ls, lmd=1e3)
-
-    # o4.obj_ls[0].trans_nonrigid.show()
+    o4.obj_ls[0].trans_nonrigid.show()
     o4.error_estimate()
+    '''
+
+    # rigid - reorientation
+    o3_ls = obj3d.load_obj_series('dataset/45kmh_26markers_12fps/', 0, 1, obj_type=obj3d.Obj3d_Deform, sample_hd=1000)
+
+    o4 = Obj4d(
+        enable_rigid=True,
+        fps=120
+    )
+    o4.add_obj(*o3_ls)
+    o4_offset = offset_rotate_Obj4d(o4)
+    # o4.offset_rotate()

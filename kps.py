@@ -251,6 +251,8 @@ class MarkerSet(object):
         df_head = pd.read_csv(filedir, nrows=1)  # only read the first two rows
         parse(df, df_head)
 
+        print("loaded 1 vicon file: {}".format(filedir))
+
     def load_from_obj4d(self):
         pass
 
@@ -332,10 +334,28 @@ if __name__ == '__main__':
     vicon.load_from_vicon('dataset/6kmh_softbra_8markers_1.csv')
     vicon.interp_field()
 
+    # plot raw data sample
+    '''
+    fig = plt.figure(dpi=300)
+    ax = fig.add_subplot()
+
+    data = vicon.points['Bra_Miss Sun:CLAV'].coord
+    plt.plot(range(len(data[0])), data[0], label="$x$-axis")
+    plt.plot(range(len(data[1])), data[1], label="$y$-axis")
+    plt.plot(range(len(data[2])), data[2], label="$z$-axis")
+
+    font = {'family': 'Times New Roman'}
+    plt.title('Marker Point Coordinates Raw Data', fontdict=font)
+    ax.set_xlabel('Frame No.', fontdict=font)
+    ax.set_ylabel('Raw Value', fontdict=font)
+    ax.tick_params(labelsize=7)
+    plt.legend(loc="right")
+    plt.show()
+    '''
+
     # data loading verification
     print(vicon.points.keys())
     print(vicon.points['Bra_Miss Sun:CLAV'].coord)
-    '''
     print(vicon.points['Bra_Miss Sun:CLAV'].speed)
     print(vicon.points['Bra_Miss Sun:CLAV'].accel)
 
@@ -353,5 +373,3 @@ if __name__ == '__main__':
     # kps test
     kps = Kps()
     kps.load_from_markerset_time(vicon, 1.1001)
-    print(kps.get_kps_source_points())
-    '''
