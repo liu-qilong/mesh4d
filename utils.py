@@ -1,7 +1,6 @@
 import os
 import imageio
 
-
 def images_to_gif(path=None, remove=False):
     """ convert images in a folder into a gif.  """
     files = os.listdir(path)

@@ -5,7 +5,6 @@ import open3d as o3d
 
 import kps
 
-
 class Obj3d(object):
     def __init__(self, *args, **kwargs):
         self.load(*args, **kwargs)
@@ -18,7 +17,7 @@ class Obj3d(object):
             sample_ld=1000,
             sample_hd=5000
     ):
-        self.mesh = o3d.io.read_triangle_mesh(filedir).scale(scale_rate, center=scale_center)
+        self.mesh = o3d.io.read_triangle_mesh(filedir, True).scale(scale_rate, center=scale_center)
         self.mesh.compute_vertex_normals()
         self.sampling(sample_ld, sample_hd)
 
@@ -191,6 +190,20 @@ if __name__ == '__main__':
     print("max bound: {}".format(pcd_get_max_bound(o3.pcd_ld)))
     print("min bound: {}".format(pcd_get_min_bound(o3.pcd_ld)))
 
+    '''
     o3.show()
     o3d.visualization.draw_geometries([pcd_crop(o3.pcd_hd, min_bound=o3_center)])
     o3d.visualization.draw_geometries([mesh_crop(o3.mesh, min_bound=o3_center)])
+    '''
+
+    vis = o3d.visualization.draw_geometries_with_editing([o3.mesh,])
+    vis.create_window()
+    vis.add_geometry()
+    vis.run()  # user picks points
+    vis.destroy_window()
+    vis.get_picked_points()
+
+    '''
+    mesh_array = np.asarray(pcd.points)
+    points = mesh_array[vis.get_picked_points()]
+    '''
