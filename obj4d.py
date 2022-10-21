@@ -5,7 +5,6 @@ from probreg import cpd
 
 import obj3d
 
-
 class Trans_hl(object):
     def __init__(self, source_obj, target_obj, *args, **kwargs):
         self.source = source_obj.pcd_hd
