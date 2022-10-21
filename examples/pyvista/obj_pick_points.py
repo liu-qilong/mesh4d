@@ -2,9 +2,9 @@ import numpy as np
 import pyvista as pv
 
 # load obj mesh with texture
-mesh = pv.read('dataset/45kmh_26markers_12fps/speed_45km_h_26_marker_set_1.000001.obj')
-texture = pv.read_texture('dataset/45kmh_26markers_12fps/speed_45km_h_26_marker_set_1.000001.jpg')
-points = []
+mesh = pv.read('dataset/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj')
+texture = pv.read_texture('dataset/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.jpg')
+point_list = []
 
 def callback(point):
     # create a cube and a label at the click point
@@ -13,7 +13,7 @@ def callback(point):
     pl.add_point_labels(point, [f"{point[0]:.2f}, {point[1]:.2f}, {point[2]:.2f}"])
 
     # store picked point
-    points.append(np.expand_dims(point, axis=0))
+    point_list.append(np.expand_dims(point, axis=0))
 
 # launch point picking
 pl = pv.Plotter()
@@ -22,4 +22,6 @@ pl.enable_surface_picking(callback=callback, left_clicking=True, show_point=True
 pl.show()
 
 # print picked points
-print(np.concatenate(points, axis=0))
+points = np.concatenate(point_list, axis=0)
+np.save('dataset/calibrate/points_3dmd', points)
+print("save picked points:\n{}".format(points))

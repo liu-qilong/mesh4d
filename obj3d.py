@@ -2,6 +2,7 @@ import os
 import copy
 import numpy as np
 import open3d as o3d
+import pyvista as pv
 
 import kps
 
@@ -110,6 +111,28 @@ def np2pcd(points):
     pcd.points = o3d.utility.Vector3dVector(points)
     return pcd
 
+
+def np2pvpcd(points, *args, **kwargs):
+    # create many spheres from the point cloud
+    pdata = pv.PolyData(points)
+    pdata['orig_sphere'] = np.arange(len(points))
+    sphere = pv.Sphere(*args, **kwargs)
+    pvpcd = pdata.glyph(scale=False, geom=sphere, orient=False)
+    return pvpcd
+
+
+def transform_rst2sm(R, s, t):
+    # convert transformation expressed in sRx + t to sMx
+    M = np.diag(np.full(4, 1, dtype='float64'))
+    M[0:3, 0:3] = R
+    M[0:3, 3] = t/s
+    return s, M
+
+def transform_sm2rst(s, M):
+    # convert transformation expressed in sMx to sRx + t
+    R = M[0:3, 0:3]
+    t = M[0:3, 3]*s
+    return R, s, t
 
 def pcd_crop(pcd, min_bound=[-1000, -1000, -1000], max_bound=[1000, 1000, 1000]):
     points = pcd2np(pcd)
