@@ -23,21 +23,18 @@ class Obj3d(object):
         self.sampling(sample_ld, sample_hd)
 
     def sampling(self, sample_ld, sample_hd):
-        self.pcd_ld = self.mesh.sample_points_poisson_disk(number_of_points=sample_ld, init_factor=5)
-        self.pcd_hd = self.mesh.sample_points_poisson_disk(number_of_points=sample_hd, init_factor=5)
+        self.pcd = self.mesh.sample_points_poisson_disk(number_of_points=sample_hd, init_factor=5)
 
     def show(self):
         o3d.visualization.draw_geometries([
             self.mesh,
-            copy.deepcopy(self.pcd_ld).translate((10, 0, 0)),
-            copy.deepcopy(self.pcd_hd).translate((20, 0, 0)),
+            copy.deepcopy(self.pcd).translate((10, 0, 0)),
         ])
 
     def get_o3ds(self):
         objs = [
             copy.deepcopy(self.mesh),
-            copy.deepcopy(self.pcd_ld).translate((10, 0, 0)),
-            copy.deepcopy(self.pcd_hd).translate((20, 0, 0)),
+            copy.deepcopy(self.pcd).translate((10, 0, 0)),
         ]
         return objs
 
@@ -60,12 +57,11 @@ class Obj3d_Deform(Obj3d):
             return
 
         rot = self.trans_rigid.rot
-        center = pcd_get_center(self.pcd_hd)
+        center = pcd_get_center(self.pcd)
         # center = (0, 0, 0)
 
         self.mesh.rotate(rot, center)
-        self.pcd_hd.rotate(rot, center)
-        self.pcd_ld.rotate(rot, center)
+        self.pcd.rotate(rot, center)
 
         print("reorientated 1 3d object")
 
@@ -206,27 +202,13 @@ def load_obj_series(
 
 
 if __name__ == '__main__':
-    o3 = Obj3d('dataset/45kmh_26markers_12fps/speed_45km_h_26_marker_set_1.000001.obj')
+    o3 = Obj3d('dataset/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj')
 
-    o3_center = pcd_get_center(o3.pcd_ld)
+    o3_center = pcd_get_center(o3.pcd)
     print("center: {}".format(o3_center))
-    print("max bound: {}".format(pcd_get_max_bound(o3.pcd_ld)))
-    print("min bound: {}".format(pcd_get_min_bound(o3.pcd_ld)))
+    print("max bound: {}".format(pcd_get_max_bound(o3.pcd)))
+    print("min bound: {}".format(pcd_get_min_bound(o3.pcd)))
 
-    '''
     o3.show()
-    o3d.visualization.draw_geometries([pcd_crop(o3.pcd_hd, min_bound=o3_center)])
+    o3d.visualization.draw_geometries([pcd_crop(o3.pcd, min_bound=o3_center)])
     o3d.visualization.draw_geometries([mesh_crop(o3.mesh, min_bound=o3_center)])
-    '''
-
-    vis = o3d.visualization.draw_geometries_with_editing([o3.mesh,])
-    vis.create_window()
-    vis.add_geometry()
-    vis.run()  # user picks points
-    vis.destroy_window()
-    vis.get_picked_points()
-
-    '''
-    mesh_array = np.asarray(pcd.points)
-    points = mesh_array[vis.get_picked_points()]
-    '''

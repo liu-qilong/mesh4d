@@ -4,11 +4,12 @@ import open3d as o3d
 from probreg import cpd
 
 import obj3d
+import kps
 
 class Trans_hl(object):
     def __init__(self, source_obj, target_obj, *args, **kwargs):
-        self.source = source_obj.pcd_hd
-        self.target = target_obj.pcd_ld
+        self.source = source_obj.pcd
+        self.target = target_obj.pcd
 
         self.source_points = obj3d.pcd2np(self.source)
         self.target_points = obj3d.pcd2np(self.target)
@@ -199,9 +200,9 @@ def offset_rotate_Obj4d(o4d):
 
 
 if __name__ == '__main__':
-    '''
+    
     # nonrigid - key points tracking
-    o3_ls = obj3d.load_obj_series('dataset/45kmh_26markers_12fps/', 0, 1, obj_type=Obj3d_Kps, sample_hd=1000)
+    o3_ls = obj3d.load_obj_series('dataset/6kmh_softbra_8markers_1/', 0, 1, obj_type=obj3d.Obj3d_Kps, sample_hd=1000)
     vicon = kps.MarkerSet()
     vicon.load_from_vicon('dataset/6kmh_softbra_8markers_1.csv')
     vicon.interp_field()
@@ -218,7 +219,7 @@ if __name__ == '__main__':
     '''
 
     # rigid - reorientation
-    o3_ls = obj3d.load_obj_series('dataset/45kmh_26markers_12fps/', 0, 1, obj_type=obj3d.Obj3d_Deform, sample_hd=1000)
+    o3_ls = obj3d.load_obj_series('dataset/6kmh_softbra_8markers_1/', 0, 1, obj_type=obj3d.Obj3d_Deform, sample_hd=1000)
 
     o4 = Obj4d(
         enable_rigid=True,
@@ -227,3 +228,4 @@ if __name__ == '__main__':
     o4.add_obj(*o3_ls)
     o4_offset = offset_rotate_Obj4d(o4)
     # o4.offset_rotate()
+    '''
