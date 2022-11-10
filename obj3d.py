@@ -18,22 +18,22 @@ class Obj3d(object):
             sample_ld=1000,
             sample_hd=5000
     ):
-        self.mesh = o3d.io.read_triangle_mesh(filedir, True).scale(scale_rate, center=scale_center)
-        self.mesh.compute_vertex_normals()
+        self.mesh_o3d = o3d.io.read_triangle_mesh(filedir, True).scale(scale_rate, center=scale_center)
+        self.mesh_o3d.compute_vertex_normals()
         self.sampling(sample_ld, sample_hd)
 
     def sampling(self, sample_ld, sample_hd):
-        self.pcd = self.mesh.sample_points_poisson_disk(number_of_points=sample_hd, init_factor=5)
+        self.pcd = self.mesh_o3d.sample_points_poisson_disk(number_of_points=sample_hd, init_factor=5)
 
     def show(self):
         o3d.visualization.draw_geometries([
-            self.mesh,
+            self.mesh_o3d,
             copy.deepcopy(self.pcd).translate((10, 0, 0)),
         ])
 
     def get_o3ds(self):
         objs = [
-            copy.deepcopy(self.mesh),
+            copy.deepcopy(self.mesh_o3d),
             copy.deepcopy(self.pcd).translate((10, 0, 0)),
         ]
         return objs
@@ -60,7 +60,7 @@ class Obj3d_Deform(Obj3d):
         center = pcd_get_center(self.pcd)
         # center = (0, 0, 0)
 
-        self.mesh.rotate(rot, center)
+        self.mesh_o3d.rotate(rot, center)
         self.pcd.rotate(rot, center)
 
         print("reorientated 1 3d object")

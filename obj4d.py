@@ -187,8 +187,8 @@ class Obj4d_Kps(Obj4d):
             diff = obj.diff_kps_pred_gt()
             print("distance between tracked key points and ground truth:\n{:.4f}".format(diff))
 
-            max_bound = obj3d.pcd_get_max_bound(obj.pcd_hd)
-            min_bound = obj3d.pcd_get_min_bound(obj.pcd_hd)
+            max_bound = obj3d.pcd_get_max_bound(obj.pcd)
+            min_bound = obj3d.pcd_get_min_bound(obj.pcd)
             width = max_bound[0] - min_bound[0]
             print("ratio to lateral distance：\n{:.4%}".format(diff / width))
 
