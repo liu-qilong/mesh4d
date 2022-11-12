@@ -4,6 +4,7 @@
 __pycache__/
 media/
 dataset/
+data/
 param/
 *.png
 *.jpg

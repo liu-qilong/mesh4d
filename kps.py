@@ -9,7 +9,7 @@ import utils
 
 
 class Kps(object):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.kps_source_points = None  # key points are stored in Nx3 numpy array
 
     def select_kps_points(self, source, save=False):
@@ -33,12 +33,12 @@ class Kps(object):
         if save:
             pass
 
-    def load_from_markerset_frame(self, markerset, calibration, frame_id=0):
+    def load_from_markerset_frame(self, markerset, frame_id=0):
         points = markerset.get_frame_coord(frame_id)
         points_cal = points
         self.set_kps_source_points(points_cal)
 
-    def load_from_markerset_time(self, markerset, calibration, time=0):
+    def load_from_markerset_time(self, markerset, time=0):
         points = markerset.get_time_coord(time)
         points_cal = points
         self.set_kps_source_points(points_cal)
@@ -56,27 +56,15 @@ class Kps(object):
 class Kps_Deform(Kps):
     def __init__(self):
         Kps.__init__(self)
-        self.kps_deform_points = None
         self.trans = None
+        self.kps_deform_points = None
 
     def set_trans(self, trans):
         self.trans = trans
-
-    def setup_kps_deform(self):
-        if self.kps_source_points is None:
-            print("source key points haven't been set")
-        elif self.trans is None:
-            print("transformation of the key points haven't been set")
-        else:
-            self.kps_deform_points = self.trans.points_disp(self.kps_source_points)
+        self.kps_deform_points = self.trans.points_disp(self.kps_source_points)
 
     def get_kps_deform_points(self):
-        if self.kps_source_points is None:
-            print("source key points haven't been set")
-        elif self.trans is None:
-            print("transformation of the key points haven't been set")
-        else:
-            return self.kps_deform_points
+        return self.kps_deform_points
 
 
 class Marker(object):
@@ -177,7 +165,7 @@ class Marker(object):
             plt.show()
 
         if is_save:
-            plt.savefig('figures/save-line'
+            plt.savefig('output/save-line'
                         + str(line_start_frame) + ' ' + str(line_end_frame)
                         + '-dot' + str(dot_start_frame) + ' ' + str(dot_end_frame))
 
@@ -292,7 +280,7 @@ class MarkerSet(object):
         for frame_id in range(start_frame, end_frame, step):
             self.plot_frame(frame_id, is_show=False, is_save=True, *args, **kwargs)
 
-        utils.images_to_gif('figures/', remove=remove)
+        utils.images_to_gif('output/', remove=remove)
 
     def plot_frame(
             self,
@@ -318,12 +306,12 @@ class MarkerSet(object):
         ax.set_zlabel('Z-axis', fontdict=font)
         ax.tick_params(labelsize=7)
 
-        plt.savefig('figures/gif-{:0>4d}'.format(frame_id))
+        plt.savefig('output/gif-{:0>4d}'.format(frame_id))
         if is_show:
             plt.show()
 
         if is_save:
-            filedir = 'figures/gif-' + str(frame_id)
+            filedir = 'output/gif-' + str(frame_id)
             plt.savefig(filedir)
             print('saved ' + filedir)
 

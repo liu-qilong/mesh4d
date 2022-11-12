@@ -7,23 +7,20 @@ import pyvista as pv
 import kps
 
 class Obj3d(object):
-    def __init__(self, *args, **kwargs):
-        self.load(*args, **kwargs)
-
-    def load(
-            self,
-            filedir,
-            scale_rate=0.01,
-            scale_center=(0, 0, 0),
-            sample_ld=1000,
-            sample_hd=5000
+    """
+    Obj3d class
+    """
+    def __init__(
+        self,
+        filedir,
+        scale_rate=0.01,
+        scale_center=(0, 0, 0),
+        sample_num=1000,
+        **kwargs
     ):
         self.mesh_o3d = o3d.io.read_triangle_mesh(filedir, True).scale(scale_rate, center=scale_center)
         self.mesh_o3d.compute_vertex_normals()
-        self.sampling(sample_ld, sample_hd)
-
-    def sampling(self, sample_ld, sample_hd):
-        self.pcd = self.mesh_o3d.sample_points_poisson_disk(number_of_points=sample_hd, init_factor=5)
+        self.pcd = self.mesh_o3d.sample_points_poisson_disk(number_of_points=sample_num, init_factor=5)
 
     def show(self):
         o3d.visualization.draw_geometries([
@@ -31,17 +28,16 @@ class Obj3d(object):
             copy.deepcopy(self.pcd).translate((10, 0, 0)),
         ])
 
-    def get_o3ds(self):
-        objs = [
-            copy.deepcopy(self.mesh_o3d),
-            copy.deepcopy(self.pcd).translate((10, 0, 0)),
-        ]
-        return objs
+
+class Obj3d_Kps(Obj3d):
+    def __init__(self, **kwargs):
+        Obj3d.__init__(self, **kwargs)
+        self.kps = kps.Kps_Deform()
 
 
-class Obj3d_Deform(Obj3d):
-    def __init__(self, *args, **kwargs):
-        Obj3d.__init__(self, *args, **kwargs)
+class Obj3d_Deform(Obj3d_Kps):
+    def __init__(self, **kwargs):
+        Obj3d_Kps.__init__(self, **kwargs)
         self.trans_rigid = None
         self.trans_nonrigid = None
 
@@ -50,6 +46,7 @@ class Obj3d_Deform(Obj3d):
 
     def set_trans_nonrigid(self, trans_nonrigid):
         self.trans_nonrigid = trans_nonrigid
+        self.kps.set_trans(self.trans_nonrigid)
 
     def offset_rotate(self):
         if self.trans_rigid is None:
@@ -58,34 +55,11 @@ class Obj3d_Deform(Obj3d):
 
         rot = self.trans_rigid.rot
         center = pcd_get_center(self.pcd)
-        # center = (0, 0, 0)
 
         self.mesh_o3d.rotate(rot, center)
         self.pcd.rotate(rot, center)
 
         print("reorientated 1 3d object")
-
-
-class Obj3d_Kps(Obj3d_Deform):
-    def __init__(self, *args, **kwargs):
-        Obj3d_Deform.__init__(self, *args, **kwargs)
-        self.kps = kps.Kps_Deform()
-        self.kps_gt = kps.Kps()
-
-    def select_kps_gt(self):
-        self.kps_gt.select_kps_points()
-
-    def set_trans_nonrigid(self, trans_nonrigid):
-        Obj3d_Deform.set_trans_nonrigid(self, trans_nonrigid)
-        self.kps.set_trans(self.trans_nonrigid)
-
-    def cal_kps_deform(self):
-        self.kps.setup_kps_deform()
-
-    def diff_kps_pred_gt(self):
-        return np.linalg.norm(
-            self.kps.get_kps_source_points() - self.kps_gt.get_kps_source_points()
-        )
 
 
 def mesh2pcd(mesh, sample_d):
@@ -108,11 +82,11 @@ def np2pcd(points):
     return pcd
 
 
-def np2pvpcd(points, *args, **kwargs):
+def np2pvpcd(points, **kwargs):
     # create many spheres from the point cloud
     pdata = pv.PolyData(points)
     pdata['orig_sphere'] = np.arange(len(points))
-    sphere = pv.Sphere(*args, **kwargs)
+    sphere = pv.Sphere(**kwargs)
     pvpcd = pdata.glyph(scale=False, geom=sphere, orient=False)
     return pvpcd
 
@@ -185,7 +159,6 @@ def load_obj_series(
         end=1,
         stride=1,
         obj_type=Obj3d_Kps,
-        *args,
         **kwargs):
     """ load a series of point cloud obj files from a folder """
     files = os.listdir(folder)
@@ -195,14 +168,14 @@ def load_obj_series(
     o3_ls = []
     for n in range(start, end + 1, stride):
         filedir = files[n]
-        o3_ls.append(obj_type(filedir=filedir, *args, **kwargs))
+        o3_ls.append(obj_type(filedir=filedir, **kwargs))
         print("loaded 1 mesh file: {}".format(filedir))
 
     return o3_ls
 
 
 if __name__ == '__main__':
-    o3 = Obj3d('dataset/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj')
+    o3 = Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj')
 
     o3_center = pcd_get_center(o3.pcd)
     print("center: {}".format(o3_center))
