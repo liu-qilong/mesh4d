@@ -6,6 +6,18 @@ import kps
 import field
 
 class Obj4d(object):
+    """This is a conceptual class representation of a simple BLE device
+    (GATT Server). It is essentially an extended combination of the
+    :class:`bluepy.btle.Peripheral` and :class:`bluepy.btle.ScanEntry` classes
+
+    Args:
+        path (str): The path of the file to wrap
+        field_storage (FileStorage): The :class:`FileStorage` instance to wrap
+        temporary (bool): Whether or not to delete the file when the File instance is destructed
+
+    Returns:
+        BufferedFileStorage: A buffered writable file descriptor
+    """
     def __init__(self, start_time=0, fps=120, **kwargs):
         self.obj_ls = []
         self.start_time = start_time
