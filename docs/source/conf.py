@@ -12,6 +12,7 @@
 
 import os
 import sys
+sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('../../UltraMotionCapture'))
 
 # -- Project information -----------------------------------------------------
@@ -33,10 +34,10 @@ extensions = [
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinxcontrib.napoleon',
-    'sphinx_automodapi.automodapi',
 ]
-numpydoc_show_class_members = False
+autosummary_generate = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

@@ -1,3 +1,11 @@
+"""The :mod:`kps` module stands for *key points*. In :mod:`UltraMotionCapture` package, key points are essential elements to facilitate the processing of 4D images.
+
+There are two different perspectives to arrange key points data: *time-wise* and *point-wise*. Reflecting these two ways of arrangement:
+
+- The :class:`Kps` and `Kps_Deform` contain all key points' data at a specific moment;
+- While the :class:`Marker` contains a specific key point's data within a time period. To aggregate all key points' data, :class:`MarkerSet` is provided.
+"""
+
 from __future__ import annotations
 import numpy as np
 import pandas as pd
@@ -189,7 +197,7 @@ class Marker(object):
     self.z_field
         An :class:`scipy.interpolate.interp1d` object that storing the interpolated function of the :math:`z` coordinates of all frames. Used for estimated the :math:`z` coordinate of any intermediate time between frames.
 
-    Attention
+    Tip
     ---
     When loading Vicon motion capture data, the whole process is arranged by a :class:`MakerSet` object, which creates :class:`Marker` objects for each key point and loads data into it accordingly. Therefore, usually the end user doesn't need to touch the :class:`Marker` class.
     """
@@ -219,7 +227,7 @@ class Marker(object):
 
         Attention
         ---
-        Called by the :class:`MarkerSet` object when parsing the Vicon motion capture data (:meth:`MarkerSet.load_from_vicon`).
+        Called by the :class:`MarkerSet` object when parsing the Vicon motion capture data (:meth:`MarkerSet.load_from_vicon`). Usually the end user don't need to call this method manually.
         """
         if self.coord is None:
             self.coord = data_input
@@ -367,7 +375,7 @@ class Marker(object):
     ):
         """Adding motion track lines to the :class:`matplotlib.pyplot.subplot` object created in :meth:`plot_track`.
 
-        Attention
+        Tip
         ---
         About the appearance controlling parameters, please refer to `Pyplot tutorial - matplotlib <https://matplotlib.org/stable/tutorials/introductory/pyplot.html#pyplot-tutorial>`_.
 
@@ -382,16 +390,16 @@ class Marker(object):
 
     def plot_add_dot(
             self,
-            ax,
-            dot_start_frame=0,
-            dot_end_frame=None,
-            dot_s=10,
-            dot_alpha=0.5,
+            ax: plt.subplot,
+            dot_start_frame: int = 0,
+            dot_end_frame: Union[int, None] = None,
+            dot_s: int = 10,
+            dot_alpha: float = 0.5,
             **kwargs
     ):
         """Adding motion dots in different frames to the :class:`matplotlib.pyplot.subplot` object created in :meth:`plot_track`.
 
-        Attention
+        Tip
         ---
         About the appearance controlling parameters, please refer to `Pyplot tutorial - matplotlib <https://matplotlib.org/stable/tutorials/introductory/pyplot.html#pyplot-tutorial>`_.
 
@@ -558,7 +566,7 @@ class MarkerSet(object):
         remove
             after generating the :code:`.gif` file, remove the frames' images or not.
 
-        Attention
+        Tip
         ---
         Additional appearance controlling parameters can be passed into :code:`**kwargs`, please refer to `*args and **kwargs - Python Tips <https://book.pythontips.com/en/latest/args_and_kwargs.html>`_ and `Pyplot tutorial - matplotlib <https://matplotlib.org/stable/tutorials/introductory/pyplot.html#pyplot-tutorial>`_
         """

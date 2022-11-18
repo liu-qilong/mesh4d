@@ -4,18 +4,20 @@
    contain the root `toctree` directive.
 
 Welcome to Ultra Motion Capture's documentation!
-====
+================================================
 
 .. note::
 
    This project is under active development.
 
 .. toctree::
+   :maxdepth: 3
+   :caption: Contents:
 
    api
 
 Indices and tables
-----
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
