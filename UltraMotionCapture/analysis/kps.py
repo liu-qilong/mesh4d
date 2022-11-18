@@ -6,9 +6,19 @@ import matplotlib.pyplot as plt
 from scipy import interpolate
 from typing import Union
 
+
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../..'))
+from UltraMotionCapture import field
+from UltraMotionCapture import obj3d
+from UltraMotionCapture import utils
+'''
+
 import field
 import obj3d
 import utils
+'''
 
 class Kps(object):
     """A collection of the key points that can be attached to a 3D object, i.e. a frame of the 4D object.

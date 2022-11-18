@@ -1,13 +1,11 @@
+from __future__ import annotations
 import os
 import copy
 import numpy as np
 import open3d as o3d
 import pyvista as pv
 
-import sys
-sys.path.insert(0, '../')
-
-from UltraMotionCapture import kps
+import kps
 
 class Obj3d(object):
     """

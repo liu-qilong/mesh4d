@@ -1,12 +1,9 @@
+from __future__ import annotations
 import copy
-import open3d as o3d
 
-import sys
-sys.path.insert(0, '../')
-
-from UltraMotionCapture import obj3d
-from UltraMotionCapture import kps
-from UltraMotionCapture import field
+import obj3d
+import kps
+import field
 
 class Obj4d(object):
     """This is a conceptual class representation of a simple BLE device
