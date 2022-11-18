@@ -1,18 +1,23 @@
-.. Test documentation master file, created by
-   sphinx-quickstart on Wed Nov 16 11:48:38 2022.
+.. Ultra Motion Capture documentation master file, created by
+   sphinx-quickstart on Fri Nov 18 10:57:01 2022.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Test's documentation!
-================================
+Welcome to Ultra Motion Capture's documentation!
+================================================
+
+.. note::
+
+   This project is under active development.
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
    :caption: Contents:
 
-   
+   api
+
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
