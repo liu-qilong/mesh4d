@@ -32,9 +32,12 @@ release = '0.0'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    "sphinx_copybutton",
+    "sphinx.ext.viewcode",
     'sphinxcontrib.napoleon',
     'autoapi.extension',
 ]
+
 autoapi_type = 'python'
 autoapi_dirs = ['../../UltraMotionCapture']
 autoapi_template_dir = '_autoapi_templates'

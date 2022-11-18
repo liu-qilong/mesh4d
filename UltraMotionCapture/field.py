@@ -3,7 +3,10 @@ import numpy as np
 import open3d as o3d
 from probreg import cpd
 
-import obj3d
+import sys
+sys.path.insert(0, '../')
+
+from UltraMotionCapture import obj3d
 
 class Trans(object):
     def __init__(self, source_obj, target_obj, **kwargs):
