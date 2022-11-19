@@ -1,4 +1,4 @@
-UltraMotionCapture.obj4d.Obj4d
+﻿UltraMotionCapture.obj4d.Obj4d
 ==============================
 
 .. currentmodule:: UltraMotionCapture.obj4d
@@ -6,7 +6,8 @@ UltraMotionCapture.obj4d.Obj4d
 .. autoclass:: Obj4d
    :members:
    :show-inheritance:
-   :inherited-members:
+   :private-members:
+   :undoc-members:
 
    
    .. automethod:: __init__

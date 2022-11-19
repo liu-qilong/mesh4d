@@ -1,4 +1,4 @@
-UltraMotionCapture.obj4d.Obj4d\_Deform
+﻿UltraMotionCapture.obj4d.Obj4d\_Deform
 ======================================
 
 .. currentmodule:: UltraMotionCapture.obj4d
@@ -6,7 +6,8 @@ UltraMotionCapture.obj4d.Obj4d\_Deform
 .. autoclass:: Obj4d_Deform
    :members:
    :show-inheritance:
-   :inherited-members:
+   :private-members:
+   :undoc-members:
 
    
    .. automethod:: __init__

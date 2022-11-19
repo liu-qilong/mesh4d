@@ -1,4 +1,4 @@
-UltraMotionCapture.analysis.kps.Kps
+﻿UltraMotionCapture.analysis.kps.Kps
 ===================================
 
 .. currentmodule:: UltraMotionCapture.analysis.kps
@@ -6,7 +6,8 @@ UltraMotionCapture.analysis.kps.Kps
 .. autoclass:: Kps
    :members:
    :show-inheritance:
-   :inherited-members:
+   :private-members:
+   :undoc-members:
 
    
    .. automethod:: __init__

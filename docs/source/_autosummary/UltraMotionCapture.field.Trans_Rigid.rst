@@ -1,4 +1,4 @@
-UltraMotionCapture.field.Trans\_Rigid
+﻿UltraMotionCapture.field.Trans\_Rigid
 =====================================
 
 .. currentmodule:: UltraMotionCapture.field
@@ -6,7 +6,8 @@ UltraMotionCapture.field.Trans\_Rigid
 .. autoclass:: Trans_Rigid
    :members:
    :show-inheritance:
-   :inherited-members:
+   :private-members:
+   :undoc-members:
 
    
    .. automethod:: __init__
@@ -18,6 +19,7 @@ UltraMotionCapture.field.Trans\_Rigid
    
       ~Trans_Rigid.__init__
       ~Trans_Rigid.regist
+      ~Trans_Rigid.shift_points
       ~Trans_Rigid.show
    
    

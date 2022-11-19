@@ -1,4 +1,4 @@
-UltraMotionCapture.kps.Kps\_Deform
+﻿UltraMotionCapture.kps.Kps\_Deform
 ==================================
 
 .. currentmodule:: UltraMotionCapture.kps
@@ -6,7 +6,8 @@ UltraMotionCapture.kps.Kps\_Deform
 .. autoclass:: Kps_Deform
    :members:
    :show-inheritance:
-   :inherited-members:
+   :private-members:
+   :undoc-members:
 
    
    .. automethod:: __init__

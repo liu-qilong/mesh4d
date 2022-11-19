@@ -1,4 +1,4 @@
-UltraMotionCapture.obj3d.Obj3d\_Kps
+﻿UltraMotionCapture.obj3d.Obj3d\_Kps
 ===================================
 
 .. currentmodule:: UltraMotionCapture.obj3d
@@ -6,7 +6,8 @@ UltraMotionCapture.obj3d.Obj3d\_Kps
 .. autoclass:: Obj3d_Kps
    :members:
    :show-inheritance:
-   :inherited-members:
+   :private-members:
+   :undoc-members:
 
    
    .. automethod:: __init__

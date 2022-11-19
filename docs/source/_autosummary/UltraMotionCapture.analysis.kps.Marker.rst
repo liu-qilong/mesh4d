@@ -1,4 +1,4 @@
-UltraMotionCapture.analysis.kps.Marker
+﻿UltraMotionCapture.analysis.kps.Marker
 ======================================
 
 .. currentmodule:: UltraMotionCapture.analysis.kps
@@ -6,7 +6,8 @@ UltraMotionCapture.analysis.kps.Marker
 .. autoclass:: Marker
    :members:
    :show-inheritance:
-   :inherited-members:
+   :private-members:
+   :undoc-members:
 
    
    .. automethod:: __init__

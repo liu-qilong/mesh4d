@@ -36,6 +36,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinxcontrib.napoleon',
+    "sphinx.ext.viewcode",
+    "sphinx_copybutton",
 ]
 autosummary_generate = True
 

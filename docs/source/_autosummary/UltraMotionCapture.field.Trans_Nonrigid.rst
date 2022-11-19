@@ -1,4 +1,4 @@
-UltraMotionCapture.field.Trans\_Nonrigid
+﻿UltraMotionCapture.field.Trans\_Nonrigid
 ========================================
 
 .. currentmodule:: UltraMotionCapture.field
@@ -6,7 +6,8 @@ UltraMotionCapture.field.Trans\_Nonrigid
 .. autoclass:: Trans_Nonrigid
    :members:
    :show-inheritance:
-   :inherited-members:
+   :private-members:
+   :undoc-members:
 
    
    .. automethod:: __init__

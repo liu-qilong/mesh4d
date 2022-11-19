@@ -1,4 +1,4 @@
-"""The :mod:`kps` module stands for *key points*. In :mod:`UltraMotionCapture` package, key points are essential elements to facilitate the processing of 4D images.
+"""The :mod:`UltraMotionCapture.kps` module stands for *key points*. In :mod:`UltraMotionCapture` package, key points are essential elements to facilitate the processing of 4D images.
 
 There are two different perspectives to arrange key points data: *time-wise* and *point-wise*. Reflecting these two ways of arrangement:
 
@@ -7,12 +7,13 @@ There are two different perspectives to arrange key points data: *time-wise* and
 """
 
 from __future__ import annotations
+from typing import Type, Union
+
 import numpy as np
 import pandas as pd
 import open3d as o3d
 import matplotlib.pyplot as plt
 from scipy import interpolate
-from typing import Union
 
 import field
 import obj3d
@@ -24,7 +25,7 @@ class Kps(object):
     Note
     ---
     self.kps_source_points
-        :math:`N` key points in 3D space stored in a :math:`N \\times 3` :class:`numpy.array`.
+        :math:`N` key points in 3D space stored in a (N, 3) :class:`numpy.array`.
 
     Example
     ---
@@ -112,12 +113,12 @@ class Kps(object):
         self.set_kps_source_points(points_cal)
 
     def set_kps_source_points(self, points: np.array):
-        """Other than manually selecting points or loading points from Vicon motion capture data, the :attr:`kps_source_points` can also be directly overridden with a :math:`N \\times 3` :class:`numpy.array`, representing :math:`N` key points in 3D space.
+        """Other than manually selecting points or loading points from Vicon motion capture data, the :attr:`kps_source_points` can also be directly overridden with a (N, 3) :class:`numpy.array`, representing :math:`N` key points in 3D space.
 
         Parameters
         ---
         points
-            :math:`N \\times 3` :class:`numpy.array`.
+            (N, 3) :class:`numpy.array`.
         """
         self.kps_source_points = points
 
@@ -138,7 +139,7 @@ class Kps_Deform(Kps):
     self.trans
         An :class:`UltraMotionCapture.field.Trans_Nonrigid` object that stores the deformation information.
     self.kps_deform_points
-        :math:`N \\times 3` :class:`numpy.array`.
+        (N, 3) :class:`numpy.array`.
     """
     def __init__(self):
         Kps.__init__(self)
@@ -431,12 +432,16 @@ class MarkerSet(object):
         vicon.load_from_vicon('data/6kmh_softbra_8markers_1.csv')
         vicon.interp_field()
 
-    Usually we implement the interpolation after loading the data, as shown in the last line of code. Then we can access the coordinates, speed, and acceleration data relating to any marker: ::
+    Usually we implement the interpolation after loading the data, as shown in the last line of code. Then we can access the coordinates, speed, and acceleration data of any marker at any specific time: ::
+
+        print(vicon.get_frame_coord(10))
+        print(vicon.get_time_coord(1.0012)
+
+    We can also access the specific marker with the marker name: ::
 
         print(vicon.points.keys())
-        print(vicon.points['Bra_Miss Sun:CLAV'].coord)
-        print(vicon.points['Bra_Miss Sun:CLAV'].speed)
-        print(vicon.points['Bra_Miss Sun:CLAV'].accel)
+        print(vicon.points['Bra_Miss Sun:CLAV'].get_frame_coord(10))
+        print(vicon.points['Bra_Miss Sun:CLAV'].get_time_coord(1.0012))
 
     We can also plot and save the motion track as a :code:`.gif` file for illustration: ::
 

@@ -1,4 +1,4 @@
-UltraMotionCapture.field.Trans
+﻿UltraMotionCapture.field.Trans
 ==============================
 
 .. currentmodule:: UltraMotionCapture.field
@@ -6,7 +6,8 @@ UltraMotionCapture.field.Trans
 .. autoclass:: Trans
    :members:
    :show-inheritance:
-   :inherited-members:
+   :private-members:
+   :undoc-members:
 
    
    .. automethod:: __init__

@@ -1,4 +1,4 @@
-UltraMotionCapture.kps.MarkerSet
+﻿UltraMotionCapture.kps.MarkerSet
 ================================
 
 .. currentmodule:: UltraMotionCapture.kps
@@ -6,7 +6,8 @@ UltraMotionCapture.kps.MarkerSet
 .. autoclass:: MarkerSet
    :members:
    :show-inheritance:
-   :inherited-members:
+   :private-members:
+   :undoc-members:
 
    
    .. automethod:: __init__
