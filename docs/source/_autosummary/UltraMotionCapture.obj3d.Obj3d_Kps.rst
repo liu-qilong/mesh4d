@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.obj3d.Obj3d\_Kps
+UltraMotionCapture.obj3d.Obj3d\_Kps
 ===================================
 
 .. currentmodule:: UltraMotionCapture.obj3d

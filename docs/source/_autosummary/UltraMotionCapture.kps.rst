@@ -9,10 +9,6 @@ UltraMotionCapture.kps
 
    
    
-   
-
-   
-   
    .. rubric:: Classes
 
    .. autosummary::
@@ -23,6 +19,19 @@ UltraMotionCapture.kps
       Kps_Deform
       Marker
       MarkerSet
+   
+   
+
+   
+   
+
+   .. inheritance-diagram:: UltraMotionCapture.kps
+      :caption: Inheritance Relationship
+      :parts: -1
+   
+   
+
+   
    
    
 

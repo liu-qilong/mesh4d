@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Type, Union
+from typing import Type, Union, Iterable
 
 import os
 import imageio

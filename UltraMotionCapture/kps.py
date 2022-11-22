@@ -7,7 +7,7 @@ There are two different perspectives to arrange key points data: *time-wise* and
 """
 
 from __future__ import annotations
-from typing import Type, Union
+from typing import Type, Union, Iterable
 
 import numpy as np
 import pandas as pd
@@ -34,6 +34,7 @@ class Kps(object):
     Manually selecting key points with :meth:`select_kps_points`. ::
 
         import UltraMotionCapture as umc
+
         points = umc.kps.Kps()
         points.select_kps_points()  # this will trigger a point selection window
 
@@ -428,7 +429,9 @@ class MarkerSet(object):
     ---
     The Vicon motion capture data shall be exported as a :code:`.csv` file. After initialising the :class:`MarkerSet` data, we can load it providing the :code:`.csv` file's directory: ::
 
-        vicon = MarkerSet()
+        import UltraMotionCapture as umc
+
+        vicon = umc.kps.MarkerSet()
         vicon.load_from_vicon('data/6kmh_softbra_8markers_1.csv')
         vicon.interp_field()
 

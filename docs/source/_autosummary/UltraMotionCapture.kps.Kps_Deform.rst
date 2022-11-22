@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.kps.Kps\_Deform
+UltraMotionCapture.kps.Kps\_Deform
 ==================================
 
 .. currentmodule:: UltraMotionCapture.kps

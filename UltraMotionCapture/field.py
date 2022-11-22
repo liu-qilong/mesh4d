@@ -64,10 +64,12 @@ class Trans_Rigid(Trans):
     ---
     After loading and registration, the rigid transformation parameters can then be accessed, including the scaling rate, the rotation matrix, and the translation vector: ::
 
-        o3_1 = Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj')
-        o3_2 = Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000002.obj')
+        import UltraMotionCapture as umc
 
-        trans = Trans_Rigid(o3_1, o3_2)
+        o3_1 = umc.obj3d.Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj')
+        o3_2 = umc.obj3d.Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000002.obj')
+
+        trans = umc.field.Trans_Rigid(o3_1, o3_2)
         trans.regist()
         print(trans.scale, trans.rot, trans.t)
     """
@@ -126,7 +128,7 @@ class Trans_Rigid(Trans):
 
         Return
         ---
-        np.array
+        :class:`np.array`
             (N, 3) :class:`numpy.array` stores the points after transformation.
 
         Warning
@@ -169,10 +171,12 @@ class Trans_Nonrigid(Trans):
     ---
     After loading and registration, the rigid transformation parameters can then be accessed, including the scaling rate, the rotation matrix, and the translation vector: ::
 
-        o3_1 = Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj')
-        o3_2 = Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000002.obj')
+        import UltraMotionCapture as umc
 
-        trans = Trans_Nonrigid(o3_1, o3_2)
+        o3_1 = umc.obj3d.Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj')
+        o3_2 = umc.obj3d.Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000002.obj')
+
+        trans = umc.field.Trans_Nonrigid(o3_1, o3_2)
         trans.regist()
         print(trans.deform_points, trans.disp)
     """
@@ -251,7 +255,7 @@ class Trans_Nonrigid(Trans):
 
         Return
         ---
-        np.array
+        :class:`np.array`
             (N, 3) :class:`numpy.array` stores the points after transformation.
         """
         idxs = []
@@ -259,3 +263,80 @@ class Trans_Nonrigid(Trans):
             idx = obj3d.search_nearest_point_idx(point, self.source_points)
             idxs.append(idx)
         return self.deform_points[idx]
+
+
+def transform_rst2sm(R: np.array, s: float, t: np.array) -> tuple[float, np.array]:
+    """Transform rigid transformation representation from
+        
+        rotation matrix :math:`\\boldsymbol R \in \mathbb{R}^{3 \\times 3}`, scaling rate :math:`s \in \mathbb{R}`, and translation vector :math:`\\boldsymbol t \in \mathbb{R}^{3}`
+    
+    to
+    
+        homogeneous transformation matrix :math:`\\boldsymbol M \in \mathbb{R}^{4 \\times 4}` and scaling rate :math:`s \in \mathbb{R}`.
+
+    .. math::
+        \mathcal T(\\boldsymbol x) = s \\boldsymbol R \\boldsymbol x + \\boldsymbol t = s \\boldsymbol M \\boldsymbol x
+
+    .. seealso::
+        Homogeneous transformation matrix is a very popular representation of rigid transformation, adopted by :mod:`OpenGL` and other computer vision packages. It applies rotation and translation in one :math:`4 \\times 4` matrix.
+        
+        More information: `Spatial Transformation Matrices - Rainer Goebel <https://www.brainvoyager.com/bv/doc/UsersGuide/CoordsAndTransforms/SpatialTransformationMatrices.html>`_
+
+    Parameters
+    ---
+    R
+        rotation matrix :math:`\\boldsymbol R \in \mathbb{R}^{3 \\times 3}` stored in (3, 3) :class:`numpy.array`.
+    s
+        scaling rate :math:`s \in \mathbb{R}` stored in a :class:`float` variable.
+    t
+        translation vector :math:`\\boldsymbol t \in \mathbb{R}^{3}` stored in (3, ) :class:`numpy.array`.
+
+    Return
+    ---
+    :class:`float`
+        scaling rate :math:`s \in \mathbb{R}` stored in a :class:`float` variable.
+    :class:`numpy.array`
+        homogeneous transformation matrix :math:`\\boldsymbol M \in \mathbb{R}^{4 \\times 4}` stored in (4, 4) :class:`numpy.array`.
+    """
+    M = np.diag(np.full(4, 1, dtype='float64'))
+    M[0:3, 0:3] = R
+    M[0:3, 3] = t/s
+    return s, M
+
+
+def transform_sm2rst(s: float, M: np.array) -> tuple[np.array, float, np.array]:
+    """Transform rigid transformation representation from
+        
+        homogeneous transformation matrix :math:`\\boldsymbol M \in \mathbb{R}^{4 \\times 4}` and scaling rate :math:`s \in \mathbb{R}`.  
+    
+    to
+
+        rotation matrix :math:`\\boldsymbol R \in \mathbb{R}^{3 \\times 3}`, scaling rate :math:`s \in \mathbb{R}`, and translation vector :math:`\\boldsymbol t \in \mathbb{R}^{3}`
+
+    .. math::
+        \mathcal T(\\boldsymbol x) = s \\boldsymbol R \\boldsymbol x + \\boldsymbol t = s \\boldsymbol M \\boldsymbol x
+
+    .. seealso::
+        Homogeneous transformation matrix is a very popular representation of rigid transformation, adopted by :mod:`OpenGL` and other computer vision packages. It applies rotation and translation in one :math:`4 \\times 4` matrix.
+        
+        More information: `Spatial Transformation Matrices - Rainer Goebel <https://www.brainvoyager.com/bv/doc/UsersGuide/CoordsAndTransforms/SpatialTransformationMatrices.html>`_
+
+    Parameters
+    ---
+    s
+        scaling rate :math:`s \in \mathbb{R}` stored in a :class:`float` variable.
+    M
+        homogeneous transformation matrix :math:`\\boldsymbol M \in \mathbb{R}^{4 \\times 4}` stored in (4, 4) :class:`numpy.array`.
+
+    Return
+    ---
+    :class:`numpy.python`
+        rotation matrix :math:`\\boldsymbol R \in \mathbb{R}^{3 \\times 3}` stored in (3, 3) :class:`numpy.array`.
+    :class:`float`
+        scaling rate :math:`s \in \mathbb{R}` stored in a :class:`float` variable.
+    :class:`numpy.python`
+        translation vector :math:`\\boldsymbol t \in \mathbb{R}^{3}` stored in (3, ) :class:`numpy.array`.
+    """
+    R = M[0:3, 0:3]
+    t = M[0:3, 3]*s
+    return R, s, t

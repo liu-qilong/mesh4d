@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.kps.Kps
+UltraMotionCapture.kps.Kps
 ==========================
 
 .. currentmodule:: UltraMotionCapture.kps

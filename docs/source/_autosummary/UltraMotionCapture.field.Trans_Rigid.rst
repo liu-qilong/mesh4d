@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.field.Trans\_Rigid
+UltraMotionCapture.field.Trans\_Rigid
 =====================================
 
 .. currentmodule:: UltraMotionCapture.field

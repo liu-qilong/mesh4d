@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.field.Trans
+UltraMotionCapture.field.Trans
 ==============================
 
 .. currentmodule:: UltraMotionCapture.field

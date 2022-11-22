@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.kps.Marker
+UltraMotionCapture.kps.Marker
 =============================
 
 .. currentmodule:: UltraMotionCapture.kps

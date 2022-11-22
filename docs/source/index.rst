@@ -10,6 +10,12 @@ Welcome to Ultra Motion Capture's documentation!
 
    This project is under active development.
 
+Overall Structure 
+-----------------
+.. inheritance-diagram:: UltraMotionCapture.field UltraMotionCapture.kps UltraMotionCapture.obj3d UltraMotionCapture.obj4d
+   :caption: Inheritance Relationship
+   :parts: -1
+
 .. toctree::
    :maxdepth: 3
    :caption: Contents:

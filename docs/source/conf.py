@@ -35,11 +35,13 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
+    "sphinx.ext.inheritance_diagram",
     'sphinxcontrib.napoleon',
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
 ]
 autosummary_generate = True
+autodoc_member_order = 'bysource'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

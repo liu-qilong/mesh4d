@@ -9,10 +9,6 @@ UltraMotionCapture.field
 
    
    
-   
-
-   
-   
    .. rubric:: Classes
 
    .. autosummary::
@@ -22,6 +18,27 @@ UltraMotionCapture.field
       Trans
       Trans_Nonrigid
       Trans_Rigid
+   
+   
+
+   
+   
+
+   .. inheritance-diagram:: UltraMotionCapture.field
+      :caption: Inheritance Relationship
+      :parts: -1
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      transform_rst2sm
+      transform_sm2rst
    
    
 

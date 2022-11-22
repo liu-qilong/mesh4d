@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.kps.MarkerSet
+UltraMotionCapture.kps.MarkerSet
 ================================
 
 .. currentmodule:: UltraMotionCapture.kps
