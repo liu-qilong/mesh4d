@@ -58,7 +58,7 @@ class Kps(object):
         Parameters
         ---
         source
-            An :class:`open3d.geometry.PointCloud` object for points selection.
+            an :class:`open3d.geometry.PointCloud` object for points selection.
 
         Warnings
         ---
@@ -87,9 +87,9 @@ class Kps(object):
         Parameters
         ---
         markerset
-            A :class:`MarkerSet` object carrying Vicon motion capture data, which contains various frames.
+            a :class:`MarkerSet` object carrying Vicon motion capture data, which contains various frames.
         frame_id
-            The frame index of the Vicon motion capture data to be loaded.
+            the frame index of the Vicon motion capture data to be loaded.
         """
         points = markerset.get_frame_coord(frame_id)
         points_cal = points
@@ -101,13 +101,13 @@ class Kps(object):
         Parameters
         ---
         markerset
-            A :class:`MarkerSet` object carrying Vicon motion capture data, which contains various frames.
+            a :class:`MarkerSet` object carrying Vicon motion capture data, which contains various frames.
 
             Warnings
             ---
             Before passing into :meth:`load_from_markerset_time`, call :meth:`MarkerSet.interp_field` first so that coordinates data at any specific time is accessible.
         time
-            The time stamp of Vicon motion data to be loaded.
+            the time stamp of Vicon motion data to be loaded.
         """
         points = markerset.get_time_coord(time)
         points_cal = points
@@ -153,7 +153,7 @@ class Kps_Deform(Kps):
         Parameters
         ---
         trans
-            An :meth:`UltraMotionCapture.field.Trans_Nonrigid` object that represents the transformation.
+            an :meth:`UltraMotionCapture.field.Trans_Nonrigid` object that represents the transformation.
         """
         self.trans = trans
         self.kps_deform_points = self.trans.points_disp(self.kps_source_points)
@@ -170,11 +170,11 @@ class Marker(object):
     Parameters
     ---
     name
-        The name of the marker.
+        the name of the marker.
     start_time
-        The start time of the coordinates data.
+        the start time of the coordinates data.
     fps
-        The number of frames per second (fps).
+        the number of frames per second (fps).
 
     Note
     ---
@@ -331,7 +331,7 @@ class Marker(object):
         is_save
             weather save the generated graph or not.
         Others
-            Parameters passed to :meth:`plot_add_line` and :meth:`plot_add_dot` to controlling the appearance.
+            parameters passed to :meth:`plot_add_line` and :meth:`plot_add_dot` to controlling the appearance.
         """
         fig = plt.figure(dpi=dpi)
         ax = fig.add_subplot(projection='3d')
@@ -460,7 +460,7 @@ class MarkerSet(object):
         Parameters
         ---
         filedir
-            The directory of the :code:`.csv` file.
+            the directory of the :code:`.csv` file.
         """
         def parse(df, df_head):
             self.fps = df_head.values.tolist()[0][0]  # parse the fps

@@ -6,7 +6,7 @@
 Welcome to Ultra Motion Capture's documentation!
 ================================================
 
-.. note::
+.. attention::
 
    This project is under active development.
 
@@ -17,7 +17,6 @@ Overall Structure
    :parts: -1
 
 .. toctree::
-   :maxdepth: 3
    :caption: Contents:
 
    api

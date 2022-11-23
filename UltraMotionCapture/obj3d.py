@@ -1,5 +1,20 @@
-"""The 4D object is consist of a series of 3D objects. In :mod:`UltraMotionCapture.obj3d`, 3D object classes with different features and capabilities are developed, serving for different analysis needs and scenarios. Moreover, a wide range of utils functions are provided, serving for 3D images loading, processing, format transformation, ect.
+"""The 4D object is consist of a series of 3D objects. In :mod:`UltraMotionCapture.obj3d`, 3D object classes with different features and capabilities are developed, serving for different analysis needs and scenarios. At current stage, there are 3 types of 3D object:
+
+- Static 3D object :class:`Obj3d`
+
+  It loads :code:`.obj` 3D mesh image and sampled it as the point cloud.
+
+- Static 3D object :class:`Obj3d_Kps` with key points
+
+  It's derived from :class:`Obj3d` and attach the key points (:class:`UltraMotionCapture.kps.Kps`) to it.
+
+- Dynamic/Deformable 3D object :class:`Obj3d_Deform`
+
+  It's derived from :class:`Obj3d_Kps` and attach the rigid transformation (:class:`UltraMotionCapture.field.Trans_Rigid`) and non-rigid deformation (:class:`UltraMotionCapture.field.Trans_Nonrigid`) to it.
+
+Moreover, a wide range of utils functions are provided, serving for 3D images loading, processing, format transformation, ect.
 """
+
 from __future__ import annotations
 from typing import Type, Union, Iterable
 
@@ -14,7 +29,7 @@ import field
 
 class Obj3d(object):
     """
-    The basic 3D object class.
+    The basic 3D object class. Loads :code:`.obj` 3D mesh image and sampled it as the point cloud.
 
     Parameters
     ---
@@ -78,7 +93,7 @@ class Obj3d(object):
 
 class Obj3d_Kps(Obj3d):
     """
-    The 3D object with key points attached to it.
+    The 3D object with key points attached to it. Derived from :class:`Obj3d` and attach the key points (:class:`UltraMotionCapture.kps.Kps`) to it.
 
     Parameters
     ---
@@ -97,7 +112,7 @@ class Obj3d_Kps(Obj3d):
 
 class Obj3d_Deform(Obj3d_Kps):
     """
-    The deformable 3D object with key points and transformations attached to it.
+    The dynamic/deformable 3D object with key points and transformations attached to it. Derived from :class:`Obj3d_Kps` and attach the rigid transformation (:class:`UltraMotionCapture.field.Trans_Rigid`) and non-rigid deformation (:class:`UltraMotionCapture.field.Trans_Nonrigid`) to it.
 
     Parameters
     ---
@@ -491,16 +506,3 @@ def load_obj_series(
         print("loaded 1 mesh file: {}".format(filedir))
 
     return o3_ls
-
-
-if __name__ == '__main__':
-    o3 = Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj')
-
-    o3_center = pcd_get_center(o3.pcd)
-    print("center: {}".format(o3_center))
-    print("max bound: {}".format(pcd_get_max_bound(o3.pcd)))
-    print("min bound: {}".format(pcd_get_min_bound(o3.pcd)))
-
-    o3.show()
-    o3d.visualization.draw_geometries([pcd_crop(o3.pcd, min_bound=o3_center)])
-    o3d.visualization.draw_geometries([mesh_crop(o3.mesh, min_bound=o3_center)])

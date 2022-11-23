@@ -32,13 +32,6 @@ UltraMotionCapture.obj4d
 
    
    
-   .. rubric:: Functions
-
-   .. autosummary::
-      :toctree:
-   
-      offset_rotate_Obj4d
-   
    
 
    

@@ -1,4 +1,4 @@
-UltraMotionCapture.utils
+﻿UltraMotionCapture.utils
 ========================
 
 .. automodule:: UltraMotionCapture.utils
@@ -23,6 +23,7 @@ UltraMotionCapture.utils
       :toctree:
    
       images_to_gif
+      obj_pick_points
    
    
 
