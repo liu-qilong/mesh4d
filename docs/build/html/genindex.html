@@ -1,0 +1,701 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
+
+    <meta name="generator" content="sphinx-4.0.1, furo 2022.09.29"/><title>Index - Ultra Motion Capture 0.0 documentation</title>
+<link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Ultra Motion Capture 0.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">Ultra Motion Capture 0.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/UltraMotionCapture.html">UltraMotionCapture</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/UltraMotionCapture.analysis.html">UltraMotionCapture.analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/UltraMotionCapture.config.html">UltraMotionCapture.config</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/UltraMotionCapture.field.html">UltraMotionCapture.field</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.field.Trans.html">UltraMotionCapture.field.Trans</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html">UltraMotionCapture.field.Trans_Nonrigid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.field.Trans_Rigid.html">UltraMotionCapture.field.Trans_Rigid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.field.transform_rst2sm.html">UltraMotionCapture.field.transform_rst2sm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.field.transform_sm2rst.html">UltraMotionCapture.field.transform_sm2rst</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/UltraMotionCapture.kps.html">UltraMotionCapture.kps</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.kps.Kps.html">UltraMotionCapture.kps.Kps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.kps.Kps_Deform.html">UltraMotionCapture.kps.Kps_Deform</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.kps.Marker.html">UltraMotionCapture.kps.Marker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.kps.MarkerSet.html">UltraMotionCapture.kps.MarkerSet</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.html">UltraMotionCapture.obj3d</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.Obj3d.html">UltraMotionCapture.obj3d.Obj3d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.Obj3d_Deform.html">UltraMotionCapture.obj3d.Obj3d_Deform</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.Obj3d_Kps.html">UltraMotionCapture.obj3d.Obj3d_Kps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.load_obj_series.html">UltraMotionCapture.obj3d.load_obj_series</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.mesh2pcd.html">UltraMotionCapture.obj3d.mesh2pcd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.mesh_crop.html">UltraMotionCapture.obj3d.mesh_crop</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.np2pcd.html">UltraMotionCapture.obj3d.np2pcd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.np2pvpcd.html">UltraMotionCapture.obj3d.np2pvpcd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.pcd2np.html">UltraMotionCapture.obj3d.pcd2np</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.pcd_crop.html">UltraMotionCapture.obj3d.pcd_crop</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.pcd_crop_front.html">UltraMotionCapture.obj3d.pcd_crop_front</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.pcd_get_center.html">UltraMotionCapture.obj3d.pcd_get_center</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.pcd_get_max_bound.html">UltraMotionCapture.obj3d.pcd_get_max_bound</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.pcd_get_min_bound.html">UltraMotionCapture.obj3d.pcd_get_min_bound</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.search_nearest_point.html">UltraMotionCapture.obj3d.search_nearest_point</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.search_nearest_point_idx.html">UltraMotionCapture.obj3d.search_nearest_point_idx</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj4d.html">UltraMotionCapture.obj4d</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj4d.Obj4d.html">UltraMotionCapture.obj4d.Obj4d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj4d.Obj4d_Deform.html">UltraMotionCapture.obj4d.Obj4d_Deform</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj4d.Obj4d_Kps.html">UltraMotionCapture.obj4d.Obj4d_Kps</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/UltraMotionCapture.utils.html">UltraMotionCapture.utils</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.utils.images_to_gif.html">UltraMotionCapture.utils.images_to_gif</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.utils.obj_pick_points.html">UltraMotionCapture.utils.obj_pick_points</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          
+<section class="genindex-section">
+  <h1 id="index">Index</h1>
+  <div class="genindex-jumpbox"><a href="#_"><strong>_</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a></div>
+</section>
+<section id="_" class="genindex-section">
+  <h2>_</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html#UltraMotionCapture.field.Trans_Nonrigid.__fix">__fix() (UltraMotionCapture.field.Trans_Nonrigid method)</a>
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid.__fix">(UltraMotionCapture.field.Trans_Rigid method)</a>
+</li>
+        </ul></li>
+        <li><a href="_autosummary/UltraMotionCapture.field.Trans.html#UltraMotionCapture.field.Trans.__init__">__init__() (UltraMotionCapture.field.Trans method)</a>
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html#UltraMotionCapture.field.Trans_Nonrigid.__init__">(UltraMotionCapture.field.Trans_Nonrigid method)</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid.__init__">(UltraMotionCapture.field.Trans_Rigid method)</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.__init__">(UltraMotionCapture.kps.Kps method)</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.kps.Kps_Deform.html#UltraMotionCapture.kps.Kps_Deform.__init__">(UltraMotionCapture.kps.Kps_Deform method)</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.__init__">(UltraMotionCapture.kps.Marker method)</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.__init__">(UltraMotionCapture.kps.MarkerSet method)</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.obj3d.Obj3d.html#UltraMotionCapture.obj3d.Obj3d.__init__">(UltraMotionCapture.obj3d.Obj3d method)</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.obj3d.Obj3d_Deform.html#UltraMotionCapture.obj3d.Obj3d_Deform.__init__">(UltraMotionCapture.obj3d.Obj3d_Deform method)</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps.__init__">(UltraMotionCapture.obj3d.Obj3d_Kps method)</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.obj4d.Obj4d.html#UltraMotionCapture.obj4d.Obj4d.__init__">(UltraMotionCapture.obj4d.Obj4d method)</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.obj4d.Obj4d_Deform.html#UltraMotionCapture.obj4d.Obj4d_Deform.__init__">(UltraMotionCapture.obj4d.Obj4d_Deform method)</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.obj4d.Obj4d_Kps.html#UltraMotionCapture.obj4d.Obj4d_Kps.__init__">(UltraMotionCapture.obj4d.Obj4d_Kps method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html#UltraMotionCapture.field.Trans_Nonrigid.__parse">__parse() (UltraMotionCapture.field.Trans_Nonrigid method)</a>
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid.__parse">(UltraMotionCapture.field.Trans_Rigid method)</a>
+</li>
+        </ul></li>
+        <li><a href="_autosummary/UltraMotionCapture.obj4d.Obj4d_Deform.html#UltraMotionCapture.obj4d.Obj4d_Deform.__process_first_obj">__process_first_obj() (UltraMotionCapture.obj4d.Obj4d_Deform method)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj4d.Obj4d_Deform.html#UltraMotionCapture.obj4d.Obj4d_Deform.__process_nonrigid_dynamic">__process_nonrigid_dynamic() (UltraMotionCapture.obj4d.Obj4d_Deform method)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj4d.Obj4d_Deform.html#UltraMotionCapture.obj4d.Obj4d_Deform.__process_rigid_dynamic">__process_rigid_dynamic() (UltraMotionCapture.obj4d.Obj4d_Deform method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="A" class="genindex-section">
+  <h2>A</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.obj4d.Obj4d.html#UltraMotionCapture.obj4d.Obj4d.add_obj">add_obj() (UltraMotionCapture.obj4d.Obj4d method)</a>
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.obj4d.Obj4d_Deform.html#UltraMotionCapture.obj4d.Obj4d_Deform.add_obj">(UltraMotionCapture.obj4d.Obj4d_Deform method)</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.obj4d.Obj4d_Kps.html#UltraMotionCapture.obj4d.Obj4d_Kps.add_obj">(UltraMotionCapture.obj4d.Obj4d_Kps method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="F" class="genindex-section">
+  <h2>F</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.fill_data">fill_data() (UltraMotionCapture.kps.Marker method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="G" class="genindex-section">
+  <h2>G</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.get_frame_coord">get_frame_coord() (UltraMotionCapture.kps.Marker method)</a>
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.get_frame_coord">(UltraMotionCapture.kps.MarkerSet method)</a>
+</li>
+        </ul></li>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Kps_Deform.html#UltraMotionCapture.kps.Kps_Deform.get_kps_deform_points">get_kps_deform_points() (UltraMotionCapture.kps.Kps_Deform method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.get_kps_source_points">get_kps_source_points() (UltraMotionCapture.kps.Kps method)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.get_time_coord">get_time_coord() (UltraMotionCapture.kps.Marker method)</a>
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.get_time_coord">(UltraMotionCapture.kps.MarkerSet method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="I" class="genindex-section">
+  <h2>I</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.utils.images_to_gif.html#UltraMotionCapture.utils.images_to_gif">images_to_gif() (in module UltraMotionCapture.utils)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.interp_field">interp_field() (UltraMotionCapture.kps.Marker method)</a>
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.interp_field">(UltraMotionCapture.kps.MarkerSet method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="K" class="genindex-section">
+  <h2>K</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps">Kps (class in UltraMotionCapture.kps)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Kps_Deform.html#UltraMotionCapture.kps.Kps_Deform">Kps_Deform (class in UltraMotionCapture.kps)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="L" class="genindex-section">
+  <h2>L</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.load_from_markerset_frame">load_from_markerset_frame() (UltraMotionCapture.kps.Kps method)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.load_from_markerset_time">load_from_markerset_time() (UltraMotionCapture.kps.Kps method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.load_from_vicon">load_from_vicon() (UltraMotionCapture.kps.MarkerSet method)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.load_obj_series.html#UltraMotionCapture.obj3d.load_obj_series">load_obj_series() (in module UltraMotionCapture.obj3d)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="M" class="genindex-section">
+  <h2>M</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker">Marker (class in UltraMotionCapture.kps)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet">MarkerSet (class in UltraMotionCapture.kps)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.mesh2pcd.html#UltraMotionCapture.obj3d.mesh2pcd">mesh2pcd() (in module UltraMotionCapture.obj3d)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.mesh_crop.html#UltraMotionCapture.obj3d.mesh_crop">mesh_crop() (in module UltraMotionCapture.obj3d)</a>
+</li>
+        <li>
+    module
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.html#module-UltraMotionCapture">UltraMotionCapture</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.analysis.html#module-UltraMotionCapture.analysis">UltraMotionCapture.analysis</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.config.html#module-UltraMotionCapture.config">UltraMotionCapture.config</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.field.html#module-UltraMotionCapture.field">UltraMotionCapture.field</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.kps.html#module-UltraMotionCapture.kps">UltraMotionCapture.kps</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.obj3d.html#module-UltraMotionCapture.obj3d">UltraMotionCapture.obj3d</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.obj4d.html#module-UltraMotionCapture.obj4d">UltraMotionCapture.obj4d</a>
+</li>
+          <li><a href="_autosummary/UltraMotionCapture.utils.html#module-UltraMotionCapture.utils">UltraMotionCapture.utils</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="N" class="genindex-section">
+  <h2>N</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.np2pcd.html#UltraMotionCapture.obj3d.np2pcd">np2pcd() (in module UltraMotionCapture.obj3d)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.np2pvpcd.html#UltraMotionCapture.obj3d.np2pvpcd">np2pvpcd() (in module UltraMotionCapture.obj3d)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="O" class="genindex-section">
+  <h2>O</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.Obj3d.html#UltraMotionCapture.obj3d.Obj3d">Obj3d (class in UltraMotionCapture.obj3d)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.Obj3d_Deform.html#UltraMotionCapture.obj3d.Obj3d_Deform">Obj3d_Deform (class in UltraMotionCapture.obj3d)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps">Obj3d_Kps (class in UltraMotionCapture.obj3d)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj4d.Obj4d.html#UltraMotionCapture.obj4d.Obj4d">Obj4d (class in UltraMotionCapture.obj4d)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.obj4d.Obj4d_Deform.html#UltraMotionCapture.obj4d.Obj4d_Deform">Obj4d_Deform (class in UltraMotionCapture.obj4d)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj4d.Obj4d_Kps.html#UltraMotionCapture.obj4d.Obj4d_Kps">Obj4d_Kps (class in UltraMotionCapture.obj4d)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.utils.obj_pick_points.html#UltraMotionCapture.utils.obj_pick_points">obj_pick_points() (in module UltraMotionCapture.utils)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.Obj3d_Deform.html#UltraMotionCapture.obj3d.Obj3d_Deform.offset_rotate">offset_rotate() (UltraMotionCapture.obj3d.Obj3d_Deform method)</a>
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.obj4d.Obj4d_Deform.html#UltraMotionCapture.obj4d.Obj4d_Deform.offset_rotate">(UltraMotionCapture.obj4d.Obj4d_Deform method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="P" class="genindex-section">
+  <h2>P</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.pcd2np.html#UltraMotionCapture.obj3d.pcd2np">pcd2np() (in module UltraMotionCapture.obj3d)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.pcd_crop.html#UltraMotionCapture.obj3d.pcd_crop">pcd_crop() (in module UltraMotionCapture.obj3d)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.pcd_crop_front.html#UltraMotionCapture.obj3d.pcd_crop_front">pcd_crop_front() (in module UltraMotionCapture.obj3d)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.pcd_get_center.html#UltraMotionCapture.obj3d.pcd_get_center">pcd_get_center() (in module UltraMotionCapture.obj3d)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.pcd_get_max_bound.html#UltraMotionCapture.obj3d.pcd_get_max_bound">pcd_get_max_bound() (in module UltraMotionCapture.obj3d)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.pcd_get_min_bound.html#UltraMotionCapture.obj3d.pcd_get_min_bound">pcd_get_min_bound() (in module UltraMotionCapture.obj3d)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.plot_add_dot">plot_add_dot() (UltraMotionCapture.kps.Marker method)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.plot_add_line">plot_add_line() (UltraMotionCapture.kps.Marker method)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.plot_frame">plot_frame() (UltraMotionCapture.kps.MarkerSet method)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.plot_track">plot_track() (UltraMotionCapture.kps.Marker method)</a>
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.plot_track">(UltraMotionCapture.kps.MarkerSet method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="R" class="genindex-section">
+  <h2>R</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html#UltraMotionCapture.field.Trans_Nonrigid.regist">regist() (UltraMotionCapture.field.Trans_Nonrigid method)</a>
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid.regist">(UltraMotionCapture.field.Trans_Rigid method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="S" class="genindex-section">
+  <h2>S</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.search_nearest_point.html#UltraMotionCapture.obj3d.search_nearest_point">search_nearest_point() (in module UltraMotionCapture.obj3d)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.search_nearest_point_idx.html#UltraMotionCapture.obj3d.search_nearest_point_idx">search_nearest_point_idx() (in module UltraMotionCapture.obj3d)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.select_kps_points">select_kps_points() (UltraMotionCapture.kps.Kps method)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.set_kps_source_points">set_kps_source_points() (UltraMotionCapture.kps.Kps method)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.kps.Kps_Deform.html#UltraMotionCapture.kps.Kps_Deform.set_trans">set_trans() (UltraMotionCapture.kps.Kps_Deform method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.Obj3d_Deform.html#UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_nonrigid">set_trans_nonrigid() (UltraMotionCapture.obj3d.Obj3d_Deform method)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.obj3d.Obj3d_Deform.html#UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_rigid">set_trans_rigid() (UltraMotionCapture.obj3d.Obj3d_Deform method)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html#UltraMotionCapture.field.Trans_Nonrigid.shift_points">shift_points() (UltraMotionCapture.field.Trans_Nonrigid method)</a>
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid.shift_points">(UltraMotionCapture.field.Trans_Rigid method)</a>
+</li>
+        </ul></li>
+        <li><a href="_autosummary/UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid.show">show() (UltraMotionCapture.field.Trans_Rigid method)</a>
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.obj3d.Obj3d.html#UltraMotionCapture.obj3d.Obj3d.show">(UltraMotionCapture.obj3d.Obj3d method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="T" class="genindex-section">
+  <h2>T</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.field.Trans.html#UltraMotionCapture.field.Trans">Trans (class in UltraMotionCapture.field)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html#UltraMotionCapture.field.Trans_Nonrigid">Trans_Nonrigid (class in UltraMotionCapture.field)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="_autosummary/UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid">Trans_Rigid (class in UltraMotionCapture.field)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.field.transform_rst2sm.html#UltraMotionCapture.field.transform_rst2sm">transform_rst2sm() (in module UltraMotionCapture.field)</a>
+</li>
+        <li><a href="_autosummary/UltraMotionCapture.field.transform_sm2rst.html#UltraMotionCapture.field.transform_sm2rst">transform_sm2rst() (in module UltraMotionCapture.field)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="U" class="genindex-section">
+  <h2>U</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    UltraMotionCapture
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.html#module-UltraMotionCapture">module</a>
+</li>
+        </ul></li>
+        <li>
+    UltraMotionCapture.analysis
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.analysis.html#module-UltraMotionCapture.analysis">module</a>
+</li>
+        </ul></li>
+        <li>
+    UltraMotionCapture.config
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.config.html#module-UltraMotionCapture.config">module</a>
+</li>
+        </ul></li>
+        <li>
+    UltraMotionCapture.field
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.field.html#module-UltraMotionCapture.field">module</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    UltraMotionCapture.kps
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.kps.html#module-UltraMotionCapture.kps">module</a>
+</li>
+        </ul></li>
+        <li>
+    UltraMotionCapture.obj3d
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.obj3d.html#module-UltraMotionCapture.obj3d">module</a>
+</li>
+        </ul></li>
+        <li>
+    UltraMotionCapture.obj4d
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.obj4d.html#module-UltraMotionCapture.obj4d">module</a>
+</li>
+        </ul></li>
+        <li>
+    UltraMotionCapture.utils
+
+        <ul>
+          <li><a href="_autosummary/UltraMotionCapture.utils.html#module-UltraMotionCapture.utils">module</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, Dr. Kit-lun Yick&#39;s Research Team
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    </body>
+</html>

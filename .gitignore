@@ -17,6 +17,7 @@ param/
 *.jpg
 *.gif
 *.mov
+*.pdf
 
 # latex related
 build/
@@ -37,3 +38,8 @@ build/
 *cls
 *xdy
 *gz
+
+# rendered html docs
+!docs/build/
+docs/build/doctrees/
+docs/build/latex/
