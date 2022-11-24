@@ -6,9 +6,9 @@ They serve as the skeleton to support any downstream analysis task. Therefore, i
 
 ## What makes an analysable 4D scene?
 
-As suggested by the name, 4D scanning is an imaging system that can record 3D + T data, i.e. 3 dimensions of space and 1 dimension of time. To be more specific, the 3dMD 4D scanning system records 3D image series in very high time- and space- resolution. Therefore, 
+As suggested by the name, 4D scanning is an imaging system that can record 3D + T data, i.e. 3 dimensions of space and 1 dimension of time. To be more specific, the 3dMD 4D scanning system records 3D image series in very high time- and space- resolution.
 
-It can provide very rich information on the dynamic movement and deformation of the human body during active activities. However, there is a crucial lack of inner-relationship information between different frames of 3D images:
+Therefore, it can provide very rich information on the dynamic movement and deformation of the human body during active activities. However, there is a crucial lack of inner-relationship information between different frames of 3D images:
 
 ```{attention}
 For example, with the 5th and 6th frames of 3D images, we know that the former one transforms into the next one. However, for any specific point in the 5th frame, we don't know which point in the 6th frame it transfers to.
@@ -16,13 +16,11 @@ For example, with the 5th and 6th frames of 3D images, we know that the former o
 *Such lack of information blocks the way of any sophisticated and thematic analysis of the 4D data*, such as tracing the movement of the nipple points and tracking the variation of the upper arm area during some kind of sports activity.
 ```
 
-Actually, the whole {mod}`UltraMotionCapture` project is motivated and centred around this bottleneck problem.
-
-aims at revealing the so-called inner-relationship information between different frames. **An analysable 4D scene must consists such information**. At the most meticulous level, the inner-relationship information can be represented as a *displacement field*. That is, specifically, in which direction and to what distance a point in a 3D frame is moving.
+Actually, the whole {mod}`UltraMotionCapture` project is motivated and centred around this bottleneck problem. We aims at revealing the so-called inner-relationship information between different frames. **An analysable 4D scene must consists such information**. At the most meticulous level, the inner-relationship information can be represented as a *displacement field*. That is, specifically, in which direction and to what distance a point in a 3D frame is moving.
 
 ## Construction of the analysable 4D scene
 
-The development of the core modules and 1 **auxiliary modules** ({mod}`UltraMotionCapture.utils`) is centred around constructing an {ref}`analysable 4D scene <What makes an analysable 4D scene?>`. It follows such a pattern:
+The development of the core modules and 1 auxiliary modules ({mod}`UltraMotionCapture.utils`) is centred around constructing an {ref}`analysable 4D scene <What makes an analysable 4D scene?>`. It follows such a pattern:
 
 - The 4D object defined in {mod}`UltraMotionCapture.obj4d` contains of a series of 3D objects.
 - The 3D object defined in {mod}`UltraMotionCapture.obj3d` contains the loaded mesh, point cloud, key point coordinates (provided by Vicon), and the estimated displacement field.
@@ -70,10 +68,10 @@ For specific meaning and usage of these functions and their inputs, please refer
 
 Now we have an analysable 4D object, but inside it, there aren't many functions for analysis. What's the deal?
 
-It's related to our *design idea*: object-orientated development. If you're not familiar with this idea, let me explain some bit of this idea to you. Object-orientated development, aka object-orientated programming, is a kind of programming paradigm that abstracted the programming problem into objects. In the real world, problems are always related to *objects*. For example:
+It's related to our *design idea*: object-orientated development. If you're not familiar with this idea, let me explain some bit of it to you. Object-orientated development, aka object-orientated programming, is a kind of programming paradigm that abstracts the programming problem into objects. In the real world, problems are always related to *objects*. For example:
 
 ```{admonition} Example
-The traffic light scheduling problem is consist of 3 types of objects, aka 3 classes: `car`, `human`, and `road`. Each of the objects contains a series of actions (represented as a function in programming), variables (such as speed and size, represented as an attribute in programming), and interactions with other objects.
+The traffic light scheduling problem is consist of 3 types of objects, aka 3 classes: `car`, `human`, and `road`. Each of the objects contains a series of actions (represented as a function in programming), variables (such as speed and size, represented as attributes in programming), and interactions with other objects.
 ```
 
 In our project, the object relationship is:
@@ -88,7 +86,7 @@ There are various kinds of `car`, such as `bus`, `truck`, and `van`. They are al
 In object-orientated programming, a `bus` class can be defined as derived from the `car` object, inheriting attributes and functions of `car` class, and adding/revising its supplement attributes and functions. And so do the `truck` and `van` classes.
 ```
 
-With inheritance, the development of classes can lay out in an incremental fashion. If you jump into {mod}`UltraMotionCapture.obj3d` and {mod}`UltraMotionCapture.obj4d`, you will find that they all contain 3 classes, one without suffix and 2 with suffixes `_Kps` or `_Deform`:
+With inheritance, the development of classes can lay out in an incremental fashion. If you jump into {mod}`UltraMotionCapture.obj3d` and {mod}`UltraMotionCapture.obj4d`, you will find that they all contain 3 classes, 1 without suffix and 2 with suffixe `_Kps` or `_Deform`:
 
 - The classes without suffix ({class}`~UltraMotionCapture.obj3d.Obj3d` and {class}`~UltraMotionCapture.obj4d.Obj4d`) are the basic classes for 3D and 4D objects. Only basic features like loading from 3dMD scanning data and sampling the point cloud are realised.
 - The classes with suffix `_Kps` ({class}`~UltraMotionCapture.obj3d.Obj3d_Kps` and {class}`~UltraMotionCapture.obj4d.Obj4d_Kps`) are derived from {class}`~UltraMotionCapture.obj3d.Obj3d` and {class}`~UltraMotionCapture.obj4d.Obj4d`, respectively. The major development is attaching key points ({class}`~UltraMotionCapture.kps.Kps`) to it.

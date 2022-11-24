@@ -13,19 +13,19 @@ The documentation is generated with [Sphinx](https://www.sphinx-doc.org/en/maste
 
 The project code is stored in `UltraMotionCapture/` folder. Under it is a `data/` folder, a default output folder `output/`, a `config/` folder storing configuration variables.
 
-Except for these folders, you must have noticed there are also some `.py` files, including `utils.py`, `field.py`, `kps.py`, `obj3d.py`, and `obj4d.py`. These are **core modules** for this package. They provide a skeleton for building any downstream analysis task and shall not be modified unless there are very strong reasons to do so.
+Except for these folders, you must have noticed that there are also some `.py` files, including `utils.py`, `field.py`, `kps.py`, `obj3d.py`, and `obj4d.py`. These are **core modules** for this package. They provide a skeleton for building any downstream analysis task and shall not be modified unless there are very strong reasons to do so.
 
-Other than these, there is an `analysis/` folder haven't been discussed. It's the `UltraMotionCapture.analysis/` sub-package storing all downstream analysis modules. At current stage, it's not completed and is still under active development.
+Other than these, there is an `analysis/` folder haven't been discussed. It's the `UltraMotionCapture.analysis` sub-package storing all downstream analysis modules. At current stage, it's not completed and is still under active development.
 
 ## Version Control
 
-We use `git` as the version control tool, which is very popular among developers and works seamlessly with GitHub. If you are not familiar with it, I would recommend this tutorial for quick-start: [Git 教程 - 廖雪峰](https://www.liaoxuefeng.com/wiki/896043488029600)
+We use `git` as the version control tool, which is very popular among developers and works seamlessly with GitHub. If you are not familiar with it, I would recommend this tutorial for quick-start: [Git Tutorial - Xuefeng Liao](https://www.liaoxuefeng.com/wiki/896043488029600)
 
 Following is a series of notes that summarise major commands:
 
-- [001-新建仓库与配置](https://dynalist.io/d/98jG0ek7Inu6QtMoBTjP4vj6)
-- [002-本地仓库操作](https://dynalist.io/d/4L3UM0yhrYAriHjoQTptEMBk)
-- [003-远程仓库操作](https://dynalist.io/d/0NozPTssxkVC8aVebCbNmBkR)
+- [001-Repository Initialisation](https://dynalist.io/d/98jG0ek7Inu6QtMoBTjP4vj6)
+- [002-Local Repository Operation](https://dynalist.io/d/4L3UM0yhrYAriHjoQTptEMBk)
+- [003-Remote Repository Operation](https://dynalist.io/d/0NozPTssxkVC8aVebCbNmBkR)
 
 ## Dependencies
 
