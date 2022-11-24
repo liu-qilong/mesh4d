@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.0.1, furo 2022.09.29"/>
-        <title>UltraMotionCapture.obj4d - Ultra Motion Capture 0.0 documentation</title>
+        <title>UltraMotionCapture.obj4d - Ultra Motion Capture v0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Ultra Motion Capture 0.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">Ultra Motion Capture v0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -147,7 +147,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Ultra Motion Capture 0.0 documentation</span>
+  <span class="sidebar-brand-text">Ultra Motion Capture v0.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -155,8 +155,10 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption"><span class="caption-text">Contents:</span></p>
+  <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../dev%20notes.html">Development Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design%20principles.html">Design Principles</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.html">UltraMotionCapture</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.analysis.html">UltraMotionCapture.analysis</a></li>
@@ -244,7 +246,7 @@
         </div>
         <article role="main">
           <h1>Source code for UltraMotionCapture.obj4d</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;The 4D object is consist of a series of 3D objects (:mod:`UltraMotionCapture.obj3d`). In :mod:`UltraMotionCapture.obj4d`, 4D object classes with different features and capabilities are developed, serving for different analysis needs and scenarios. At current stage, there are 3 types of 4D object:</span>
+<span></span><span class="sd">&quot;&quot;&quot;The 4D object contains a series of 3D objects (:mod:`UltraMotionCapture.obj3d`). In :mod:`UltraMotionCapture.obj4d`, 4D object classes with different features and capabilities are developed, serving for different analysis needs and scenarios. At current stage, there are 3 types of 4D object:</span>
 
 <span class="sd">- Static 4D object :class:`Obj4d`</span>
 
@@ -355,6 +357,14 @@
 
 <span class="sd">        import UltraMotionCapture as umc</span>
 
+<span class="sd">        o3_ls = umc.obj3d.load_obj_series(</span>
+<span class="sd">            folder=&#39;data/6kmh_softbra_8markers_1/&#39;,</span>
+<span class="sd">            start=0,</span>
+<span class="sd">            end=1,</span>
+<span class="sd">            sample_num=1000,</span>
+<span class="sd">            obj_type=umc.obj3d.Obj3d_Kps</span>
+<span class="sd">        )</span>
+
 <span class="sd">        vicon = umc.kps.MarkerSet()</span>
 <span class="sd">        vicon.load_from_vicon(&#39;data/6kmh_softbra_8markers_1.csv&#39;)</span>
 <span class="sd">        vicon.interp_field()</span>
@@ -364,7 +374,6 @@
 <span class="sd">            fps=120,</span>
 <span class="sd">        )</span>
 
-<span class="sd">        o4 = umc.obj4d.Obj4d()</span>
 <span class="sd">        o4.add_obj(*o3_ls)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Obj4d_Kps.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj4d.Obj4d_Kps.html#UltraMotionCapture.obj4d.Obj4d_Kps.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">markerset</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">kps</span><span class="o">.</span><span class="n">MarkerSet</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -433,6 +442,14 @@
 
 <span class="sd">        import UltraMotionCapture as umc</span>
 
+<span class="sd">        o3_ls = umc.obj3d.load_obj_series(</span>
+<span class="sd">            folder=&#39;data/6kmh_softbra_8markers_1/&#39;,</span>
+<span class="sd">            start=0,</span>
+<span class="sd">            end=1,</span>
+<span class="sd">            sample_num=1000,</span>
+<span class="sd">            obj_type=umc.obj3d.Obj3d_Deform</span>
+<span class="sd">        )</span>
+
 <span class="sd">        vicon = umc.kps.MarkerSet()</span>
 <span class="sd">        vicon.load_from_vicon(&#39;data/6kmh_softbra_8markers_1.csv&#39;)</span>
 <span class="sd">        vicon.interp_field()</span>
@@ -444,7 +461,6 @@
 <span class="sd">            enable_nonrigid=True,</span>
 <span class="sd">        )</span>
 
-<span class="sd">        o4 = umc.obj4d.Obj4d()</span>
 <span class="sd">        o4.add_obj(*o3_ls)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Obj4d_Deform.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj4d.Obj4d_Deform.html#UltraMotionCapture.obj4d.Obj4d_Deform.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enable_rigid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">enable_nonrigid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

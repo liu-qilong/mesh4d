@@ -22,7 +22,7 @@ copyright = "2022, Dr. Kit-lun Yick's Research Team"
 author = "Dr. Kit-lun Yick's Research Team"
 
 # The full version, including alpha/beta/rc tags
-release = '0.0'
+release = 'v0.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -39,7 +39,16 @@ extensions = [
     'sphinxcontrib.napoleon',
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
+    'myst_parser',
+    'sphinx.ext.autosectionlabel',
 ]
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.txt': 'markdown',
+    '.md': 'markdown',
+}
+
 autosummary_generate = True
 autodoc_member_order = 'bysource'
 

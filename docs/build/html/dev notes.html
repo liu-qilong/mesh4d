@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Development Notes" href="dev%20notes.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Design Principles" href="design%20principles.html" /><link rel="prev" title="Welcome to Ultra Motion Capture’s documentation!" href="index.html" />
 
     <meta name="generator" content="sphinx-4.0.1, furo 2022.09.29"/>
-        <title>Ultra Motion Capture v0.0 documentation</title>
+        <title>Development Notes - Ultra Motion Capture v0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">Ultra Motion Capture v0.0 documentation</div></a>
+      <a href="index.html"><div class="brand">Ultra Motion Capture v0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
   <span class="sidebar-brand-text">Ultra Motion Capture v0.0 documentation</span>
@@ -157,8 +157,8 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption"><span class="caption-text">Table of Contents</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="dev%20notes.html">Development Notes</a></li>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Development Notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design%20principles.html">Design Principles</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/UltraMotionCapture.html">UltraMotionCapture</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -247,112 +247,36 @@
           </label>
         </div>
         <article role="main">
-          <section id="welcome-to-ultra-motion-capture-s-documentation">
-<h1>Welcome to Ultra Motion Capture’s documentation!<a class="headerlink" href="#welcome-to-ultra-motion-capture-s-documentation" title="Permalink to this headline">#</a></h1>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p>This project is under active development.</p>
-</div>
-<figure class="align-default" id="id3">
-<img alt="_images/overall_structure.png" src="_images/overall_structure.png" />
-<figcaption>
-<p><span class="caption-text">Fig. Overall structure of the core modules.</span><a class="headerlink" href="#id3" title="Permalink to this image">#</a></p>
-</figcaption>
-</figure>
-<p>This package (<a class="reference external" href="https://github.com/TOB-KNPOB/Ultra-Motion-Capture">repository link</a>) is developed for the data processing of the 3dMD 4D scanning system. Comparing with traditional motion capture system, such as Vicon:</p>
+          <section id="development-notes">
+<h1>Development Notes<a class="headerlink" href="#development-notes" title="Permalink to this headline">#</a></h1>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">#</a></h2>
+<p>The documentation web pages can be found in <code class="docutils literal notranslate"><span class="pre">docs/build/html/</span></code>. Please open <code class="docutils literal notranslate"><span class="pre">index.html</span></code> to enter the documentation which provides comprehensive descriptions and working examples for each class and function we provided.</p>
+<p>The documentation is generated with <a class="reference external" href="https://www.sphinx-doc.org/en/master/index.html">Sphinx</a>. If you are not familiar with it, I would recommend two tutorials for quick-start:</p>
 <ul class="simple">
-<li><p>Vicon motion capture system can provided robust &amp; accurate key points tracking based on physical marker points attached to human body. But it suffer from the lack of continuous surface deformation information.</p></li>
-<li><p>3dMD 4D scanning system can record continuous surface deformation information. But it doesn’t provide key point tracking feature and it’s challenging to track the key points via Computer Vision approach, even with the state of the art methods in academia <a class="footnote-reference brackets" href="#id2" id="id1">1</a>.</p></li>
+<li><p><a class="reference external" href="https://sphinx-rtd-tutorial.readthedocs.io/en/latest/">A “How to” Guide for Sphinx + ReadTheDocs - sglvladi</a> provides an easy-to-follow learning curve but omitted some details.</p></li>
+<li><p><a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/quickstart.html">Getting Started - Sphinx</a> is harder to understand, but provides some essential information to understand the background, which is vital even for very basic configuration.</p></li>
 </ul>
-<p>To facilitate human factor research, we deem it an important task to construct a hybrid system that can integrate the advantages and potentials of both systems. The motivation and the core value of this project can be described as: <em>adding continuous spatial dynamic information to Vicon</em> or <em>adding discrete key points information to 3dMD</em>, leading to advancing platform for human factor research in the domain of dynamic human activity.</p>
-<dl class="footnote brackets">
-<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p>Min, Z., Liu, J., Liu, L., &amp; Meng, M. Q.-H. (2021). Generalized coherent point drift with multi-variate gaussian distribution and watson distribution. IEEE Robotics and Automation Letters, 6(4), 6749–6756. <a class="reference external" href="https://doi.org/10.1109/lra.2021.3093011">https://doi.org/10.1109/lra.2021.3093011</a></p>
-</dd>
-</dl>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Before jump into the <a class="reference internal" href="api.html"><span class="doc">API References</span></a>, please read the <a class="reference internal" href="dev%20notes.html"><span class="doc">Development Notes</span></a> and <a class="reference internal" href="design%20principles.html"><span class="doc">Design Principles</span></a> to get an overall understanding of the technical settings and program structure.</p>
-</div>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Table of Contents</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="dev%20notes.html">Development Notes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="dev%20notes.html#documentation">Documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dev%20notes.html#project-code">Project Code</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dev%20notes.html#version-control">Version Control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dev%20notes.html#dependencies">Dependencies</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="design%20principles.html">Design Principles</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="design%20principles.html#what-makes-an-analysable-4d-scene">What makes an analysable 4D scene?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="design%20principles.html#construction-of-the-analysable-4d-scene">Construction of the analysable 4D scene</a></li>
-<li class="toctree-l2"><a class="reference internal" href="design%20principles.html#object-orientated-development">Object-orientated development</a></li>
-<li class="toctree-l2"><a class="reference internal" href="design%20principles.html#overall-structure-of-the-core-modules">Overall structure of the core modules</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API References</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="_autosummary/UltraMotionCapture.html">UltraMotionCapture</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="_autosummary/UltraMotionCapture.analysis.html">UltraMotionCapture.analysis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="_autosummary/UltraMotionCapture.config.html">UltraMotionCapture.config</a></li>
-<li class="toctree-l3"><a class="reference internal" href="_autosummary/UltraMotionCapture.field.html">UltraMotionCapture.field</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.field.Trans.html">UltraMotionCapture.field.Trans</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html">UltraMotionCapture.field.Trans_Nonrigid</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.field.Trans_Rigid.html">UltraMotionCapture.field.Trans_Rigid</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.field.transform_rst2sm.html">UltraMotionCapture.field.transform_rst2sm</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.field.transform_sm2rst.html">UltraMotionCapture.field.transform_sm2rst</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="_autosummary/UltraMotionCapture.kps.html">UltraMotionCapture.kps</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.kps.Kps.html">UltraMotionCapture.kps.Kps</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.kps.Kps_Deform.html">UltraMotionCapture.kps.Kps_Deform</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.kps.Marker.html">UltraMotionCapture.kps.Marker</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.kps.MarkerSet.html">UltraMotionCapture.kps.MarkerSet</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.html">UltraMotionCapture.obj3d</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.Obj3d.html">UltraMotionCapture.obj3d.Obj3d</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.Obj3d_Deform.html">UltraMotionCapture.obj3d.Obj3d_Deform</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.Obj3d_Kps.html">UltraMotionCapture.obj3d.Obj3d_Kps</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.load_obj_series.html">UltraMotionCapture.obj3d.load_obj_series</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.mesh2pcd.html">UltraMotionCapture.obj3d.mesh2pcd</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.mesh_crop.html">UltraMotionCapture.obj3d.mesh_crop</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.np2pcd.html">UltraMotionCapture.obj3d.np2pcd</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.np2pvpcd.html">UltraMotionCapture.obj3d.np2pvpcd</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.pcd2np.html">UltraMotionCapture.obj3d.pcd2np</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.pcd_crop.html">UltraMotionCapture.obj3d.pcd_crop</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.pcd_crop_front.html">UltraMotionCapture.obj3d.pcd_crop_front</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.pcd_get_center.html">UltraMotionCapture.obj3d.pcd_get_center</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.pcd_get_max_bound.html">UltraMotionCapture.obj3d.pcd_get_max_bound</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.pcd_get_min_bound.html">UltraMotionCapture.obj3d.pcd_get_min_bound</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.search_nearest_point.html">UltraMotionCapture.obj3d.search_nearest_point</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj3d.search_nearest_point_idx.html">UltraMotionCapture.obj3d.search_nearest_point_idx</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj4d.html">UltraMotionCapture.obj4d</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj4d.Obj4d.html">UltraMotionCapture.obj4d.Obj4d</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj4d.Obj4d_Deform.html">UltraMotionCapture.obj4d.Obj4d_Deform</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.obj4d.Obj4d_Kps.html">UltraMotionCapture.obj4d.Obj4d_Kps</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="_autosummary/UltraMotionCapture.utils.html">UltraMotionCapture.utils</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.utils.images_to_gif.html">UltraMotionCapture.utils.images_to_gif</a></li>
-<li class="toctree-l4"><a class="reference internal" href="_autosummary/UltraMotionCapture.utils.obj_pick_points.html">UltraMotionCapture.utils.obj_pick_points</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</div>
-<section id="indices-and-tables">
-<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">#</a></h2>
+</section>
+<section id="project-code">
+<h2>Project Code<a class="headerlink" href="#project-code" title="Permalink to this headline">#</a></h2>
+<p>The project code is stored in <code class="docutils literal notranslate"><span class="pre">UltraMotionCapture/</span></code> folder. Under it is a <code class="docutils literal notranslate"><span class="pre">data/</span></code> folder, a default output folder <code class="docutils literal notranslate"><span class="pre">/output</span></code>, a <code class="docutils literal notranslate"><span class="pre">config/</span></code> folder storing configuration variables.</p>
+<p>Except for these folders, you must have noticed there are also some <code class="docutils literal notranslate"><span class="pre">.py</span></code> files, including <code class="docutils literal notranslate"><span class="pre">utils.py</span></code>, <code class="docutils literal notranslate"><span class="pre">field.py</span></code>, <code class="docutils literal notranslate"><span class="pre">kps.py</span></code>, <code class="docutils literal notranslate"><span class="pre">obj3d.py</span></code>, and <code class="docutils literal notranslate"><span class="pre">obj4d.py</span></code>. These are <strong>core modules</strong> for this package. They provide a skeleton for building any downstream analysis task and shall not be modified unless there are very strong reasons to do so.</p>
+<p>Other than these, there is an <code class="docutils literal notranslate"><span class="pre">analysis</span></code> folder haven’t been discussed. It’s the <code class="docutils literal notranslate"><span class="pre">UltraMotionCapture.analysis/</span></code> sub-package storing all downstream analysis modules. At current stage, it’s not completed and is still under active development.</p>
+</section>
+<section id="version-control">
+<h2>Version Control<a class="headerlink" href="#version-control" title="Permalink to this headline">#</a></h2>
+<p>We use <code class="docutils literal notranslate"><span class="pre">git</span></code> as the version control tool, which is very popular among developers and works seamlessly with GitHub. If you are not familiar with it, I would recommend this tutorial for quick-start: <a class="reference external" href="https://www.liaoxuefeng.com/wiki/896043488029600">Git 教程 - 廖雪峰</a></p>
+<p>Following is a series of notes that summarise major commands:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+<li><p><a class="reference external" href="https://dynalist.io/d/98jG0ek7Inu6QtMoBTjP4vj6">001-新建仓库与配置</a></p></li>
+<li><p><a class="reference external" href="https://dynalist.io/d/4L3UM0yhrYAriHjoQTptEMBk">002-本地仓库操作</a></p></li>
+<li><p><a class="reference external" href="https://dynalist.io/d/0NozPTssxkVC8aVebCbNmBkR">003-远程仓库操作</a></p></li>
 </ul>
+</section>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">#</a></h2>
+<p>This project is built upon various open-source packages. All dependencies are listed in <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code>, please install them properly under a Python 3 environment.</p>
 </section>
 </section>
 
@@ -361,16 +285,26 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="dev%20notes.html">
+          <a class="next-page" href="design%20principles.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Development Notes</div>
+                <div class="title">Design Principles</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Home</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -403,8 +337,11 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Welcome to Ultra Motion Capture’s documentation!</a><ul>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+<li><a class="reference internal" href="#">Development Notes</a><ul>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+<li><a class="reference internal" href="#project-code">Project Code</a></li>
+<li><a class="reference internal" href="#version-control">Version Control</a></li>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
 </ul>
 </li>
 </ul>

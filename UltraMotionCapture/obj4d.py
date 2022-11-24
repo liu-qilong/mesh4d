@@ -1,4 +1,4 @@
-"""The 4D object is consist of a series of 3D objects (:mod:`UltraMotionCapture.obj3d`). In :mod:`UltraMotionCapture.obj4d`, 4D object classes with different features and capabilities are developed, serving for different analysis needs and scenarios. At current stage, there are 3 types of 4D object:
+"""The 4D object contains a series of 3D objects (:mod:`UltraMotionCapture.obj3d`). In :mod:`UltraMotionCapture.obj4d`, 4D object classes with different features and capabilities are developed, serving for different analysis needs and scenarios. At current stage, there are 3 types of 4D object:
 
 - Static 4D object :class:`Obj4d`
 
@@ -109,6 +109,14 @@ class Obj4d_Kps(Obj4d):
 
         import UltraMotionCapture as umc
 
+        o3_ls = umc.obj3d.load_obj_series(
+            folder='data/6kmh_softbra_8markers_1/',
+            start=0,
+            end=1,
+            sample_num=1000,
+            obj_type=umc.obj3d.Obj3d_Kps
+        )
+
         vicon = umc.kps.MarkerSet()
         vicon.load_from_vicon('data/6kmh_softbra_8markers_1.csv')
         vicon.interp_field()
@@ -118,7 +126,6 @@ class Obj4d_Kps(Obj4d):
             fps=120,
         )
 
-        o4 = umc.obj4d.Obj4d()
         o4.add_obj(*o3_ls)
     """
     def __init__(self, markerset: Union[kps.MarkerSet, None] = None, **kwargs):
@@ -187,6 +194,14 @@ class Obj4d_Deform(Obj4d_Kps):
 
         import UltraMotionCapture as umc
 
+        o3_ls = umc.obj3d.load_obj_series(
+            folder='data/6kmh_softbra_8markers_1/',
+            start=0,
+            end=1,
+            sample_num=1000,
+            obj_type=umc.obj3d.Obj3d_Deform
+        )
+
         vicon = umc.kps.MarkerSet()
         vicon.load_from_vicon('data/6kmh_softbra_8markers_1.csv')
         vicon.interp_field()
@@ -198,7 +213,6 @@ class Obj4d_Deform(Obj4d_Kps):
             enable_nonrigid=True,
         )
 
-        o4 = umc.obj4d.Obj4d()
         o4.add_obj(*o3_ls)
     """
     def __init__(self, enable_rigid: bool = False, enable_nonrigid: bool = False,  **kwargs):
