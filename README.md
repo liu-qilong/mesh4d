@@ -4,6 +4,8 @@ _Fig. Overall structure of the core modules._
 
 ![overall structure](https://github.com/TOB-KNPOB/Ultra-Motion-Capture/blob/main/docs/source/figures/overall_structure.png)
 
+_The solid arrow pointing from `class A` to `class B` indicates that `class B` is derived from `class A`, while the dotted arrow indicates that a `class A` object contains a `class B` object as an attribute._
+
 ## Introduction
 
 This package is developed for the data processing of the 3dMD 4D scanning system. Compared with traditional motion capture systems, such as Vicon:
