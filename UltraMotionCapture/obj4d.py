@@ -33,6 +33,8 @@ class Obj4d(object):
 
     Note
     ---
+    `Class Attributes`
+
     self.start_time
         the start time of the coordinates data.
     self.fps
@@ -100,6 +102,8 @@ class Obj4d_Kps(Obj4d):
 
     Note
     ---
+    `Class Attributes`
+
     self.markerset
         Vicon motion capture data (:class:`UltraMotionCapture.kps.MarkerSet`).
 
@@ -183,6 +187,8 @@ class Obj4d_Deform(Obj4d_Kps):
 
     Note
     ---
+    `Class Attributes`
+
     self.enable_rigid
         whether enable rigid transformation registration ot not. Default as :code:`False`.
     self.enable_nonrigid

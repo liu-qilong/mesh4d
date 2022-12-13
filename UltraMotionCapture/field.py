@@ -30,6 +30,8 @@ class Trans(object):
 
     Note
     ---
+    `Class Attributes`
+
     self.source
         The source point cloud (:class:`open3d.geometry.PointCloud`) of the transformation.
     self.target
@@ -49,6 +51,8 @@ class Trans_Rigid(Trans):
 
     Note
     ---
+    `Class Attributes`
+
     self.scale
         the scaling rate :math:`s`.
     self.rot
@@ -156,6 +160,8 @@ class Trans_Nonrigid(Trans):
 
     Note
     ---
+    `Class Attributes`
+    
     self.source_points
         The source points :math:`\\boldsymbol S \in \mathbb R^{N \\times 3}` stored in (N, 3) :class:`numpy.array`.
     self.deform_points

@@ -48,6 +48,8 @@ class Obj3d(object):
 
     Note
     ---
+    `Class Attributes`
+
     self.mesh_o3d
         3D mesh (:class:`open3d.geometry.TriangleMesh`) loaded with :mod:`open3d` .
     self.pcd
@@ -102,6 +104,8 @@ class Obj3d_Kps(Obj3d):
 
     Note
     ---
+    `Class Attributes`
+
     self.kps
         key points (:class:`UltraMotionCapture.kps.Kps`) attached to the 3D object.
     """
@@ -125,6 +129,8 @@ class Obj3d_Deform(Obj3d_Kps):
 
     Note
     ---
+    `Class Attributes`
+
     self.trans_rigid
         the rigid transformation (:class:`UltraMotionCapture.field.Trans_Rigid`) of the 3D object.
     self.trans_nonrigid

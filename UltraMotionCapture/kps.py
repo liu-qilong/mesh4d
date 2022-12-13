@@ -24,6 +24,8 @@ class Kps(object):
 
     Note
     ---
+    `Class Attributes`
+
     self.kps_source_points
         :math:`N` key points in 3D space stored in a (N, 3) :class:`numpy.array`.
 
@@ -137,6 +139,8 @@ class Kps_Deform(Kps):
 
     Note
     ---
+    `Class Attributes`
+
     self.trans
         An :class:`UltraMotionCapture.field.Trans_Nonrigid` object that stores the deformation information.
     self.kps_deform_points
@@ -178,6 +182,8 @@ class Marker(object):
 
     Note
     ---
+    `Class Attributes`
+
     self.name
         The name of the marker.
     self.start_time
@@ -420,6 +426,8 @@ class MarkerSet(object):
 
     Note
     ---
+    `Class Attributes`
+
     self.fps
         The number of frames per second (fps).
     self.points

@@ -12,7 +12,7 @@ Welcome to Ultra Motion Capture's documentation!
 
 .. figure:: figures/overall_structure.png
    
-   Fig. Overall structure of the core modules.
+   Overall structure of the core modules.
 
 This package (`repository link <https://github.com/TOB-KNPOB/Ultra-Motion-Capture>`_) is developed for the data processing of the 3dMD 4D scanning system. Comparing with traditional motion capture system, such as Vicon:
 

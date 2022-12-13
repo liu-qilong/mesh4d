@@ -113,5 +113,5 @@ Considering the intensive use of object-orientated development, developers invol
 The overall structure of the core modules is illustrated below. Noted that the solid arrow pointing from `class A` to `class B` indicates that `class B` is derived from `class A`, while the dotted arrow indicates that a `class A` object contains a `class B` object as an attribute:
 
 ```{figure} figures/overall_structure.png
-Fig. Overall structure of the core modules.
+Overall structure of the core modules.
 ```
