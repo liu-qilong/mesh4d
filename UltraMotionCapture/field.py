@@ -308,7 +308,7 @@ def transform_rst2sm(R: np.array, s: float, t: np.array) -> tuple[float, np.arra
     M = np.diag(np.full(4, 1, dtype='float64'))
     M[0:3, 0:3] = R
     M[0:3, 3] = t/s
-    return s, M
+    return float(s), M
 
 
 def transform_sm2rst(s: float, M: np.array) -> tuple[np.array, float, np.array]:
