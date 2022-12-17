@@ -17,10 +17,11 @@ from typing import Type, Union, Iterable
 
 import copy
 
-import obj3d
-import kps
-import field
+from UltraMotionCapture import obj3d
+from UltraMotionCapture import kps
+from UltraMotionCapture import field
 
+from UltraMotionCapture import field
 class Obj4d(object):
     """Static 4D object. Contains a list of 3D objects.
 
@@ -46,16 +47,16 @@ class Obj4d(object):
     ---
     Use :func:`load_obj_series` to load a list of 3D objects and then add them to the 4D object: ::
 
-        import UltraMotionCapture as umc
+        from UltraMotionCapture import obj3d, obj4d
 
-        o3_ls = umc.obj3d.load_obj_series(
+        o3_ls = obj3d.load_obj_series(
             folder='data/6kmh_softbra_8markers_1/',
             start=0,
             end=1,
             sample_num=1000,
         )
 
-        o4 = umc.obj4d.Obj4d()
+        o4 = obj4d.Obj4d()
         o4.add_obj(*o3_ls)
     """
     def __init__(self, start_time: float = 0.0, fps: int = 120):
@@ -111,21 +112,21 @@ class Obj4d_Kps(Obj4d):
     ---
     Load Vicon motion capture data (:class:`UltraMotionCapture.kps.MarkerSet`) when initialising the 4D object. And use :func:`load_obj_series` to load a list of 3D objects and add them to the 4D object: ::
 
-        import UltraMotionCapture as umc
+        from UltraMotionCapture import obj3d, obj4d, kps
 
-        o3_ls = umc.obj3d.load_obj_series(
+        o3_ls = obj3d.load_obj_series(
             folder='data/6kmh_softbra_8markers_1/',
             start=0,
             end=1,
             sample_num=1000,
-            obj_type=umc.obj3d.Obj3d_Kps
+            obj_type=obj3d.Obj3d_Kps
         )
 
-        vicon = umc.kps.MarkerSet()
+        vicon = kps.MarkerSet()
         vicon.load_from_vicon('data/6kmh_softbra_8markers_1.csv')
         vicon.interp_field()
 
-        o4 = umc.obj4d.Obj4d_Kps(
+        o4 = obj4d.Obj4d_Kps(
             markerset=vicon,
             fps=120,
         )
@@ -198,21 +199,21 @@ class Obj4d_Deform(Obj4d_Kps):
     ---
     Load Vicon motion capture data (:class:`UltraMotionCapture.kps.MarkerSet`) when initialising the 4D object. Use :func:`load_obj_series` to load a list of 3D objects. And then add them to the 4D object. In the procedure of adding, the program will implement the activated transformation estimation automatically: ::
 
-        import UltraMotionCapture as umc
+        from UltraMotionCapture import obj3d, kps, obj4d
 
-        o3_ls = umc.obj3d.load_obj_series(
+        o3_ls = obj3d.load_obj_series(
             folder='data/6kmh_softbra_8markers_1/',
             start=0,
             end=1,
             sample_num=1000,
-            obj_type=umc.obj3d.Obj3d_Deform
+            obj_type=obj3d.Obj3d_Deform
         )
 
-        vicon = umc.kps.MarkerSet()
+        vicon = kps.MarkerSet()
         vicon.load_from_vicon('data/6kmh_softbra_8markers_1.csv')
         vicon.interp_field()
 
-        o4 = umc.obj4d.Obj4d_Deform(
+        o4 = obj4d.Obj4d_Deform(
             markerset=vicon,
             fps=120,
             enable_rigid=True,
@@ -264,16 +265,16 @@ class Obj4d_Deform(Obj4d_Kps):
         """
         Obj4d_Kps.add_obj(self, *objs, **kwargs)
 
-        for obj in self.obj_ls:
-            if len(self.obj_ls) == 1:
+        for idx in range(len(self.obj_ls)):
+            if idx == 1:
                 self.__process_first_obj()
                 continue
 
             if self.enable_rigid:
-                self.__process_rigid_dynamic(**kwargs)  # aligned to the previous one
+                self.__process_rigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the previous one
 
             if self.enable_nonrigid:
-                self.__process_nonrigid_dynamic(**kwargs)  # aligned to the later one
+                self.__process_nonrigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the later one
 
     def __process_first_obj(self):
         """Process the first added 3D object.
@@ -283,8 +284,15 @@ class Obj4d_Deform(Obj4d_Kps):
         Called by :meth:`add_obj`."""
         pass
 
-    def __process_rigid_dynamic(self, **kwargs):
+    def __process_rigid_dynamic(self, idx_source, idx_target, **kwargs):
         """Estimate the rigid transformation of the added 3D object. The lastly added 3D object is used as source object and the newly added 3D object as the target object.
+
+        Parameters
+        ---
+        idx_source
+            the index of the source 3D object in :code:`self.obj_ls`.
+        idx_target
+            the index of the target 3D object in :code:`self.obj_ls`.
 
         Attention
         ---
@@ -293,8 +301,6 @@ class Obj4d_Deform(Obj4d_Kps):
         Attention
         ---
         Called by :meth:`add_obj`."""
-        idx_source = -2
-        idx_target = -1
         trans = field.Trans_Rigid(
             source_obj=self.obj_ls[idx_source],
             target_obj=self.obj_ls[idx_target],
@@ -302,8 +308,15 @@ class Obj4d_Deform(Obj4d_Kps):
         trans.regist(**kwargs)
         self.obj_ls[idx_source].set_trans_rigid(trans)
 
-    def __process_nonrigid_dynamic(self, **kwargs):
+    def __process_nonrigid_dynamic(self, idx_source, idx_target, **kwargs):
         """Estimate the non-rigid transformation of the added 3D object. The lastly added 3D object is used as source object and the newly added 3D object as the target object.
+
+        Parameters
+        ---
+        idx_source
+            the index of the source 3D object in :code:`self.obj_ls`.
+        idx_target
+            the index of the target 3D object in :code:`self.obj_ls`.
 
         Attention
         ---
@@ -312,8 +325,6 @@ class Obj4d_Deform(Obj4d_Kps):
         Attention
         ---
         Called by :meth:`add_obj`."""
-        idx_source = -2
-        idx_target = -1
         trans = field.Trans_Nonrigid(
             source_obj=self.obj_ls[idx_source],
             target_obj=self.obj_ls[idx_target],

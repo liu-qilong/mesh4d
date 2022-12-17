@@ -16,7 +16,7 @@ import numpy as np
 import open3d as o3d
 from probreg import cpd
 
-import obj3d
+from UltraMotionCapture import obj3d
 
 class Trans(object):
     """The base class of transformation. Different types of transformation, such as rigid and non-rigid transformation, are further defined in the children classes like :class:`Trans_Rigid` and :class:`Trans_Nonrigid`.
@@ -68,12 +68,12 @@ class Trans_Rigid(Trans):
     ---
     After loading and registration, the rigid transformation parameters can then be accessed, including the scaling rate, the rotation matrix, and the translation vector: ::
 
-        import UltraMotionCapture as umc
+        from UltraMotionCapture import obj3d
 
-        o3_1 = umc.obj3d.Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj')
-        o3_2 = umc.obj3d.Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000002.obj')
+        o3_1 = obj3d.Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj')
+        o3_2 = obj3d.Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000002.obj')
 
-        trans = umc.field.Trans_Rigid(o3_1, o3_2)
+        trans = field.Trans_Rigid(o3_1, o3_2)
         trans.regist()
         print(trans.scale, trans.rot, trans.t)
     """
@@ -177,12 +177,12 @@ class Trans_Nonrigid(Trans):
     ---
     After loading and registration, the rigid transformation parameters can then be accessed, including the scaling rate, the rotation matrix, and the translation vector: ::
 
-        import UltraMotionCapture as umc
+        from UltraMotionCapture import obj3d, field
 
-        o3_1 = umc.obj3d.Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj')
-        o3_2 = umc.obj3d.Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000002.obj')
+        o3_1 = obj3d.Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj')
+        o3_2 = obj3d.Obj3d('data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000002.obj')
 
-        trans = umc.field.Trans_Nonrigid(o3_1, o3_2)
+        trans = field.Trans_Nonrigid(o3_1, o3_2)
         trans.regist()
         print(trans.deform_points, trans.disp)
     """
@@ -232,10 +232,11 @@ class Trans_Nonrigid(Trans):
         At current stage, the fixing logic aligns the deformed points to their closest points in the target point cloud, to avoid distortion effect after long-chain registration procedure. This logic may be discarded or replaced by better scheme in future development.
         """
         deform_fix_points = []
+        target_points = obj3d.pcd2np(self.target)
 
         for n in range(len(self.deform_points)):
             deform_fix_points.append(
-                obj3d.search_nearest_point(self.deform_points[n], self.target_points)
+                obj3d.search_nearest_point(self.deform_points[n], target_points)
             )
 
         self.deform_points = deform_fix_points

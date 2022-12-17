@@ -268,10 +268,11 @@
 
 <span class="kn">import</span> <span class="nn">copy</span>
 
-<span class="kn">import</span> <span class="nn">obj3d</span>
-<span class="kn">import</span> <span class="nn">kps</span>
-<span class="kn">import</span> <span class="nn">field</span>
+<span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">obj3d</span>
+<span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">kps</span>
+<span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">field</span>
 
+<span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">field</span>
 <div class="viewcode-block" id="Obj4d"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj4d.Obj4d.html#UltraMotionCapture.obj4d.Obj4d">[docs]</a><span class="k">class</span> <span class="nc">Obj4d</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Static 4D object. Contains a list of 3D objects.</span>
 
@@ -297,16 +298,16 @@
 <span class="sd">    ---</span>
 <span class="sd">    Use :func:`load_obj_series` to load a list of 3D objects and then add them to the 4D object: ::</span>
 
-<span class="sd">        import UltraMotionCapture as umc</span>
+<span class="sd">        from UltraMotionCapture import obj3d, obj4d</span>
 
-<span class="sd">        o3_ls = umc.obj3d.load_obj_series(</span>
+<span class="sd">        o3_ls = obj3d.load_obj_series(</span>
 <span class="sd">            folder=&#39;data/6kmh_softbra_8markers_1/&#39;,</span>
 <span class="sd">            start=0,</span>
 <span class="sd">            end=1,</span>
 <span class="sd">            sample_num=1000,</span>
 <span class="sd">        )</span>
 
-<span class="sd">        o4 = umc.obj4d.Obj4d()</span>
+<span class="sd">        o4 = obj4d.Obj4d()</span>
 <span class="sd">        o4.add_obj(*o3_ls)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Obj4d.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj4d.Obj4d.html#UltraMotionCapture.obj4d.Obj4d.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">120</span><span class="p">):</span>
@@ -362,21 +363,21 @@
 <span class="sd">    ---</span>
 <span class="sd">    Load Vicon motion capture data (:class:`UltraMotionCapture.kps.MarkerSet`) when initialising the 4D object. And use :func:`load_obj_series` to load a list of 3D objects and add them to the 4D object: ::</span>
 
-<span class="sd">        import UltraMotionCapture as umc</span>
+<span class="sd">        from UltraMotionCapture import obj3d, obj4d, kps</span>
 
-<span class="sd">        o3_ls = umc.obj3d.load_obj_series(</span>
+<span class="sd">        o3_ls = obj3d.load_obj_series(</span>
 <span class="sd">            folder=&#39;data/6kmh_softbra_8markers_1/&#39;,</span>
 <span class="sd">            start=0,</span>
 <span class="sd">            end=1,</span>
 <span class="sd">            sample_num=1000,</span>
-<span class="sd">            obj_type=umc.obj3d.Obj3d_Kps</span>
+<span class="sd">            obj_type=obj3d.Obj3d_Kps</span>
 <span class="sd">        )</span>
 
-<span class="sd">        vicon = umc.kps.MarkerSet()</span>
+<span class="sd">        vicon = kps.MarkerSet()</span>
 <span class="sd">        vicon.load_from_vicon(&#39;data/6kmh_softbra_8markers_1.csv&#39;)</span>
 <span class="sd">        vicon.interp_field()</span>
 
-<span class="sd">        o4 = umc.obj4d.Obj4d_Kps(</span>
+<span class="sd">        o4 = obj4d.Obj4d_Kps(</span>
 <span class="sd">            markerset=vicon,</span>
 <span class="sd">            fps=120,</span>
 <span class="sd">        )</span>
@@ -449,21 +450,21 @@
 <span class="sd">    ---</span>
 <span class="sd">    Load Vicon motion capture data (:class:`UltraMotionCapture.kps.MarkerSet`) when initialising the 4D object. Use :func:`load_obj_series` to load a list of 3D objects. And then add them to the 4D object. In the procedure of adding, the program will implement the activated transformation estimation automatically: ::</span>
 
-<span class="sd">        import UltraMotionCapture as umc</span>
+<span class="sd">        from UltraMotionCapture import obj3d, kps, obj4d</span>
 
-<span class="sd">        o3_ls = umc.obj3d.load_obj_series(</span>
+<span class="sd">        o3_ls = obj3d.load_obj_series(</span>
 <span class="sd">            folder=&#39;data/6kmh_softbra_8markers_1/&#39;,</span>
 <span class="sd">            start=0,</span>
 <span class="sd">            end=1,</span>
 <span class="sd">            sample_num=1000,</span>
-<span class="sd">            obj_type=umc.obj3d.Obj3d_Deform</span>
+<span class="sd">            obj_type=obj3d.Obj3d_Deform</span>
 <span class="sd">        )</span>
 
-<span class="sd">        vicon = umc.kps.MarkerSet()</span>
+<span class="sd">        vicon = kps.MarkerSet()</span>
 <span class="sd">        vicon.load_from_vicon(&#39;data/6kmh_softbra_8markers_1.csv&#39;)</span>
 <span class="sd">        vicon.interp_field()</span>
 
-<span class="sd">        o4 = umc.obj4d.Obj4d_Deform(</span>
+<span class="sd">        o4 = obj4d.Obj4d_Deform(</span>
 <span class="sd">            markerset=vicon,</span>
 <span class="sd">            fps=120,</span>
 <span class="sd">            enable_rigid=True,</span>
@@ -515,16 +516,16 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">Obj4d_Kps</span><span class="o">.</span><span class="n">add_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">objs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__process_first_obj</span><span class="p">()</span>
                 <span class="k">continue</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_rigid</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__process_rigid_dynamic</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># aligned to the previous one</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__process_rigid_dynamic</span><span class="p">(</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># aligned to the previous one</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_nonrigid</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__process_nonrigid_dynamic</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># aligned to the later one</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__process_nonrigid_dynamic</span><span class="p">(</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># aligned to the later one</span></div>
 
     <span class="k">def</span> <span class="nf">__process_first_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Process the first added 3D object.</span>
@@ -534,8 +535,15 @@
 <span class="sd">        Called by :meth:`add_obj`.&quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">__process_rigid_dynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__process_rigid_dynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx_source</span><span class="p">,</span> <span class="n">idx_target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Estimate the rigid transformation of the added 3D object. The lastly added 3D object is used as source object and the newly added 3D object as the target object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ---</span>
+<span class="sd">        idx_source</span>
+<span class="sd">            the index of the source 3D object in :code:`self.obj_ls`.</span>
+<span class="sd">        idx_target</span>
+<span class="sd">            the index of the target 3D object in :code:`self.obj_ls`.</span>
 
 <span class="sd">        Attention</span>
 <span class="sd">        ---</span>
@@ -544,8 +552,6 @@
 <span class="sd">        Attention</span>
 <span class="sd">        ---</span>
 <span class="sd">        Called by :meth:`add_obj`.&quot;&quot;&quot;</span>
-        <span class="n">idx_source</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
-        <span class="n">idx_target</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="n">trans</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Trans_Rigid</span><span class="p">(</span>
             <span class="n">source_obj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">[</span><span class="n">idx_source</span><span class="p">],</span>
             <span class="n">target_obj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">[</span><span class="n">idx_target</span><span class="p">],</span>
@@ -553,8 +559,15 @@
         <span class="n">trans</span><span class="o">.</span><span class="n">regist</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">[</span><span class="n">idx_source</span><span class="p">]</span><span class="o">.</span><span class="n">set_trans_rigid</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__process_nonrigid_dynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__process_nonrigid_dynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx_source</span><span class="p">,</span> <span class="n">idx_target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Estimate the non-rigid transformation of the added 3D object. The lastly added 3D object is used as source object and the newly added 3D object as the target object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ---</span>
+<span class="sd">        idx_source</span>
+<span class="sd">            the index of the source 3D object in :code:`self.obj_ls`.</span>
+<span class="sd">        idx_target</span>
+<span class="sd">            the index of the target 3D object in :code:`self.obj_ls`.</span>
 
 <span class="sd">        Attention</span>
 <span class="sd">        ---</span>
@@ -563,8 +576,6 @@
 <span class="sd">        Attention</span>
 <span class="sd">        ---</span>
 <span class="sd">        Called by :meth:`add_obj`.&quot;&quot;&quot;</span>
-        <span class="n">idx_source</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
-        <span class="n">idx_target</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="n">trans</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Trans_Nonrigid</span><span class="p">(</span>
             <span class="n">source_obj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">[</span><span class="n">idx_source</span><span class="p">],</span>
             <span class="n">target_obj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">[</span><span class="n">idx_target</span><span class="p">],</span>

@@ -269,9 +269,9 @@
 </div>
 <p class="rubric">Example</p>
 <p>The Vicon motion capture data shall be exported as a <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> file. After initialising the <a class="reference internal" href="#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarkerSet</span></code></a> data, we can load it providing the <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> file’s directory:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">UltraMotionCapture</span> <span class="k">as</span> <span class="nn">umc</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">kps</span>
 
-<span class="n">vicon</span> <span class="o">=</span> <span class="n">umc</span><span class="o">.</span><span class="n">kps</span><span class="o">.</span><span class="n">MarkerSet</span><span class="p">()</span>
+<span class="n">vicon</span> <span class="o">=</span> <span class="n">kps</span><span class="o">.</span><span class="n">MarkerSet</span><span class="p">()</span>
 <span class="n">vicon</span><span class="o">.</span><span class="n">load_from_vicon</span><span class="p">(</span><span class="s1">&#39;data/6kmh_softbra_8markers_1.csv&#39;</span><span class="p">)</span>
 <span class="n">vicon</span><span class="o">.</span><span class="n">interp_field</span><span class="p">()</span>
 </pre></div>

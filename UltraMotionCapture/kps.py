@@ -15,9 +15,9 @@ import open3d as o3d
 import matplotlib.pyplot as plt
 from scipy import interpolate
 
-import field
-import obj3d
-import utils
+from UltraMotionCapture import field
+from UltraMotionCapture import obj3d
+from UltraMotionCapture import utils
 
 class Kps(object):
     """A collection of the key points that can be attached to a 3D object, i.e. a frame of the 4D object.
@@ -35,20 +35,20 @@ class Kps(object):
 
     Manually selecting key points with :meth:`select_kps_points`. ::
 
-        import UltraMotionCapture as umc
+        from UltraMotionCapture import kps
 
-        points = umc.kps.Kps()
+        points = kps.Kps()
         points.select_kps_points()  # this will trigger a point selection window
 
     Load key points from Vicon motion capture data stored in a :class:`MarkerSet` object with :meth:`load_from_markerset_frame` or :meth:`load_from_markerset_time`. ::
 
-        import UltraMotionCapture as umc
+        from UltraMotionCapture import kps
         
-        vicon = umc.kps.MarkerSet()
+        vicon = kps.MarkerSet()
         vicon.load_from_vicon('data/6kmh_softbra_8markers_1.csv')
         vicon.interp_field()
 
-        points = umc.kps.Kps()
+        points = kps.Kps()
         points.load_from_markerset_frame(vicon)
     """
     def __init__(self):
@@ -160,7 +160,7 @@ class Kps_Deform(Kps):
             an :meth:`UltraMotionCapture.field.Trans_Nonrigid` object that represents the transformation.
         """
         self.trans = trans
-        self.kps_deform_points = self.trans.points_disp(self.kps_source_points)
+        self.kps_deform_points = self.trans.shift_points(self.kps_source_points)
 
     def get_kps_deform_points(self) -> np.array:
         """ Get the key points coordinates after transformation.
@@ -437,9 +437,9 @@ class MarkerSet(object):
     ---
     The Vicon motion capture data shall be exported as a :code:`.csv` file. After initialising the :class:`MarkerSet` data, we can load it providing the :code:`.csv` file's directory: ::
 
-        import UltraMotionCapture as umc
+        from UltraMotionCapture import kps
 
-        vicon = umc.kps.MarkerSet()
+        vicon = kps.MarkerSet()
         vicon.load_from_vicon('data/6kmh_softbra_8markers_1.csv')
         vicon.interp_field()
 

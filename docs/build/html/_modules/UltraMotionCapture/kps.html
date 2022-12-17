@@ -144,8 +144,11 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="../../index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../_static/logo_polyu.png" alt="Logo"/>
+  </div>
   
   <span class="sidebar-brand-text">Ultra Motion Capture v0.0 documentation</span>
   
@@ -263,9 +266,9 @@
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">interpolate</span>
 
-<span class="kn">import</span> <span class="nn">field</span>
-<span class="kn">import</span> <span class="nn">obj3d</span>
-<span class="kn">import</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">obj3d</span>
+<span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">utils</span>
 
 <div class="viewcode-block" id="Kps"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps">[docs]</a><span class="k">class</span> <span class="nc">Kps</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A collection of the key points that can be attached to a 3D object, i.e. a frame of the 4D object.</span>
@@ -283,20 +286,20 @@
 
 <span class="sd">    Manually selecting key points with :meth:`select_kps_points`. ::</span>
 
-<span class="sd">        import UltraMotionCapture as umc</span>
+<span class="sd">        from UltraMotionCapture import kps</span>
 
-<span class="sd">        points = umc.kps.Kps()</span>
+<span class="sd">        points = kps.Kps()</span>
 <span class="sd">        points.select_kps_points()  # this will trigger a point selection window</span>
 
 <span class="sd">    Load key points from Vicon motion capture data stored in a :class:`MarkerSet` object with :meth:`load_from_markerset_frame` or :meth:`load_from_markerset_time`. ::</span>
 
-<span class="sd">        import UltraMotionCapture as umc</span>
+<span class="sd">        from UltraMotionCapture import kps</span>
 <span class="sd">        </span>
-<span class="sd">        vicon = umc.kps.MarkerSet()</span>
+<span class="sd">        vicon = kps.MarkerSet()</span>
 <span class="sd">        vicon.load_from_vicon(&#39;data/6kmh_softbra_8markers_1.csv&#39;)</span>
 <span class="sd">        vicon.interp_field()</span>
 
-<span class="sd">        points = umc.kps.Kps()</span>
+<span class="sd">        points = kps.Kps()</span>
 <span class="sd">        points.load_from_markerset_frame(vicon)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Kps.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -408,7 +411,7 @@
 <span class="sd">            an :meth:`UltraMotionCapture.field.Trans_Nonrigid` object that represents the transformation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trans</span> <span class="o">=</span> <span class="n">trans</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kps_deform_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans</span><span class="o">.</span><span class="n">points_disp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kps_source_points</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kps_deform_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans</span><span class="o">.</span><span class="n">shift_points</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kps_source_points</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Kps_Deform.get_kps_deform_points"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps_Deform.html#UltraMotionCapture.kps.Kps_Deform.get_kps_deform_points">[docs]</a>    <span class="k">def</span> <span class="nf">get_kps_deform_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot; Get the key points coordinates after transformation.</span>
@@ -685,9 +688,9 @@
 <span class="sd">    ---</span>
 <span class="sd">    The Vicon motion capture data shall be exported as a :code:`.csv` file. After initialising the :class:`MarkerSet` data, we can load it providing the :code:`.csv` file&#39;s directory: ::</span>
 
-<span class="sd">        import UltraMotionCapture as umc</span>
+<span class="sd">        from UltraMotionCapture import kps</span>
 
-<span class="sd">        vicon = umc.kps.MarkerSet()</span>
+<span class="sd">        vicon = kps.MarkerSet()</span>
 <span class="sd">        vicon.load_from_vicon(&#39;data/6kmh_softbra_8markers_1.csv&#39;)</span>
 <span class="sd">        vicon.interp_field()</span>
 

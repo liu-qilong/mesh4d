@@ -24,9 +24,10 @@ import numpy as np
 import open3d as o3d
 import pyvista as pv
 
-import kps
-import field
+from UltraMotionCapture import kps
+from UltraMotionCapture import field
 
+from UltraMotionCapture import kps
 class Obj3d(object):
     """
     The basic 3D object class. Loads :code:`.obj` 3D mesh image and sampled it as the point cloud.
@@ -63,8 +64,8 @@ class Obj3d(object):
     ---
     ::
 
-        import UltraMotionCapture as umc
-        o3 = umc.obj3d.Obj3d(
+        from UltraMotionCapture import obj3d
+        o3 = obj3d.Obj3d(
             filedir = 'data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj',
         )
         o3.show()
@@ -489,16 +490,16 @@ def load_obj_series(
     ---
     The :func:`load_obj_series` is usually used for getting a list of 3D object and then loading to the 4D object: ::
 
-        import UltraMotionCapture as umc
+        from UltraMotionCapture import obj3d, obj4d
 
-        o3_ls = umc.obj3d.load_obj_series(
+        o3_ls = obj3d.load_obj_series(
             folder='data/6kmh_softbra_8markers_1/',
             start=0,
             end=1,
             sample_num=1000,
         )
 
-        o4 = umc.obj4d.Obj4d()
+        o4 = obj4d.Obj4d()
         o4.add_obj(*o3_ls)
     """
     files = os.listdir(folder)
