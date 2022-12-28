@@ -24,6 +24,7 @@ import numpy as np
 import open3d as o3d
 import pyvista as pv
 
+import UltraMotionCapture
 from UltraMotionCapture import kps
 from UltraMotionCapture import field
 
@@ -70,6 +71,10 @@ class Obj3d(object):
         )
         o3.show()
     """
+    cab_r = None
+    cab_s = None
+    cab_t = None
+
     def __init__(
         self,
         filedir: str,
@@ -77,9 +82,27 @@ class Obj3d(object):
         scale_center: list = (0, 0, 0),
         sample_num: int = 1000,
     ):
-        self.mesh_o3d = o3d.io.read_triangle_mesh(filedir, True).scale(scale_rate, center=scale_center)
+        if self.cab_r is None:
+            self.load_cab_rst()
+            print('calibration parameters loaded')
+
+        # self.mesh_o3d = o3d.io.read_triangle_mesh(filedir, True).scale(scale_rate, center=scale_center)
+        self.mesh_o3d = o3d.io.read_triangle_mesh(filedir, True)
+
+        self.mesh_o3d.rotate(self.cab_r, center=(0, 0, 0))
+        self.mesh_o3d.scale(self.cab_s, center=(0, 0, 0))
+        self.mesh_o3d.translate(self.cab_t)
+
         self.mesh_o3d.compute_vertex_normals()
         self.pcd = self.mesh_o3d.sample_points_poisson_disk(number_of_points=sample_num, init_factor=5)
+    
+    @classmethod
+    def load_cab_rst(cls):
+        mod_path = os.path.dirname(UltraMotionCapture.__file__)
+        cls.cab_r = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
+        cls.cab_s = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
+        cls.cab_t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
+
 
     def show(self):
         """Show the loaded mesh and the sampled point cloud.
@@ -161,7 +184,7 @@ class Obj3d_Deform(Obj3d_Kps):
             the non-rigid transformation (:class:`UltraMotionCapture.field.Trans_Nonrigid`).
         """
         self.trans_nonrigid = trans_nonrigid
-        self.kps.set_trans(self.trans_nonrigid)
+        self.kps.set_trans(trans_nonrigid)
 
     def offset_rotate(self):
         """Offset the rotation according to the estimated rigid transformation.
