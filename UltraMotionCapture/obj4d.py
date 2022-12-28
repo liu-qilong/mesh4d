@@ -266,7 +266,7 @@ class Obj4d_Deform(Obj4d_Kps):
         Obj4d_Kps.add_obj(self, *objs, **kwargs)
 
         for idx in range(len(self.obj_ls)):
-            if idx == 1:
+            if idx == 0:
                 self.__process_first_obj()
                 continue
 
