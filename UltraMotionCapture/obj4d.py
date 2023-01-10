@@ -230,6 +230,10 @@ class Obj4d_Deform(Obj4d_Kps):
     def add_obj(self, *objs: Iterable[Type[obj3d.Obj3d_Deform]], **kwargs):
         """ Add object(s) and attach key points (:class:`UltraMotionCapture.kps.Kps`) to each of the 3D object via Vicon motion capture data (:attr:`markerset`). And then implement the activated transformation estimation.
         
+        Danger
+        ---
+        This method shall only be called for one time.
+
         Parameters
         ---
         *objs

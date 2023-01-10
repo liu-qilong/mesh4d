@@ -86,7 +86,7 @@ class Obj3d(object):
             self.load_cab_rst()
             print('calibration parameters loaded')
 
-        # self.mesh_o3d = o3d.io.read_triangle_mesh(filedir, True).scale(scale_rate, center=scale_center)
+        '''
         self.mesh_o3d = o3d.io.read_triangle_mesh(filedir, True)
 
         self.mesh_o3d.rotate(self.cab_r, center=(0, 0, 0))
@@ -95,6 +95,12 @@ class Obj3d(object):
 
         self.mesh_o3d.compute_vertex_normals()
         self.pcd = self.mesh_o3d.sample_points_poisson_disk(number_of_points=sample_num, init_factor=5)
+        '''
+
+        self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
+        self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
+        self.pcd = pvmesh2pcd_pro(self.mesh, sample_num)
+        # self.pcd = pvmesh2pcd(self.mesh, sample_num)
     
     @classmethod
     def load_cab_rst(cls):
@@ -106,10 +112,6 @@ class Obj3d(object):
 
     def show(self):
         """Show the loaded mesh and the sampled point cloud.
-
-        Attention
-        ---
-        Currently the visualisation is realised with :mod:`open3d`. It will be transferred to :mod:`pyvista` in future development for richer illustration features.
         """
         o3d.visualization.draw_geometries([
             self.mesh_o3d,
@@ -248,7 +250,7 @@ def pcd2np(pcd: o3d.geometry.PointCloud) -> np.array:
     return np.asarray(pcd.points)
 
 
-def np2pcd(points):
+def np2pcd(points: np.array) -> o3d.cpu.pybind.geometry.PointCloud:
     """Transform the points coordinates stored in a :class:`numpy.array` to a a :mod:`open3d` point cloud (:class:`open3d.geometry.PointCloud`).
 
     Parameters
@@ -266,7 +268,7 @@ def np2pcd(points):
     return pcd
 
 
-def np2pvpcd(points, **kwargs):
+def np2pvpcd(points: np.array, **kwargs) -> pv.core.pointset.PolyData:
     """Transform the points coordinates stored in a :class:`numpy.array` to a a :mod:`pyvista` point cloud (:class:`pyvista.PolyData`).
 
     Parameters
@@ -293,6 +295,25 @@ def np2pvpcd(points, **kwargs):
     sphere = pv.Sphere(**kwargs)
     pvpcd = pdata.glyph(scale=False, geom=sphere, orient=False)
     return pvpcd
+
+
+def pvmesh2pcd(mesh: pv.core.pointset.PolyData, sample_num: int = 1000) -> o3d.cpu.pybind.geometry.PointCloud:
+    """
+    tbf
+    """
+    dec_ratio = 1 - sample_num / len(mesh.points)
+    dec_mesh = mesh.decimate(dec_ratio)
+    return np2pcd(dec_mesh.points)
+
+
+def pvmesh2pcd_pro(mesh: pv.core.pointset.PolyData, sample_num: int = 1000) -> o3d.cpu.pybind.geometry.PointCloud:
+    """
+    tbf
+    """
+    dec_ratio = 1 - sample_num / len(mesh.points)
+    dec_mesh = mesh.decimate_pro(dec_ratio)
+    return np2pcd(dec_mesh.points)
+
 
 
 # utils for object cropping and other operations
@@ -368,6 +389,21 @@ def pcd_crop_front(pcd: o3d.geometry.PointCloud, ratio: float = 0.5) -> o3d.geom
     min_bound[2] = (1-ratio)*max_bound[2] + ratio*min_bound[2]
     return pcd_crop(pcd, min_bound)
 
+
+def pvmesh_fix_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.PolyData():
+    """
+    tbf
+    """
+    # split the mesh into different bodies according to the connectivity
+    clean = mesh.clean()
+    bodies = clean.split_bodies()
+
+    # get the index of body with maximum number of points 
+    point_nums = [len(body.points) for body in bodies]
+    max_index = point_nums.index(max(point_nums))
+
+    # return the body with maximum number of points 
+    return bodies[max_index].extract_surface()
 
 # utils for object estimation
 
