@@ -71,9 +71,8 @@ class Obj3d(object):
         )
         o3.show()
     """
-    cab_r = None
     cab_s = None
-    cab_t = None
+    cab_m = None
 
     def __init__(
         self,
@@ -82,21 +81,25 @@ class Obj3d(object):
         scale_center: list = (0, 0, 0),
         sample_num: int = 1000,
     ):
-        if self.cab_r is None:
+        if self.cab_s is None:
             self.load_cab_rst()
             print('calibration parameters loaded')
 
         self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
         self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
+
+        self.mesh.transform(self.cab_m)
+        self.mesh.scale(self.cab_s)
+
         self.pcd = pvmesh2pcd_pro(self.mesh, sample_num)
-        # self.pcd = pvmesh2pcd(self.mesh, sample_num)
     
     @classmethod
     def load_cab_rst(cls):
         mod_path = os.path.dirname(UltraMotionCapture.__file__)
-        cls.cab_r = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
-        cls.cab_s = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
-        cls.cab_t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
+        r = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
+        s = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
+        t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
+        cls.cab_s, cls.cab_m = field.transform_rst2sm(r, s, t)
 
 
     def show(self):
@@ -104,8 +107,10 @@ class Obj3d(object):
         """
         scene = pv.Plotter()
         scene.add_points(pcd2np(self.pcd))
+        
+        width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
         scene.add_mesh(
-            self.mesh.translate((700, 0, 0), inplace=False),
+            self.mesh.translate((1.5*width, 0, 0), inplace=False),
             show_edges=True
         )
         scene.show()
