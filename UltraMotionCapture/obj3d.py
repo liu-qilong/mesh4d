@@ -86,17 +86,6 @@ class Obj3d(object):
             self.load_cab_rst()
             print('calibration parameters loaded')
 
-        '''
-        self.mesh_o3d = o3d.io.read_triangle_mesh(filedir, True)
-
-        self.mesh_o3d.rotate(self.cab_r, center=(0, 0, 0))
-        self.mesh_o3d.scale(self.cab_s, center=(0, 0, 0))
-        self.mesh_o3d.translate(self.cab_t)
-
-        self.mesh_o3d.compute_vertex_normals()
-        self.pcd = self.mesh_o3d.sample_points_poisson_disk(number_of_points=sample_num, init_factor=5)
-        '''
-
         self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
         self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
         self.pcd = pvmesh2pcd_pro(self.mesh, sample_num)
@@ -113,10 +102,13 @@ class Obj3d(object):
     def show(self):
         """Show the loaded mesh and the sampled point cloud.
         """
-        o3d.visualization.draw_geometries([
-            self.mesh_o3d,
-            copy.deepcopy(self.pcd).translate((10, 0, 0)),
-        ])
+        scene = pv.Plotter()
+        scene.add_points(pcd2np(self.pcd))
+        scene.add_mesh(
+            self.mesh.translate((700, 0, 0), inplace=False),
+            show_edges=True
+        )
+        scene.show()
 
 
 class Obj3d_Kps(Obj3d):
