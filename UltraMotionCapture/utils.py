@@ -39,34 +39,39 @@ def images_to_gif(path: Union[str, None] = None, remove: bool = False):
         imageio.mimsave(path + 'output.gif', images)
 
 
-def obj_pick_points(filedir: str, has_texture: bool = False, save_folder: str = 'output/', save_name: str = 'points'):
+def obj_pick_points(filedir: str, use_texture: bool = False, is_save: bool = False, save_folder: str = 'output/', save_name: str = 'points') -> np.array:
     """Manually pick points from 3D mesh loaded from a :code:`.obj` file. The picked points are stored in a (N, 3) :class:`numpy.array` and saved as :code:`.npy` :mod:`numpy` binary file.
 
     Parameters
     ---
     filedir
         The directory of the :code:`.obj` file.
-    has_texture
-        Whether the :code:`.obj` file has texture file or not. If set as :code:`True`, the texture will be loaded and rendered.
+    use_texture
+        Whether use the :code:`.obj` file's texture file or not. If set as :code:`True`, the texture will be loaded and rendered.
+    is_save
+        save the points as local :code:`.npy` file or not. Default as :code:`False`.
     save_folder
         The folder for saving :code:`.npy` binary file.
-
-        Attention
-        ---
-        The folder directory shall be ended with :code:`/`, e.g. :code:`output/`.
     save_name
         The name of the saved :code:`.npy` binary file.
+
+    Returns
+    ---
+    :class:`np.array`
+        (N, 3) :class:`np.array` storing the picked points' coordinates.
 
     Example
     ---
     One application of this function is preparing data for **calibration between 3dMD scanning system and the Vicon motion capture system**: Firstly, we acquire the markers' coordinates from the 3dMD scanning image. Then it can be compared with the Vicon data, leading to the reveal of the transformation parameters between two system's coordinates. ::
 
-        import UltraMotionCapture as umc
-        umc.utils.obj_pick_points(
-            filedir='dataset/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj'
-            has_texture=True,
-            save_folder='conf/calibrate/',
-            save_name='points_3dmd',
+        from UltraMotionCapture import utils
+
+        utils.obj_pick_points(
+            filedir='UltraMotionCapture/data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj',
+            use_texture=True,
+            is_save=True,
+            save_folder='UltraMotionCapture/config/calibrate/',
+            save_name='points_3dmd_test',
         )
 
     Dragging the scene to adjust perspective and clicking the marker points in the scene. Press :code:`q` to quite the interactive window and then the picked point's coordinates will be stored in a (N, 3) :class:`numpy.array` and saved as :code:`conf/calibrate/points_3dmd.npy`. Terminal will also print the saved :class:`numpy.array` for your reference.
@@ -84,12 +89,8 @@ def obj_pick_points(filedir: str, has_texture: bool = False, save_folder: str = 
         About point picking feature provided by the :mod:`pyvista` package: 
         `Picking a Point on the Surface of a Mesh - PyVista <https://docs.pyvista.org/examples/02-plot/surface-picking.html>`_
     """
-    # load obj mesh with texture
+    # load obj mesh
     mesh = pv.read(filedir)
-
-    if has_texture:
-        texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
-
     point_list = []
 
     # call back function for point picking
@@ -105,7 +106,8 @@ def obj_pick_points(filedir: str, has_texture: bool = False, save_folder: str = 
     # launch point picking
     pl = pv.Plotter()
     
-    if has_texture:
+    if use_texture:
+        texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
         pl.add_mesh(mesh, texture=texture, show_edges=True)
     else:
         pl.add_mesh(mesh, show_edges=True)
@@ -113,7 +115,11 @@ def obj_pick_points(filedir: str, has_texture: bool = False, save_folder: str = 
     pl.enable_surface_picking(callback=callback, left_clicking=True, show_point=True)
     pl.show()
 
-    # print picked points
+    # save and return the picked points
     points = np.concatenate(point_list, axis=0)
-    np.save(save_folder + save_name, points)
-    print("save picked points:\n{}".format(points))
+
+    if is_save:
+        np.save(os.path.join(save_folder, save_name), points)
+        print("save picked points:\n{}".format(points))
+
+    return points

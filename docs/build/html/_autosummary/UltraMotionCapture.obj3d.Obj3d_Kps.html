@@ -289,32 +289,43 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Kps.__init__" title="UltraMotionCapture.obj3d.Obj3d_Kps.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(**kwargs)</p></td>
 <td><p>Initialize self.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_cab_rst</span></code>()</p></td>
-<td><p>Load the calibration parameters from 3dMD to Vicon coordination system.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Kps.load_kps" title="UltraMotionCapture.obj3d.Obj3d_Kps.load_kps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_kps</span></code></a>(markerset[, time])</p></td>
+<td><p>Load key points from a <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code> object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">show</span></code>()</p></td>
-<td><p>Show the loaded mesh and the sampled point cloud.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p class="rubric">Attributes</p>
-<div class="table-wrapper longtable docutils container">
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cab_m</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cab_s</span></code></p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Kps.show" title="UltraMotionCapture.obj3d.Obj3d_Kps.show"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show</span></code></a>()</p></td>
+<td><p>Show the loaded mesh, the sampled point cloud, and the key points attached to it.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<dl class="py method">
+<dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d_Kps.load_kps">
+<span class="sig-name descname"><span class="pre">load_kps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">markerset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><span class="pre">UltraMotionCapture.kps.MarkerSet</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d_Kps.load_kps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d_Kps.load_kps" title="Permalink to this definition">#</a></dt>
+<dd><p>Load key points from a <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>markerset</strong> – the <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code> object.</p></li>
+<li><p><strong>time</strong> – the time from the <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code>’s recording period to be loaded.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d_Kps.show">
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d_Kps.show"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d_Kps.show" title="Permalink to this definition">#</a></dt>
+<dd><p>Show the loaded mesh, the sampled point cloud, and the key points attached to it.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Before calling this method in Jupyter Notebook environment, the <a class="reference external" href="https://docs.pyvista.org/user-guide/jupyter/pythreejs.html">pythreejs</a> backend of <code class="xref py py-mod docutils literal notranslate"><span class="pre">pyvista</span></code> is needed to be selected:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
+<span class="n">pv</span><span class="o">.</span><span class="n">set_jupyter_backend</span><span class="p">(</span><span class="s1">&#39;pythreejs&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
 </dd></dl>
 
 </section>

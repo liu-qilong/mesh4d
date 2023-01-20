@@ -24,7 +24,6 @@ import numpy as np
 import open3d as o3d
 import pyvista as pv
 
-import UltraMotionCapture
 from UltraMotionCapture import kps
 from UltraMotionCapture import field
 
@@ -43,8 +42,6 @@ class Obj3d(object):
         .. seealso::
             Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.
 
-    scale_center
-        the center of the scaling represented in (3, ) :class:`List`.
     sample_num
         the number of the points sampled from the mesh to construct the point cloud.
 
@@ -71,50 +68,37 @@ class Obj3d(object):
         )
         o3.show()
     """
-    cab_s = None
-    cab_m = None
-
     def __init__(
         self,
         filedir: str,
         scale_rate: float = 0.01,
         sample_num: int = 1000,
     ):
-        if self.cab_s is None:
-            self.load_cab_rst()
-            print('calibration parameters loaded')
-
         self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
         self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
-
-        self.mesh.transform(self.cab_m)
-        self.mesh.scale(self.cab_s)
-        self.mesh.scale(scale_rate)
+        self.mesh.scale(scale_rate, inplace=True)
 
         self.pcd = pvmesh2pcd_pro(self.mesh, sample_num)
-    
-    @classmethod
-    def load_cab_rst(cls):
-        """Load the calibration parameters from 3dMD to Vicon coordination system.
-        """
-        mod_path = os.path.dirname(UltraMotionCapture.__file__)
-        r = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
-        s = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
-        t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
-        cls.cab_s, cls.cab_m = field.transform_rst2sm(r, s, t)
-
 
     def show(self):
         """Show the loaded mesh and the sampled point cloud.
+
+        Attention
+        ---
+        Before calling this method in Jupyter Notebook environment, the `pythreejs <https://docs.pyvista.org/user-guide/jupyter/pythreejs.html>`_ backend of :mod:`pyvista` is needed to be selected: ::
+
+            import pyvista as pv
+            pv.set_jupyter_backend('pythreejs')
         """
         scene = pv.Plotter()
-        scene.add_points(pcd2np(self.pcd))
-        
+
+        # plot mesh
+        scene.add_mesh(self.mesh, show_edges=True)
+
+        # plot sampled point cloud
         width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
-        scene.add_mesh(
-            self.mesh.translate((1.5*width, 0, 0), inplace=False),
-            show_edges=True
-        )
+        scene.add_points(pcd2np(self.pcd) + [1.5*width, 0, 0])
+
         scene.show()
 
 
@@ -137,6 +121,45 @@ class Obj3d_Kps(Obj3d):
     def __init__(self, **kwargs):
         Obj3d.__init__(self, **kwargs)
         self.kps = kps.Kps_Deform()
+
+    def load_kps(self, markerset: Type[kps.MarkerSet], time: float = 0.0):
+        """Load key points from a :class:`kps.MarkerSet` object.
+        
+        Parameters
+        ---
+        markerset
+            the :class:`kps.MarkerSet` object.
+        time
+            the time from the :class:`kps.MarkerSet`'s recording period to be loaded.
+        """
+        self.kps.load_from_markerset_time(markerset, time)
+
+    def show(self):
+        """Show the loaded mesh, the sampled point cloud, and the key points attached to it.
+
+        Attention
+        ---
+        Before calling this method in Jupyter Notebook environment, the `pythreejs <https://docs.pyvista.org/user-guide/jupyter/pythreejs.html>`_ backend of :mod:`pyvista` is needed to be selected: ::
+
+            import pyvista as pv
+            pv.set_jupyter_backend('pythreejs')
+        """
+        scene = pv.Plotter()
+        
+        # plot mesh
+        scene.add_mesh(self.mesh, show_edges=True)
+
+        # plot sampled point cloud
+        width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
+        lateral_move = [1.5 * width, 0, 0]
+        scene.add_points(pcd2np(self.pcd) + lateral_move)
+
+        # plot key points
+        pvpcd_kps = np2pvpcd(self.kps.get_kps_source_points(), radius=0.1)
+        scene.add_mesh(pvpcd_kps, color='Gold')
+        scene.add_mesh(pvpcd_kps.translate(lateral_move, inplace=False), color='Gold')
+
+        scene.show()
 
 
 class Obj3d_Deform(Obj3d_Kps):

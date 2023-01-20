@@ -171,7 +171,7 @@ class Obj4d_Kps(Obj4d):
 
         for idx in range(len(self.obj_ls)):
             obj = self.obj_ls[idx]
-            obj.kps.load_from_markerset_time(self.markerset, self.start_time + idx / self.fps)
+            obj.load_kps(self.markerset, self.start_time + idx / self.fps)
 
 
 class Obj4d_Deform(Obj4d_Kps):

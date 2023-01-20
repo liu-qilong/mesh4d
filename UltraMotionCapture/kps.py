@@ -9,12 +9,14 @@ There are two different perspectives to arrange key points data: *time-wise* and
 from __future__ import annotations
 from typing import Type, Union, Iterable
 
+import os
 import numpy as np
 import pandas as pd
 import open3d as o3d
 import matplotlib.pyplot as plt
 from scipy import interpolate
 
+import UltraMotionCapture
 from UltraMotionCapture import field
 from UltraMotionCapture import obj3d
 from UltraMotionCapture import utils
@@ -179,10 +181,23 @@ class Marker(object):
         the start time of the coordinates data.
     fps
         the number of frames per second (fps).
+    scale_rate
+        the scaling rate of the Vicon key points.
+
+        Warning
+        ---
+        This value must be the same as :class:`UltraMotionCapture.obj3d.Obj3d`'s :attr:`scale_rate`.
 
     Note
     ---
     `Class Attributes`
+
+    cls.cab_s
+        rotation matrix :math:`\\boldsymbol R \in \mathbb{R}^{3 \\times 3}` stored in (3, 3) :class:`numpy.array` used for converting Vicon coordinates to 3dMD coordinates.
+    cls.cab_r
+        scaling rate :math:`s \in \mathbb{R}` stored in a :class:`float` variable used for converting Vicon coordinates to 3dMD coordinates.
+    cls.cab_t
+        translation vector :math:`\\boldsymbol t \in \mathbb{R}^{3}` stored in (3, ) :class:`numpy.array` used for converting Vicon coordinates to 3dMD coordinates.
 
     self.name
         The name of the marker.
@@ -190,12 +205,14 @@ class Marker(object):
         The start time of the coordinates data.
     self.fps
         The number of frames per second (fps).
+    self.scale_rate
+        the scaling rate of the Vicon key points.
     self.coord
-        :math:`3 \\times N` :class:`numpy.array` storing the coordinates data, with :math:`x, y, z` as rows and frame ids as the columns.
+        (3, N) :class:`numpy.array` storing the coordinates data, with :math:`x, y, z` as rows and frame ids as the columns.
     self.speed
-        :math:`3 \\times N` :class:`numpy.array` storing the speed data, with :math:`x, y, z` as rows and frame ids as the columns.
+        (3, N) :class:`numpy.array` storing the speed data, with :math:`x, y, z` as rows and frame ids as the columns.
     self.accel
-        :math:`3 \\times N` :class:`numpy.array` storing the acceleration data, with :math:`x, y, z` as rows and frame ids as the columns.
+        (3, N) :class:`numpy.array` storing the acceleration data, with :math:`x, y, z` as rows and frame ids as the columns.
     self.frame_num
         The number of total frames.
     self.x_field
@@ -208,13 +225,26 @@ class Marker(object):
     Tip
     ---
     When loading Vicon motion capture data, the whole process is arranged by a :class:`MakerSet` object, which creates :class:`Marker` objects for each key point and loads data into it accordingly. Therefore, usually the end user doesn't need to touch the :class:`Marker` class.
+
+    Tip
+    ---
+    In other parts of the package, points coordinates storing in :class:`np.array` are usually in the shape of (N, 3), while here we adopt (3, N), for the convenience of data interpolation :meth:`interp_field`.
     """
-    def __init__(self, name: str, start_time: float = 0.0, fps: int = 100):
+    cab_s = None
+    cab_r = None
+    cab_t = None
+
+    def __init__(self, name: str, start_time: float = 0.0, fps: int = 100, scale_rate: float = 0.01):
+        if self.cab_s is None:
+            self.load_cab_rst()
+            print('calibration parameters loaded')
+
         self.name = name
         self.start_time = start_time
         self.fps = fps
+        self.scale_rate = scale_rate
 
-        # x, y,z data are stored in 3xN numpy array
+        # x, y, z data are stored in 3xN numpy array
         self.coord = None  # coordinates
         self.speed = None  # speed
         self.accel = None  # acceleration
@@ -225,18 +255,31 @@ class Marker(object):
         self.y_field = None
         self.z_field = None
 
-    def fill_data(self, data_input):
-        """Filling coordinates, speed, and acceleration data, one by one, into the :class:`Marker` object.
+    @classmethod
+    def load_cab_rst(cls):
+        """Load the calibration parameters from Vicon to 3dMD coordination system.
+        """
+        mod_path = os.path.dirname(UltraMotionCapture.__file__)
+        cls.cab_r = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
+        cls.cab_s = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
+        cls.cab_t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
+
+    def fill_data(self, data_input: np.array):
+        """Filling coordinates, speed, and acceleration data after converting to 3dMD coordinates, one by one, into the :class:`Marker` object.
 
         Parameters
         ---
         data_input
-            :math:`3 \\times N` :class:`numpy.array`.
+            (3, N) :class:`numpy.array`.
 
         Attention
         ---
         Called by the :class:`MarkerSet` object when parsing the Vicon motion capture data (:meth:`MarkerSet.load_from_vicon`). Usually the end user don't need to call this method manually.
         """
+        data_input = self.scale_rate * (
+            self.cab_s * np.matmul(self.cab_r, data_input) + np.expand_dims(self.cab_t, axis=1)
+            )
+
         if self.coord is None:
             self.coord = data_input
             self.frame_num = data_input.shape[1]
@@ -424,14 +467,28 @@ class Marker(object):
 class MarkerSet(object):
     """A collection of :class:`Marker` s. At current stage, it's usually loaded from the Vicon motion capture data.
 
+    Parameters
+    ---
+    filedir
+        directory of the :code:`.csv` key points coordinates data exported from the motion capture Vicon system.
+    scale_rate
+        the scaling rate of the Vicon key points.
+
+        Warning
+        ---
+        This value must be the same as :class:`UltraMotionCapture.obj3d.Obj3d`'s :attr:`scale_rate`.
+
+
     Note
     ---
     `Class Attributes`
 
     self.fps
-        The number of frames per second (fps).
+        the number of frames per second (fps).
+    self.scale_rate
+        the scaling rate of the Vicon key points.
     self.points
-        A :class:`Dictonary` of :class:`Marker` s, with the corresponding marker names as their keywords.
+        a :class:`Dictonary` of :class:`Marker` s, with the corresponding marker names as their keywords.
 
     Example
     ---
@@ -459,10 +516,7 @@ class MarkerSet(object):
         vicon.plot_track(step=3, end_frame=100)
     
     """
-    def __init__(self):
-        pass
-
-    def load_from_vicon(self, filedir: str):
+    def load_from_vicon(self, filedir: str, scale_rate: float = 0.01):
         """Load and parse data from :code:`.csv` file exported from the Vicon motion capture system.
 
         Parameters
@@ -470,6 +524,8 @@ class MarkerSet(object):
         filedir
             the directory of the :code:`.csv` file.
         """
+        self.scale_rate = scale_rate
+
         def parse(df, df_head):
             self.fps = df_head.values.tolist()[0][0]  # parse the fps
             self.points = {}
@@ -490,7 +546,10 @@ class MarkerSet(object):
 
                 # the first occurrence of a point
                 if point_name not in self.points.keys():
-                    self.points[point_name] = Marker(point_name, fps=self.fps)
+                    self.points[point_name] = Marker(
+                        name=point_name, 
+                        fps=self.fps, 
+                        scale_rate=self.scale_rate)
 
                 # fill the following 3 columns' X, Y, Z values into the point's object
                 data_input = df.loc[2:, col_name:col_names[col_id+2]].to_numpy(dtype=float).transpose()

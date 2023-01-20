@@ -1,4 +1,4 @@
-UltraMotionCapture.obj3d.Obj3d
+﻿UltraMotionCapture.obj3d.Obj3d
 ==============================
 
 .. currentmodule:: UltraMotionCapture.obj3d
@@ -18,18 +18,10 @@ UltraMotionCapture.obj3d.Obj3d
    .. autosummary::
    
       ~Obj3d.__init__
-      ~Obj3d.load_cab_rst
       ~Obj3d.show
    
    
 
    
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~Obj3d.cab_m
-      ~Obj3d.cab_s
    
    

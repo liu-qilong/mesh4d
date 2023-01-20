@@ -1,4 +1,4 @@
-UltraMotionCapture.obj3d.Obj3d\_Kps
+﻿UltraMotionCapture.obj3d.Obj3d\_Kps
 ===================================
 
 .. currentmodule:: UltraMotionCapture.obj3d
@@ -18,18 +18,11 @@ UltraMotionCapture.obj3d.Obj3d\_Kps
    .. autosummary::
    
       ~Obj3d_Kps.__init__
-      ~Obj3d_Kps.load_cab_rst
+      ~Obj3d_Kps.load_kps
       ~Obj3d_Kps.show
    
    
 
    
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~Obj3d_Kps.cab_m
-      ~Obj3d_Kps.cab_s
    
    
