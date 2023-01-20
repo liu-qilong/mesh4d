@@ -165,7 +165,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.html">UltraMotionCapture</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.analysis.html">UltraMotionCapture.analysis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.config.html">UltraMotionCapture.config</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.field.html">UltraMotionCapture.field</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.field.Trans.html">UltraMotionCapture.field.Trans</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html">UltraMotionCapture.field.Trans_Nonrigid</a></li>
@@ -196,6 +195,9 @@
 <li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.obj3d.pcd_get_center.html">UltraMotionCapture.obj3d.pcd_get_center</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.obj3d.pcd_get_max_bound.html">UltraMotionCapture.obj3d.pcd_get_max_bound</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.obj3d.pcd_get_min_bound.html">UltraMotionCapture.obj3d.pcd_get_min_bound</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.obj3d.pvmesh2pcd.html">UltraMotionCapture.obj3d.pvmesh2pcd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.obj3d.pvmesh2pcd_pro.html">UltraMotionCapture.obj3d.pvmesh2pcd_pro</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.obj3d.pvmesh_fix_disconnect.html">UltraMotionCapture.obj3d.pvmesh_fix_disconnect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.obj3d.search_nearest_point.html">UltraMotionCapture.obj3d.search_nearest_point</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.obj3d.search_nearest_point_idx.html">UltraMotionCapture.obj3d.search_nearest_point_idx</a></li>
 </ul>
@@ -275,6 +277,7 @@
 <span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
 <span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
 
+<span class="kn">import</span> <span class="nn">UltraMotionCapture</span>
 <span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">kps</span>
 <span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">field</span>
 
@@ -321,6 +324,9 @@
 <span class="sd">        )</span>
 <span class="sd">        o3.show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cab_s</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">cab_m</span> <span class="o">=</span> <span class="kc">None</span>
+
 <div class="viewcode-block" id="Obj3d.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d.html#UltraMotionCapture.obj3d.Obj3d.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filedir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -328,21 +334,41 @@
         <span class="n">scale_center</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
         <span class="n">sample_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_o3d</span> <span class="o">=</span> <span class="n">o3d</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">read_triangle_mesh</span><span class="p">(</span><span class="n">filedir</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">scale_rate</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="n">scale_center</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_o3d</span><span class="o">.</span><span class="n">compute_vertex_normals</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pcd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_o3d</span><span class="o">.</span><span class="n">sample_points_poisson_disk</span><span class="p">(</span><span class="n">number_of_points</span><span class="o">=</span><span class="n">sample_num</span><span class="p">,</span> <span class="n">init_factor</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cab_s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_cab_rst</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;calibration parameters loaded&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">pvmesh_fix_disconnect</span><span class="p">(</span><span class="n">pv</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filedir</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">texture</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">read_texture</span><span class="p">(</span><span class="n">filedir</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.obj&#39;</span><span class="p">,</span> <span class="s1">&#39;.jpg&#39;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cab_m</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cab_s</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pcd</span> <span class="o">=</span> <span class="n">pvmesh2pcd_pro</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">sample_num</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Obj3d.load_cab_rst"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d.html#UltraMotionCapture.obj3d.Obj3d.load_cab_rst">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">load_cab_rst</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load the calibration parameters from 3dMD to Vicon coordination system.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mod_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">UltraMotionCapture</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/r.npy&#39;</span><span class="p">))</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/s.npy&#39;</span><span class="p">))</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/t.npy&#39;</span><span class="p">))</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">cab_s</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">cab_m</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">transform_rst2sm</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="Obj3d.show"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d.html#UltraMotionCapture.obj3d.Obj3d.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Show the loaded mesh and the sampled point cloud.</span>
-
-<span class="sd">        Attention</span>
-<span class="sd">        ---</span>
-<span class="sd">        Currently the visualisation is realised with :mod:`open3d`. It will be transferred to :mod:`pyvista` in future development for richer illustration features.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">o3d</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">draw_geometries</span><span class="p">([</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mesh_o3d</span><span class="p">,</span>
-            <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
-        <span class="p">])</span></div></div>
+        <span class="n">scene</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">()</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_points</span><span class="p">(</span><span class="n">pcd2np</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">))</span>
+        
+        <span class="n">width</span> <span class="o">=</span> <span class="n">pcd_get_max_bound</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">pcd_get_min_bound</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">translate</span><span class="p">((</span><span class="mf">1.5</span><span class="o">*</span><span class="n">width</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
 <div class="viewcode-block" id="Obj3d_Kps"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps">[docs]</a><span class="k">class</span> <span class="nc">Obj3d_Kps</span><span class="p">(</span><span class="n">Obj3d</span><span class="p">):</span>
@@ -412,7 +438,7 @@
 <span class="sd">            the non-rigid transformation (:class:`UltraMotionCapture.field.Trans_Nonrigid`).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trans_nonrigid</span> <span class="o">=</span> <span class="n">trans_nonrigid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kps</span><span class="o">.</span><span class="n">set_trans</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trans_nonrigid</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kps</span><span class="o">.</span><span class="n">set_trans</span><span class="p">(</span><span class="n">trans_nonrigid</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Obj3d_Deform.offset_rotate"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Deform.html#UltraMotionCapture.obj3d.Obj3d_Deform.offset_rotate">[docs]</a>    <span class="k">def</span> <span class="nf">offset_rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Offset the rotation according to the estimated rigid transformation.</span>
@@ -476,7 +502,7 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pcd</span><span class="o">.</span><span class="n">points</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="np2pcd"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.np2pcd.html#UltraMotionCapture.obj3d.np2pcd">[docs]</a><span class="k">def</span> <span class="nf">np2pcd</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+<div class="viewcode-block" id="np2pcd"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.np2pcd.html#UltraMotionCapture.obj3d.np2pcd">[docs]</a><span class="k">def</span> <span class="nf">np2pcd</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">o3d</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">pybind</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">PointCloud</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Transform the points coordinates stored in a :class:`numpy.array` to a a :mod:`open3d` point cloud (:class:`open3d.geometry.PointCloud`).</span>
 
 <span class="sd">    Parameters</span>
@@ -494,7 +520,7 @@
     <span class="k">return</span> <span class="n">pcd</span></div>
 
 
-<div class="viewcode-block" id="np2pvpcd"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.np2pvpcd.html#UltraMotionCapture.obj3d.np2pvpcd">[docs]</a><span class="k">def</span> <span class="nf">np2pvpcd</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="np2pvpcd"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.np2pvpcd.html#UltraMotionCapture.obj3d.np2pvpcd">[docs]</a><span class="k">def</span> <span class="nf">np2pvpcd</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">pointset</span><span class="o">.</span><span class="n">PolyData</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Transform the points coordinates stored in a :class:`numpy.array` to a a :mod:`pyvista` point cloud (:class:`pyvista.PolyData`).</span>
 
 <span class="sd">    Parameters</span>
@@ -521,6 +547,47 @@
     <span class="n">sphere</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Sphere</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">pvpcd</span> <span class="o">=</span> <span class="n">pdata</span><span class="o">.</span><span class="n">glyph</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="n">sphere</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pvpcd</span></div>
+
+
+<div class="viewcode-block" id="pvmesh2pcd"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.pvmesh2pcd.html#UltraMotionCapture.obj3d.pvmesh2pcd">[docs]</a><span class="k">def</span> <span class="nf">pvmesh2pcd</span><span class="p">(</span><span class="n">mesh</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">pointset</span><span class="o">.</span><span class="n">PolyData</span><span class="p">,</span> <span class="n">sample_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">o3d</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">pybind</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">PointCloud</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Transform the :mod:`pyvista` mesh to a :mod:`open3d` point cloud with uniform sampling method</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ---</span>
+<span class="sd">    mesh</span>
+<span class="sd">        the :mod:`pyvista` mesh.</span>
+<span class="sd">    sample_num</span>
+<span class="sd">        the number of sampling points.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    ---</span>
+<span class="sd">    The sampling is realised with decimation function provided by :mod:`pyvista`: `Decimation - PyVista &lt;https://docs.pyvista.org/examples/01-filter/decimate.html&gt;`_.</span>
+<span class="sd">    `pyvista.PolyData.decimate &lt;https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.decimate.html#pyvista.PolyData.decimate&gt;`_ is used for uniform sampling.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dec_ratio</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">sample_num</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">dec_mesh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">decimate</span><span class="p">(</span><span class="n">dec_ratio</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np2pcd</span><span class="p">(</span><span class="n">dec_mesh</span><span class="o">.</span><span class="n">points</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="pvmesh2pcd_pro"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.pvmesh2pcd_pro.html#UltraMotionCapture.obj3d.pvmesh2pcd_pro">[docs]</a><span class="k">def</span> <span class="nf">pvmesh2pcd_pro</span><span class="p">(</span><span class="n">mesh</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">pointset</span><span class="o">.</span><span class="n">PolyData</span><span class="p">,</span> <span class="n">sample_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">o3d</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">pybind</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">PointCloud</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Transform the :mod:`pyvista` mesh to a :mod:`open3d` point cloud with curation sampling method</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ---</span>
+<span class="sd">    mesh</span>
+<span class="sd">        the :mod:`pyvista` mesh.</span>
+<span class="sd">    sample_num</span>
+<span class="sd">        the number of sampling points.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    ---</span>
+<span class="sd">    The sampling is realised with decimation function provided by :mod:`pyvista`: `Decimation - PyVista &lt;https://docs.pyvista.org/examples/01-filter/decimate.html&gt;`_.</span>
+<span class="sd">    `pyvista.PolyData.decimate_pro &lt;https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.decimate_pro.html&gt;`_ is used for uniform sampling.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dec_ratio</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">sample_num</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">dec_mesh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">decimate_pro</span><span class="p">(</span><span class="n">dec_ratio</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np2pcd</span><span class="p">(</span><span class="n">dec_mesh</span><span class="o">.</span><span class="n">points</span><span class="p">)</span></div>
+
 
 
 <span class="c1"># utils for object cropping and other operations</span>
@@ -596,6 +663,33 @@
     <span class="n">min_bound</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">ratio</span><span class="p">)</span><span class="o">*</span><span class="n">max_bound</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">ratio</span><span class="o">*</span><span class="n">min_bound</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">pcd_crop</span><span class="p">(</span><span class="n">pcd</span><span class="p">,</span> <span class="n">min_bound</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="pvmesh_fix_disconnect"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.pvmesh_fix_disconnect.html#UltraMotionCapture.obj3d.pvmesh_fix_disconnect">[docs]</a><span class="k">def</span> <span class="nf">pvmesh_fix_disconnect</span><span class="p">(</span><span class="n">mesh</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">pointset</span><span class="o">.</span><span class="n">PolyData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">pointset</span><span class="o">.</span><span class="n">PolyData</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Fix disconnection problem in :mod:`pyvista` mesh.</span>
+
+<span class="sd">    - Split the mesh into variously connected meshes.</span>
+<span class="sd">    - Return the connected mesh with biggest point number.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ---</span>
+<span class="sd">    mesh</span>
+<span class="sd">        :mod:`pyvista` mesh.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    ---</span>
+<span class="sd">    :mod:`pyvista`</span>
+<span class="sd">        the fully connected mesh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># split the mesh into different bodies according to the connectivity</span>
+    <span class="n">clean</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+    <span class="n">bodies</span> <span class="o">=</span> <span class="n">clean</span><span class="o">.</span><span class="n">split_bodies</span><span class="p">()</span>
+
+    <span class="c1"># get the index of body with maximum number of points </span>
+    <span class="n">point_nums</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="k">for</span> <span class="n">body</span> <span class="ow">in</span> <span class="n">bodies</span><span class="p">]</span>
+    <span class="n">max_index</span> <span class="o">=</span> <span class="n">point_nums</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">point_nums</span><span class="p">))</span>
+
+    <span class="c1"># return the body with maximum number of points </span>
+    <span class="k">return</span> <span class="n">bodies</span><span class="p">[</span><span class="n">max_index</span><span class="p">]</span><span class="o">.</span><span class="n">extract_surface</span><span class="p">()</span></div>
 
 <span class="c1"># utils for object estimation</span>
 

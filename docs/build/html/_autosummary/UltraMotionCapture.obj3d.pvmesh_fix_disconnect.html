@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="UltraMotionCapture.field" href="UltraMotionCapture.field.html" /><link rel="prev" title="UltraMotionCapture.analysis" href="UltraMotionCapture.analysis.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="UltraMotionCapture.obj3d.search_nearest_point" href="UltraMotionCapture.obj3d.search_nearest_point.html" /><link rel="prev" title="UltraMotionCapture.obj3d.pvmesh2pcd_pro" href="UltraMotionCapture.obj3d.pvmesh2pcd_pro.html" />
 
     <meta name="generator" content="sphinx-4.0.1, furo 2022.09.29"/>
-        <title>UltraMotionCapture.config - Ultra Motion Capture v0.0 documentation</title>
+        <title>UltraMotionCapture.obj3d.pvmesh_fix_disconnect - Ultra Motion Capture v0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -166,7 +166,6 @@
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../api.html">API References</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="UltraMotionCapture.html">UltraMotionCapture</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="UltraMotionCapture.analysis.html">UltraMotionCapture.analysis</a></li>
-<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">UltraMotionCapture.config</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="UltraMotionCapture.field.html">UltraMotionCapture.field</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.field.Trans.html">UltraMotionCapture.field.Trans</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.field.Trans_Nonrigid.html">UltraMotionCapture.field.Trans_Nonrigid</a></li>
@@ -182,7 +181,7 @@
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html">UltraMotionCapture.kps.MarkerSet</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="UltraMotionCapture.obj3d.html">UltraMotionCapture.obj3d</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 current has-children"><a class="reference internal" href="UltraMotionCapture.obj3d.html">UltraMotionCapture.obj3d</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.obj3d.Obj3d.html">UltraMotionCapture.obj3d.Obj3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.obj3d.Obj3d_Deform.html">UltraMotionCapture.obj3d.Obj3d_Deform</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.obj3d.Obj3d_Kps.html">UltraMotionCapture.obj3d.Obj3d_Kps</a></li>
@@ -197,6 +196,9 @@
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.obj3d.pcd_get_center.html">UltraMotionCapture.obj3d.pcd_get_center</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.obj3d.pcd_get_max_bound.html">UltraMotionCapture.obj3d.pcd_get_max_bound</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.obj3d.pcd_get_min_bound.html">UltraMotionCapture.obj3d.pcd_get_min_bound</a></li>
+<li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.obj3d.pvmesh2pcd.html">UltraMotionCapture.obj3d.pvmesh2pcd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.obj3d.pvmesh2pcd_pro.html">UltraMotionCapture.obj3d.pvmesh2pcd_pro</a></li>
+<li class="toctree-l4 current current-page"><a class="current reference internal" href="#">UltraMotionCapture.obj3d.pvmesh_fix_disconnect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.obj3d.search_nearest_point.html">UltraMotionCapture.obj3d.search_nearest_point</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.obj3d.search_nearest_point_idx.html">UltraMotionCapture.obj3d.search_nearest_point_idx</a></li>
 </ul>
@@ -250,8 +252,29 @@
           </label>
         </div>
         <article role="main">
-          <section id="module-UltraMotionCapture.config">
-<span id="ultramotioncapture-config"></span><h1>UltraMotionCapture.config<a class="headerlink" href="#module-UltraMotionCapture.config" title="Permalink to this headline">#</a></h1>
+          <section id="ultramotioncapture-obj3d-pvmesh-fix-disconnect">
+<h1>UltraMotionCapture.obj3d.pvmesh_fix_disconnect<a class="headerlink" href="#ultramotioncapture-obj3d-pvmesh-fix-disconnect" title="Permalink to this headline">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="UltraMotionCapture.obj3d.pvmesh_fix_disconnect">
+<span class="sig-prename descclassname"><span class="pre">UltraMotionCapture.obj3d.</span></span><span class="sig-name descname"><span class="pre">pvmesh_fix_disconnect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pv.core.pointset.PolyData</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#pvmesh_fix_disconnect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.pvmesh_fix_disconnect" title="Permalink to this definition">#</a></dt>
+<dd><p>Fix disconnection problem in <code class="xref py py-mod docutils literal notranslate"><span class="pre">pyvista</span></code> mesh.</p>
+<ul class="simple">
+<li><p>Split the mesh into variously connected meshes.</p></li>
+<li><p>Return the connected mesh with biggest point number.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>mesh</strong> – <code class="xref py py-mod docutils literal notranslate"><span class="pre">pyvista</span></code> mesh.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the fully connected mesh.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyvista</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
         </article>
@@ -259,23 +282,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="UltraMotionCapture.field.html">
+          <a class="next-page" href="UltraMotionCapture.obj3d.search_nearest_point.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">UltraMotionCapture.field</div>
+                <div class="title">UltraMotionCapture.obj3d.search_nearest_point</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="UltraMotionCapture.analysis.html">
+          <a class="prev-page" href="UltraMotionCapture.obj3d.pvmesh2pcd_pro.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">UltraMotionCapture.analysis</div>
+                <div class="title">UltraMotionCapture.obj3d.pvmesh2pcd_pro</div>
                 
               </div>
             </a>

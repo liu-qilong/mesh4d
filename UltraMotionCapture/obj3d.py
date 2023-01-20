@@ -71,50 +71,51 @@ class Obj3d(object):
         )
         o3.show()
     """
-    cab_r = None
     cab_s = None
-    cab_t = None
+    cab_m = None
 
     def __init__(
         self,
         filedir: str,
         scale_rate: float = 0.01,
-        scale_center: list = (0, 0, 0),
         sample_num: int = 1000,
     ):
-        if self.cab_r is None:
+        if self.cab_s is None:
             self.load_cab_rst()
             print('calibration parameters loaded')
 
-        # self.mesh_o3d = o3d.io.read_triangle_mesh(filedir, True).scale(scale_rate, center=scale_center)
-        self.mesh_o3d = o3d.io.read_triangle_mesh(filedir, True)
+        self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
+        self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
 
-        self.mesh_o3d.rotate(self.cab_r, center=(0, 0, 0))
-        self.mesh_o3d.scale(self.cab_s, center=(0, 0, 0))
-        self.mesh_o3d.translate(self.cab_t)
+        self.mesh.transform(self.cab_m)
+        self.mesh.scale(self.cab_s)
+        self.mesh.scale(scale_rate)
 
-        self.mesh_o3d.compute_vertex_normals()
-        self.pcd = self.mesh_o3d.sample_points_poisson_disk(number_of_points=sample_num, init_factor=5)
+        self.pcd = pvmesh2pcd_pro(self.mesh, sample_num)
     
     @classmethod
     def load_cab_rst(cls):
+        """Load the calibration parameters from 3dMD to Vicon coordination system.
+        """
         mod_path = os.path.dirname(UltraMotionCapture.__file__)
-        cls.cab_r = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
-        cls.cab_s = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
-        cls.cab_t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
+        r = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
+        s = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
+        t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
+        cls.cab_s, cls.cab_m = field.transform_rst2sm(r, s, t)
 
 
     def show(self):
         """Show the loaded mesh and the sampled point cloud.
-
-        Attention
-        ---
-        Currently the visualisation is realised with :mod:`open3d`. It will be transferred to :mod:`pyvista` in future development for richer illustration features.
         """
-        o3d.visualization.draw_geometries([
-            self.mesh_o3d,
-            copy.deepcopy(self.pcd).translate((10, 0, 0)),
-        ])
+        scene = pv.Plotter()
+        scene.add_points(pcd2np(self.pcd))
+        
+        width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
+        scene.add_mesh(
+            self.mesh.translate((1.5*width, 0, 0), inplace=False),
+            show_edges=True
+        )
+        scene.show()
 
 
 class Obj3d_Kps(Obj3d):
@@ -248,7 +249,7 @@ def pcd2np(pcd: o3d.geometry.PointCloud) -> np.array:
     return np.asarray(pcd.points)
 
 
-def np2pcd(points):
+def np2pcd(points: np.array) -> o3d.cpu.pybind.geometry.PointCloud:
     """Transform the points coordinates stored in a :class:`numpy.array` to a a :mod:`open3d` point cloud (:class:`open3d.geometry.PointCloud`).
 
     Parameters
@@ -266,7 +267,7 @@ def np2pcd(points):
     return pcd
 
 
-def np2pvpcd(points, **kwargs):
+def np2pvpcd(points: np.array, **kwargs) -> pv.core.pointset.PolyData:
     """Transform the points coordinates stored in a :class:`numpy.array` to a a :mod:`pyvista` point cloud (:class:`pyvista.PolyData`).
 
     Parameters
@@ -293,6 +294,47 @@ def np2pvpcd(points, **kwargs):
     sphere = pv.Sphere(**kwargs)
     pvpcd = pdata.glyph(scale=False, geom=sphere, orient=False)
     return pvpcd
+
+
+def pvmesh2pcd(mesh: pv.core.pointset.PolyData, sample_num: int = 1000) -> o3d.cpu.pybind.geometry.PointCloud:
+    """Transform the :mod:`pyvista` mesh to a :mod:`open3d` point cloud with uniform sampling method
+    
+    Parameters
+    ---
+    mesh
+        the :mod:`pyvista` mesh.
+    sample_num
+        the number of sampling points.
+
+    See Also
+    ---
+    The sampling is realised with decimation function provided by :mod:`pyvista`: `Decimation - PyVista <https://docs.pyvista.org/examples/01-filter/decimate.html>`_.
+    `pyvista.PolyData.decimate <https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.decimate.html#pyvista.PolyData.decimate>`_ is used for uniform sampling.
+    """
+    dec_ratio = 1 - sample_num / len(mesh.points)
+    dec_mesh = mesh.decimate(dec_ratio)
+    return np2pcd(dec_mesh.points)
+
+
+def pvmesh2pcd_pro(mesh: pv.core.pointset.PolyData, sample_num: int = 1000) -> o3d.cpu.pybind.geometry.PointCloud:
+    """Transform the :mod:`pyvista` mesh to a :mod:`open3d` point cloud with curation sampling method
+    
+    Parameters
+    ---
+    mesh
+        the :mod:`pyvista` mesh.
+    sample_num
+        the number of sampling points.
+
+    See Also
+    ---
+    The sampling is realised with decimation function provided by :mod:`pyvista`: `Decimation - PyVista <https://docs.pyvista.org/examples/01-filter/decimate.html>`_.
+    `pyvista.PolyData.decimate_pro <https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.decimate_pro.html>`_ is used for uniform sampling.
+    """
+    dec_ratio = 1 - sample_num / len(mesh.points)
+    dec_mesh = mesh.decimate_pro(dec_ratio)
+    return np2pcd(dec_mesh.points)
+
 
 
 # utils for object cropping and other operations
@@ -368,6 +410,33 @@ def pcd_crop_front(pcd: o3d.geometry.PointCloud, ratio: float = 0.5) -> o3d.geom
     min_bound[2] = (1-ratio)*max_bound[2] + ratio*min_bound[2]
     return pcd_crop(pcd, min_bound)
 
+
+def pvmesh_fix_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.PolyData():
+    """Fix disconnection problem in :mod:`pyvista` mesh.
+
+    - Split the mesh into variously connected meshes.
+    - Return the connected mesh with biggest point number.
+
+    Parameters
+    ---
+    mesh
+        :mod:`pyvista` mesh.
+
+    Returns
+    ---
+    :mod:`pyvista`
+        the fully connected mesh.
+    """
+    # split the mesh into different bodies according to the connectivity
+    clean = mesh.clean()
+    bodies = clean.split_bodies()
+
+    # get the index of body with maximum number of points 
+    point_nums = [len(body.points) for body in bodies]
+    max_index = point_nums.index(max(point_nums))
+
+    # return the body with maximum number of points 
+    return bodies[max_index].extract_surface()
 
 # utils for object estimation
 
