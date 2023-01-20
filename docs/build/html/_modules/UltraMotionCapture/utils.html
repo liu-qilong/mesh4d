@@ -292,34 +292,39 @@
         <span class="n">imageio</span><span class="o">.</span><span class="n">mimsave</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;output.gif&#39;</span><span class="p">,</span> <span class="n">images</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="obj_pick_points"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.utils.obj_pick_points.html#UltraMotionCapture.utils.obj_pick_points">[docs]</a><span class="k">def</span> <span class="nf">obj_pick_points</span><span class="p">(</span><span class="n">filedir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">has_texture</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">save_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;output/&#39;</span><span class="p">,</span> <span class="n">save_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;points&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="obj_pick_points"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.utils.obj_pick_points.html#UltraMotionCapture.utils.obj_pick_points">[docs]</a><span class="k">def</span> <span class="nf">obj_pick_points</span><span class="p">(</span><span class="n">filedir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">use_texture</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">is_save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">save_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;output/&#39;</span><span class="p">,</span> <span class="n">save_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;points&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Manually pick points from 3D mesh loaded from a :code:`.obj` file. The picked points are stored in a (N, 3) :class:`numpy.array` and saved as :code:`.npy` :mod:`numpy` binary file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ---</span>
 <span class="sd">    filedir</span>
 <span class="sd">        The directory of the :code:`.obj` file.</span>
-<span class="sd">    has_texture</span>
-<span class="sd">        Whether the :code:`.obj` file has texture file or not. If set as :code:`True`, the texture will be loaded and rendered.</span>
+<span class="sd">    use_texture</span>
+<span class="sd">        Whether use the :code:`.obj` file&#39;s texture file or not. If set as :code:`True`, the texture will be loaded and rendered.</span>
+<span class="sd">    is_save</span>
+<span class="sd">        save the points as local :code:`.npy` file or not. Default as :code:`False`.</span>
 <span class="sd">    save_folder</span>
 <span class="sd">        The folder for saving :code:`.npy` binary file.</span>
-
-<span class="sd">        Attention</span>
-<span class="sd">        ---</span>
-<span class="sd">        The folder directory shall be ended with :code:`/`, e.g. :code:`output/`.</span>
 <span class="sd">    save_name</span>
 <span class="sd">        The name of the saved :code:`.npy` binary file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    ---</span>
+<span class="sd">    :class:`np.array`</span>
+<span class="sd">        (N, 3) :class:`np.array` storing the picked points&#39; coordinates.</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    ---</span>
 <span class="sd">    One application of this function is preparing data for **calibration between 3dMD scanning system and the Vicon motion capture system**: Firstly, we acquire the markers&#39; coordinates from the 3dMD scanning image. Then it can be compared with the Vicon data, leading to the reveal of the transformation parameters between two system&#39;s coordinates. ::</span>
 
-<span class="sd">        import UltraMotionCapture as umc</span>
-<span class="sd">        umc.utils.obj_pick_points(</span>
-<span class="sd">            filedir=&#39;dataset/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj&#39;</span>
-<span class="sd">            has_texture=True,</span>
-<span class="sd">            save_folder=&#39;conf/calibrate/&#39;,</span>
-<span class="sd">            save_name=&#39;points_3dmd&#39;,</span>
+<span class="sd">        from UltraMotionCapture import utils</span>
+
+<span class="sd">        utils.obj_pick_points(</span>
+<span class="sd">            filedir=&#39;UltraMotionCapture/data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj&#39;,</span>
+<span class="sd">            use_texture=True,</span>
+<span class="sd">            is_save=True,</span>
+<span class="sd">            save_folder=&#39;UltraMotionCapture/config/calibrate/&#39;,</span>
+<span class="sd">            save_name=&#39;points_3dmd_test&#39;,</span>
 <span class="sd">        )</span>
 
 <span class="sd">    Dragging the scene to adjust perspective and clicking the marker points in the scene. Press :code:`q` to quite the interactive window and then the picked point&#39;s coordinates will be stored in a (N, 3) :class:`numpy.array` and saved as :code:`conf/calibrate/points_3dmd.npy`. Terminal will also print the saved :class:`numpy.array` for your reference.</span>
@@ -337,12 +342,8 @@
 <span class="sd">        About point picking feature provided by the :mod:`pyvista` package: </span>
 <span class="sd">        `Picking a Point on the Surface of a Mesh - PyVista &lt;https://docs.pyvista.org/examples/02-plot/surface-picking.html&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># load obj mesh with texture</span>
+    <span class="c1"># load obj mesh</span>
     <span class="n">mesh</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filedir</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">has_texture</span><span class="p">:</span>
-        <span class="n">texture</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">read_texture</span><span class="p">(</span><span class="n">filedir</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.obj&#39;</span><span class="p">,</span> <span class="s1">&#39;.jpg&#39;</span><span class="p">))</span>
-
     <span class="n">point_list</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="c1"># call back function for point picking</span>
@@ -358,7 +359,8 @@
     <span class="c1"># launch point picking</span>
     <span class="n">pl</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">()</span>
     
-    <span class="k">if</span> <span class="n">has_texture</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">use_texture</span><span class="p">:</span>
+        <span class="n">texture</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">read_texture</span><span class="p">(</span><span class="n">filedir</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.obj&#39;</span><span class="p">,</span> <span class="s1">&#39;.jpg&#39;</span><span class="p">))</span>
         <span class="n">pl</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">texture</span><span class="o">=</span><span class="n">texture</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">pl</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -366,10 +368,14 @@
     <span class="n">pl</span><span class="o">.</span><span class="n">enable_surface_picking</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="n">left_clicking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_point</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">pl</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
-    <span class="c1"># print picked points</span>
+    <span class="c1"># save and return the picked points</span>
     <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">point_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">save_folder</span> <span class="o">+</span> <span class="n">save_name</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;save picked points:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">points</span><span class="p">))</span></div>
+
+    <span class="k">if</span> <span class="n">is_save</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_folder</span><span class="p">,</span> <span class="n">save_name</span><span class="p">),</span> <span class="n">points</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;save picked points:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">points</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">points</span></div>
 </pre></div>
         </article>
       </div>

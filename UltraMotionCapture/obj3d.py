@@ -106,6 +106,13 @@ class Obj3d(object):
 
     def show(self):
         """Show the loaded mesh and the sampled point cloud.
+
+        Attention
+        ---
+        Before calling this method in Jupyter Notebook environment, the `pythreejs <https://docs.pyvista.org/user-guide/jupyter/pythreejs.html>`_ backend of :mod:`pyvista` is needed to be selected: ::
+
+            import pyvista as pv
+            pv.set_jupyter_backend('pythreejs')
         """
         scene = pv.Plotter()
         scene.add_points(pcd2np(self.pcd))

@@ -256,31 +256,35 @@
 <h1>UltraMotionCapture.utils.obj_pick_points<a class="headerlink" href="#ultramotioncapture-utils-obj-pick-points" title="Permalink to this headline">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="UltraMotionCapture.utils.obj_pick_points">
-<span class="sig-prename descclassname"><span class="pre">UltraMotionCapture.utils.</span></span><span class="sig-name descname"><span class="pre">obj_pick_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filedir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_texture</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_folder</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'output/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'points'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/utils.html#obj_pick_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.utils.obj_pick_points" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">UltraMotionCapture.utils.</span></span><span class="sig-name descname"><span class="pre">obj_pick_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filedir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_texture</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_save</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_folder</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'output/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'points'</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.array</span><a class="reference internal" href="../_modules/UltraMotionCapture/utils.html#obj_pick_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.utils.obj_pick_points" title="Permalink to this definition">#</a></dt>
 <dd><p>Manually pick points from 3D mesh loaded from a <code class="code docutils literal notranslate"><span class="pre">.obj</span></code> file. The picked points are stored in a (N, 3) <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.array</span></code> and saved as <code class="code docutils literal notranslate"><span class="pre">.npy</span></code> <code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy</span></code> binary file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filedir</strong> – The directory of the <code class="code docutils literal notranslate"><span class="pre">.obj</span></code> file.</p></li>
-<li><p><strong>has_texture</strong> – Whether the <code class="code docutils literal notranslate"><span class="pre">.obj</span></code> file has texture file or not. If set as <code class="code docutils literal notranslate"><span class="pre">True</span></code>, the texture will be loaded and rendered.</p></li>
-<li><p><strong>save_folder</strong> – <p>The folder for saving <code class="code docutils literal notranslate"><span class="pre">.npy</span></code> binary file.</p>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p>The folder directory shall be ended with <code class="code docutils literal notranslate"><span class="pre">/</span></code>, e.g. <code class="code docutils literal notranslate"><span class="pre">output/</span></code>.</p>
-</div>
-</p></li>
+<li><p><strong>use_texture</strong> – Whether use the <code class="code docutils literal notranslate"><span class="pre">.obj</span></code> file’s texture file or not. If set as <code class="code docutils literal notranslate"><span class="pre">True</span></code>, the texture will be loaded and rendered.</p></li>
+<li><p><strong>is_save</strong> – save the points as local <code class="code docutils literal notranslate"><span class="pre">.npy</span></code> file or not. Default as <code class="code docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>save_folder</strong> – The folder for saving <code class="code docutils literal notranslate"><span class="pre">.npy</span></code> binary file.</p></li>
 <li><p><strong>save_name</strong> – The name of the saved <code class="code docutils literal notranslate"><span class="pre">.npy</span></code> binary file.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(N, 3) <code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code> storing the picked points’ coordinates.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">np.array</span></code></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
 <p>One application of this function is preparing data for <strong>calibration between 3dMD scanning system and the Vicon motion capture system</strong>: Firstly, we acquire the markers’ coordinates from the 3dMD scanning image. Then it can be compared with the Vicon data, leading to the reveal of the transformation parameters between two system’s coordinates.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">UltraMotionCapture</span> <span class="k">as</span> <span class="nn">umc</span>
-<span class="n">umc</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">obj_pick_points</span><span class="p">(</span>
-    <span class="n">filedir</span><span class="o">=</span><span class="s1">&#39;dataset/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj&#39;</span>
-    <span class="n">has_texture</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">save_folder</span><span class="o">=</span><span class="s1">&#39;conf/calibrate/&#39;</span><span class="p">,</span>
-    <span class="n">save_name</span><span class="o">=</span><span class="s1">&#39;points_3dmd&#39;</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="n">utils</span><span class="o">.</span><span class="n">obj_pick_points</span><span class="p">(</span>
+    <span class="n">filedir</span><span class="o">=</span><span class="s1">&#39;UltraMotionCapture/data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj&#39;</span><span class="p">,</span>
+    <span class="n">use_texture</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">is_save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">save_folder</span><span class="o">=</span><span class="s1">&#39;UltraMotionCapture/config/calibrate/&#39;</span><span class="p">,</span>
+    <span class="n">save_name</span><span class="o">=</span><span class="s1">&#39;points_3dmd_test&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
