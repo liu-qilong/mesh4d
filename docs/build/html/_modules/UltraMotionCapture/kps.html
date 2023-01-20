@@ -262,12 +262,14 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span>
 
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">interpolate</span>
 
+<span class="kn">import</span> <span class="nn">UltraMotionCapture</span>
 <span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">obj3d</span>
 <span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">utils</span>
@@ -432,10 +434,23 @@
 <span class="sd">        the start time of the coordinates data.</span>
 <span class="sd">    fps</span>
 <span class="sd">        the number of frames per second (fps).</span>
+<span class="sd">    scale_rate</span>
+<span class="sd">        the scaling rate of the Vicon key points.</span>
+
+<span class="sd">        Warning</span>
+<span class="sd">        ---</span>
+<span class="sd">        This value must be the same as :class:`UltraMotionCapture.obj3d.Obj3d`&#39;s :attr:`scale_rate`.</span>
 
 <span class="sd">    Note</span>
 <span class="sd">    ---</span>
 <span class="sd">    `Class Attributes`</span>
+
+<span class="sd">    cls.cab_s</span>
+<span class="sd">        rotation matrix :math:`\\boldsymbol R \in \mathbb{R}^{3 \\times 3}` stored in (3, 3) :class:`numpy.array` used for converting Vicon coordinates to 3dMD coordinates.</span>
+<span class="sd">    cls.cab_r</span>
+<span class="sd">        scaling rate :math:`s \in \mathbb{R}` stored in a :class:`float` variable used for converting Vicon coordinates to 3dMD coordinates.</span>
+<span class="sd">    cls.cab_t</span>
+<span class="sd">        translation vector :math:`\\boldsymbol t \in \mathbb{R}^{3}` stored in (3, ) :class:`numpy.array` used for converting Vicon coordinates to 3dMD coordinates.</span>
 
 <span class="sd">    self.name</span>
 <span class="sd">        The name of the marker.</span>
@@ -443,12 +458,14 @@
 <span class="sd">        The start time of the coordinates data.</span>
 <span class="sd">    self.fps</span>
 <span class="sd">        The number of frames per second (fps).</span>
+<span class="sd">    self.scale_rate</span>
+<span class="sd">        the scaling rate of the Vicon key points.</span>
 <span class="sd">    self.coord</span>
-<span class="sd">        :math:`3 \\times N` :class:`numpy.array` storing the coordinates data, with :math:`x, y, z` as rows and frame ids as the columns.</span>
+<span class="sd">        (3, N) :class:`numpy.array` storing the coordinates data, with :math:`x, y, z` as rows and frame ids as the columns.</span>
 <span class="sd">    self.speed</span>
-<span class="sd">        :math:`3 \\times N` :class:`numpy.array` storing the speed data, with :math:`x, y, z` as rows and frame ids as the columns.</span>
+<span class="sd">        (3, N) :class:`numpy.array` storing the speed data, with :math:`x, y, z` as rows and frame ids as the columns.</span>
 <span class="sd">    self.accel</span>
-<span class="sd">        :math:`3 \\times N` :class:`numpy.array` storing the acceleration data, with :math:`x, y, z` as rows and frame ids as the columns.</span>
+<span class="sd">        (3, N) :class:`numpy.array` storing the acceleration data, with :math:`x, y, z` as rows and frame ids as the columns.</span>
 <span class="sd">    self.frame_num</span>
 <span class="sd">        The number of total frames.</span>
 <span class="sd">    self.x_field</span>
@@ -461,13 +478,26 @@
 <span class="sd">    Tip</span>
 <span class="sd">    ---</span>
 <span class="sd">    When loading Vicon motion capture data, the whole process is arranged by a :class:`MakerSet` object, which creates :class:`Marker` objects for each key point and loads data into it accordingly. Therefore, usually the end user doesn&#39;t need to touch the :class:`Marker` class.</span>
+
+<span class="sd">    Tip</span>
+<span class="sd">    ---</span>
+<span class="sd">    In other parts of the package, points coordinates storing in :class:`np.array` are usually in the shape of (N, 3), while here we adopt (3, N), for the convenience of data interpolation :meth:`interp_field`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Marker.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">):</span>
+    <span class="n">cab_s</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">cab_r</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">cab_t</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Marker.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">scale_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cab_s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_cab_rst</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;calibration parameters loaded&#39;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fps</span> <span class="o">=</span> <span class="n">fps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span> <span class="o">=</span> <span class="n">scale_rate</span>
 
-        <span class="c1"># x, y,z data are stored in 3xN numpy array</span>
+        <span class="c1"># x, y, z data are stored in 3xN numpy array</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># coordinates</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># speed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">accel</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># acceleration</span>
@@ -478,18 +508,31 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">y_field</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">z_field</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Marker.fill_data"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.fill_data">[docs]</a>    <span class="k">def</span> <span class="nf">fill_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_input</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Filling coordinates, speed, and acceleration data, one by one, into the :class:`Marker` object.</span>
+<div class="viewcode-block" id="Marker.load_cab_rst"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.load_cab_rst">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">load_cab_rst</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load the calibration parameters from Vicon to 3dMD coordination system.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mod_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">UltraMotionCapture</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">cab_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/r.npy&#39;</span><span class="p">))</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">cab_s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/s.npy&#39;</span><span class="p">))</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">cab_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/t.npy&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Marker.fill_data"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.fill_data">[docs]</a>    <span class="k">def</span> <span class="nf">fill_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_input</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Filling coordinates, speed, and acceleration data after converting to 3dMD coordinates, one by one, into the :class:`Marker` object.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ---</span>
 <span class="sd">        data_input</span>
-<span class="sd">            :math:`3 \\times N` :class:`numpy.array`.</span>
+<span class="sd">            (3, N) :class:`numpy.array`.</span>
 
 <span class="sd">        Attention</span>
 <span class="sd">        ---</span>
 <span class="sd">        Called by the :class:`MarkerSet` object when parsing the Vicon motion capture data (:meth:`MarkerSet.load_from_vicon`). Usually the end user don&#39;t need to call this method manually.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cab_s</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cab_r</span><span class="p">,</span> <span class="n">data_input</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cab_t</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="o">=</span> <span class="n">data_input</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">frame_num</span> <span class="o">=</span> <span class="n">data_input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -677,14 +720,28 @@
 <div class="viewcode-block" id="MarkerSet"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet">[docs]</a><span class="k">class</span> <span class="nc">MarkerSet</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A collection of :class:`Marker` s. At current stage, it&#39;s usually loaded from the Vicon motion capture data.</span>
 
+<span class="sd">    Parameters</span>
+<span class="sd">    ---</span>
+<span class="sd">    filedir</span>
+<span class="sd">        directory of the :code:`.csv` key points coordinates data exported from the motion capture Vicon system.</span>
+<span class="sd">    scale_rate</span>
+<span class="sd">        the scaling rate of the Vicon key points.</span>
+
+<span class="sd">        Warning</span>
+<span class="sd">        ---</span>
+<span class="sd">        This value must be the same as :class:`UltraMotionCapture.obj3d.Obj3d`&#39;s :attr:`scale_rate`.</span>
+
+
 <span class="sd">    Note</span>
 <span class="sd">    ---</span>
 <span class="sd">    `Class Attributes`</span>
 
 <span class="sd">    self.fps</span>
-<span class="sd">        The number of frames per second (fps).</span>
+<span class="sd">        the number of frames per second (fps).</span>
+<span class="sd">    self.scale_rate</span>
+<span class="sd">        the scaling rate of the Vicon key points.</span>
 <span class="sd">    self.points</span>
-<span class="sd">        A :class:`Dictonary` of :class:`Marker` s, with the corresponding marker names as their keywords.</span>
+<span class="sd">        a :class:`Dictonary` of :class:`Marker` s, with the corresponding marker names as their keywords.</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    ---</span>
@@ -712,10 +769,7 @@
 <span class="sd">        vicon.plot_track(step=3, end_frame=100)</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="MarkerSet.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="MarkerSet.load_from_vicon"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.load_from_vicon">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_vicon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filedir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="MarkerSet.load_from_vicon"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.load_from_vicon">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_vicon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filedir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scale_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Load and parse data from :code:`.csv` file exported from the Vicon motion capture system.</span>
 
 <span class="sd">        Parameters</span>
@@ -723,6 +777,8 @@
 <span class="sd">        filedir</span>
 <span class="sd">            the directory of the :code:`.csv` file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span> <span class="o">=</span> <span class="n">scale_rate</span>
+
         <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">df_head</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fps</span> <span class="o">=</span> <span class="n">df_head</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># parse the fps</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="p">{}</span>
@@ -743,7 +799,10 @@
 
                 <span class="c1"># the first occurrence of a point</span>
                 <span class="k">if</span> <span class="n">point_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">point_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Marker</span><span class="p">(</span><span class="n">point_name</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">point_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Marker</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">point_name</span><span class="p">,</span> 
+                        <span class="n">fps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fps</span><span class="p">,</span> 
+                        <span class="n">scale_rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span><span class="p">)</span>
 
                 <span class="c1"># fill the following 3 columns&#39; X, Y, Z values into the point&#39;s object</span>
                 <span class="n">data_input</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">:,</span> <span class="n">col_name</span><span class="p">:</span><span class="n">col_names</span><span class="p">[</span><span class="n">col_id</span><span class="o">+</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>

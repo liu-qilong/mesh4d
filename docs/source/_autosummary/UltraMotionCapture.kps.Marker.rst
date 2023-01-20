@@ -1,4 +1,4 @@
-UltraMotionCapture.kps.Marker
+﻿UltraMotionCapture.kps.Marker
 =============================
 
 .. currentmodule:: UltraMotionCapture.kps
@@ -22,6 +22,7 @@ UltraMotionCapture.kps.Marker
       ~Marker.get_frame_coord
       ~Marker.get_time_coord
       ~Marker.interp_field
+      ~Marker.load_cab_rst
       ~Marker.plot_add_dot
       ~Marker.plot_add_line
       ~Marker.plot_track
@@ -29,5 +30,13 @@ UltraMotionCapture.kps.Marker
    
 
    
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Marker.cab_r
+      ~Marker.cab_s
+      ~Marker.cab_t
    
    

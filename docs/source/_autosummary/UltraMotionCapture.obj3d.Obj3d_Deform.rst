@@ -1,4 +1,4 @@
-UltraMotionCapture.obj3d.Obj3d\_Deform
+﻿UltraMotionCapture.obj3d.Obj3d\_Deform
 ======================================
 
 .. currentmodule:: UltraMotionCapture.obj3d
@@ -18,7 +18,7 @@ UltraMotionCapture.obj3d.Obj3d\_Deform
    .. autosummary::
    
       ~Obj3d_Deform.__init__
-      ~Obj3d_Deform.load_cab_rst
+      ~Obj3d_Deform.load_kps
       ~Obj3d_Deform.offset_rotate
       ~Obj3d_Deform.set_trans_nonrigid
       ~Obj3d_Deform.set_trans_rigid
@@ -27,12 +27,5 @@ UltraMotionCapture.obj3d.Obj3d\_Deform
    
 
    
-   
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~Obj3d_Deform.cab_m
-      ~Obj3d_Deform.cab_s
    
    

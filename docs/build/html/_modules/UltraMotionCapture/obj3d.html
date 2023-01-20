@@ -277,7 +277,6 @@
 <span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
 <span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
 
-<span class="kn">import</span> <span class="nn">UltraMotionCapture</span>
 <span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">kps</span>
 <span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">field</span>
 
@@ -296,8 +295,6 @@
 <span class="sd">        .. seealso::</span>
 <span class="sd">            Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.</span>
 
-<span class="sd">    scale_center</span>
-<span class="sd">        the center of the scaling represented in (3, ) :class:`List`.</span>
 <span class="sd">    sample_num</span>
 <span class="sd">        the number of the points sampled from the mesh to construct the point cloud.</span>
 
@@ -324,38 +321,17 @@
 <span class="sd">        )</span>
 <span class="sd">        o3.show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">cab_s</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">cab_m</span> <span class="o">=</span> <span class="kc">None</span>
-
 <div class="viewcode-block" id="Obj3d.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d.html#UltraMotionCapture.obj3d.Obj3d.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filedir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">scale_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
         <span class="n">sample_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cab_s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">load_cab_rst</span><span class="p">()</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;calibration parameters loaded&#39;</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">pvmesh_fix_disconnect</span><span class="p">(</span><span class="n">pv</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filedir</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">texture</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">read_texture</span><span class="p">(</span><span class="n">filedir</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.obj&#39;</span><span class="p">,</span> <span class="s1">&#39;.jpg&#39;</span><span class="p">))</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cab_m</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cab_s</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">scale_rate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">scale_rate</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">pcd</span> <span class="o">=</span> <span class="n">pvmesh2pcd_pro</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">sample_num</span><span class="p">)</span></div>
-    
-<div class="viewcode-block" id="Obj3d.load_cab_rst"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d.html#UltraMotionCapture.obj3d.Obj3d.load_cab_rst">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">load_cab_rst</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load the calibration parameters from 3dMD to Vicon coordination system.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">mod_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">UltraMotionCapture</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/r.npy&#39;</span><span class="p">))</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/s.npy&#39;</span><span class="p">))</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/t.npy&#39;</span><span class="p">))</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">cab_s</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">cab_m</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">transform_rst2sm</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span></div>
-
 
 <div class="viewcode-block" id="Obj3d.show"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d.html#UltraMotionCapture.obj3d.Obj3d.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Show the loaded mesh and the sampled point cloud.</span>
@@ -368,13 +344,14 @@
 <span class="sd">            pv.set_jupyter_backend(&#39;pythreejs&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">scene</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">()</span>
-        <span class="n">scene</span><span class="o">.</span><span class="n">add_points</span><span class="p">(</span><span class="n">pcd2np</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">))</span>
-        
+
+        <span class="c1"># plot mesh</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># plot sampled point cloud</span>
         <span class="n">width</span> <span class="o">=</span> <span class="n">pcd_get_max_bound</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">pcd_get_min_bound</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">translate</span><span class="p">((</span><span class="mf">1.5</span><span class="o">*</span><span class="n">width</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-            <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span>
-        <span class="p">)</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_points</span><span class="p">(</span><span class="n">pcd2np</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="mf">1.5</span><span class="o">*</span><span class="n">width</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
         <span class="n">scene</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
@@ -396,7 +373,46 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Obj3d_Kps.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">Obj3d</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kps</span> <span class="o">=</span> <span class="n">kps</span><span class="o">.</span><span class="n">Kps_Deform</span><span class="p">()</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kps</span> <span class="o">=</span> <span class="n">kps</span><span class="o">.</span><span class="n">Kps_Deform</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Obj3d_Kps.load_kps"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps.load_kps">[docs]</a>    <span class="k">def</span> <span class="nf">load_kps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">markerset</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">kps</span><span class="o">.</span><span class="n">MarkerSet</span><span class="p">],</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load key points from a :class:`kps.MarkerSet` object.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ---</span>
+<span class="sd">        markerset</span>
+<span class="sd">            the :class:`kps.MarkerSet` object.</span>
+<span class="sd">        time</span>
+<span class="sd">            the time from the :class:`kps.MarkerSet`&#39;s recording period to be loaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kps</span><span class="o">.</span><span class="n">load_from_markerset_time</span><span class="p">(</span><span class="n">markerset</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Obj3d_Kps.show"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show the loaded mesh, the sampled point cloud, and the key points attached to it.</span>
+
+<span class="sd">        Attention</span>
+<span class="sd">        ---</span>
+<span class="sd">        Before calling this method in Jupyter Notebook environment, the `pythreejs &lt;https://docs.pyvista.org/user-guide/jupyter/pythreejs.html&gt;`_ backend of :mod:`pyvista` is needed to be selected: ::</span>
+
+<span class="sd">            import pyvista as pv</span>
+<span class="sd">            pv.set_jupyter_backend(&#39;pythreejs&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">()</span>
+        
+        <span class="c1"># plot mesh</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">show_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># plot sampled point cloud</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">pcd_get_max_bound</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">pcd_get_min_bound</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">lateral_move</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">width</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_points</span><span class="p">(</span><span class="n">pcd2np</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">)</span> <span class="o">+</span> <span class="n">lateral_move</span><span class="p">)</span>
+
+        <span class="c1"># plot key points</span>
+        <span class="n">pvpcd_kps</span> <span class="o">=</span> <span class="n">np2pvpcd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kps</span><span class="o">.</span><span class="n">get_kps_source_points</span><span class="p">(),</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">pvpcd_kps</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;Gold&#39;</span><span class="p">)</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">pvpcd_kps</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">lateral_move</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;Gold&#39;</span><span class="p">)</span>
+
+        <span class="n">scene</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
 
 
 <div class="viewcode-block" id="Obj3d_Deform"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Deform.html#UltraMotionCapture.obj3d.Obj3d_Deform">[docs]</a><span class="k">class</span> <span class="nc">Obj3d_Deform</span><span class="p">(</span><span class="n">Obj3d_Kps</span><span class="p">):</span>

@@ -296,8 +296,8 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.__init__" title="UltraMotionCapture.obj3d.Obj3d_Deform.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(**kwargs)</p></td>
 <td><p>Initialize self.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_cab_rst</span></code>()</p></td>
-<td><p>Load the calibration parameters from 3dMD to Vicon coordination system.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_kps</span></code>(markerset[, time])</p></td>
+<td><p>Load key points from a <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code> object.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.offset_rotate" title="UltraMotionCapture.obj3d.Obj3d_Deform.offset_rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">offset_rotate</span></code></a>()</p></td>
 <td><p>Offset the rotation according to the estimated rigid transformation.</p></td>
@@ -309,24 +309,7 @@
 <td><p>Set rigid transformation.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">show</span></code>()</p></td>
-<td><p>Show the loaded mesh and the sampled point cloud.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p class="rubric">Attributes</p>
-<div class="table-wrapper longtable docutils container">
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cab_m</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cab_s</span></code></p></td>
-<td><p></p></td>
+<td><p>Show the loaded mesh, the sampled point cloud, and the key points attached to it.</p></td>
 </tr>
 </tbody>
 </table>
