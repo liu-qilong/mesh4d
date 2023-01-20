@@ -48,6 +48,9 @@ UltraMotionCapture.obj3d
       pcd_get_center
       pcd_get_max_bound
       pcd_get_min_bound
+      pvmesh2pcd
+      pvmesh2pcd_pro
+      pvmesh_fix_disconnect
       search_nearest_point
       search_nearest_point_idx
    

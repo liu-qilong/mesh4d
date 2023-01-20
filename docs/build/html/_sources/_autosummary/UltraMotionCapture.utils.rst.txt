@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.utils
+UltraMotionCapture.utils
 ========================
 
 .. automodule:: UltraMotionCapture.utils

@@ -78,7 +78,6 @@ class Obj3d(object):
         self,
         filedir: str,
         scale_rate: float = 0.01,
-        scale_center: list = (0, 0, 0),
         sample_num: int = 1000,
     ):
         if self.cab_s is None:
@@ -90,11 +89,14 @@ class Obj3d(object):
 
         self.mesh.transform(self.cab_m)
         self.mesh.scale(self.cab_s)
+        self.mesh.scale(scale_rate)
 
         self.pcd = pvmesh2pcd_pro(self.mesh, sample_num)
     
     @classmethod
     def load_cab_rst(cls):
+        """Load the calibration parameters from 3dMD to Vicon coordination system.
+        """
         mod_path = os.path.dirname(UltraMotionCapture.__file__)
         r = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
         s = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
@@ -295,8 +297,19 @@ def np2pvpcd(points: np.array, **kwargs) -> pv.core.pointset.PolyData:
 
 
 def pvmesh2pcd(mesh: pv.core.pointset.PolyData, sample_num: int = 1000) -> o3d.cpu.pybind.geometry.PointCloud:
-    """
-    tbf
+    """Transform the :mod:`pyvista` mesh to a :mod:`open3d` point cloud with uniform sampling method
+    
+    Parameters
+    ---
+    mesh
+        the :mod:`pyvista` mesh.
+    sample_num
+        the number of sampling points.
+
+    See Also
+    ---
+    The sampling is realised with decimation function provided by :mod:`pyvista`: `Decimation - PyVista <https://docs.pyvista.org/examples/01-filter/decimate.html>`_.
+    `pyvista.PolyData.decimate <https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.decimate.html#pyvista.PolyData.decimate>`_ is used for uniform sampling.
     """
     dec_ratio = 1 - sample_num / len(mesh.points)
     dec_mesh = mesh.decimate(dec_ratio)
@@ -304,8 +317,19 @@ def pvmesh2pcd(mesh: pv.core.pointset.PolyData, sample_num: int = 1000) -> o3d.c
 
 
 def pvmesh2pcd_pro(mesh: pv.core.pointset.PolyData, sample_num: int = 1000) -> o3d.cpu.pybind.geometry.PointCloud:
-    """
-    tbf
+    """Transform the :mod:`pyvista` mesh to a :mod:`open3d` point cloud with curation sampling method
+    
+    Parameters
+    ---
+    mesh
+        the :mod:`pyvista` mesh.
+    sample_num
+        the number of sampling points.
+
+    See Also
+    ---
+    The sampling is realised with decimation function provided by :mod:`pyvista`: `Decimation - PyVista <https://docs.pyvista.org/examples/01-filter/decimate.html>`_.
+    `pyvista.PolyData.decimate_pro <https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.decimate_pro.html>`_ is used for uniform sampling.
     """
     dec_ratio = 1 - sample_num / len(mesh.points)
     dec_mesh = mesh.decimate_pro(dec_ratio)
@@ -388,8 +412,20 @@ def pcd_crop_front(pcd: o3d.geometry.PointCloud, ratio: float = 0.5) -> o3d.geom
 
 
 def pvmesh_fix_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.PolyData():
-    """
-    tbf
+    """Fix disconnection problem in :mod:`pyvista` mesh.
+
+    - Split the mesh into variously connected meshes.
+    - Return the connected mesh with biggest point number.
+
+    Parameters
+    ---
+    mesh
+        :mod:`pyvista` mesh.
+
+    Returns
+    ---
+    :mod:`pyvista`
+        the fully connected mesh.
     """
     # split the mesh into different bodies according to the connectivity
     clean = mesh.clean()
