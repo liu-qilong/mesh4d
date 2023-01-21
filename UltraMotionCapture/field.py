@@ -265,11 +265,11 @@ class Trans_Nonrigid(Trans):
         :class:`np.array`
             (N, 3) :class:`numpy.array` stores the points after transformation.
         """
-        idxs = []
+        points_shift = []
         for point in points:
             idx = obj3d.search_nearest_point_idx(point, self.source_points)
-            idxs.append(idx)
-        return self.deform_points[idx]
+            points_shift.append(self.deform_points[idx])
+        return np.array(points_shift)
 
 
 def transform_rst2sm(R: np.array, s: float, t: np.array) -> tuple[float, np.array]:

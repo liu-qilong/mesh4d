@@ -267,9 +267,11 @@ class Obj4d_Deform(Obj4d_Kps):
             o3_ls = [o3_a, o3_b]
             o4.add_obj(*o3_ls)
         """
+        reg_start_index = len(self.obj_ls)
         Obj4d_Kps.add_obj(self, *objs, **kwargs)
+        reg_end_index = len(self.obj_ls) - 1
 
-        for idx in range(len(self.obj_ls)):
+        for idx in range(reg_start_index, reg_end_index + 1):
             if idx == 0:
                 self.__process_first_obj()
                 continue
