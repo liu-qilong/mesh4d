@@ -268,13 +268,12 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span>
 
-<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">obj3d</span>
 <span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">kps</span>
 <span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">field</span>
 
-<span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">field</span>
 <div class="viewcode-block" id="Obj4d"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj4d.Obj4d.html#UltraMotionCapture.obj4d.Obj4d">[docs]</a><span class="k">class</span> <span class="nc">Obj4d</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Static 4D object. Contains a list of 3D objects.</span>
 
@@ -590,6 +589,59 @@
         <span class="p">)</span>
         <span class="n">trans</span><span class="o">.</span><span class="n">regist</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">[</span><span class="n">idx_source</span><span class="p">]</span><span class="o">.</span><span class="n">set_trans_nonrigid</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Obj4d_Deform.regist_verify"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj4d.Obj4d_Deform.html#UltraMotionCapture.obj4d.Obj4d_Deform.regist_verify">[docs]</a>    <span class="k">def</span> <span class="nf">regist_verify</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Estimate the accuracy of the registration, with frame-wise &amp; whole trail mean error and standard deviation.</span>
+<span class="sd">        </span>
+<span class="sd">        Note</span>
+<span class="sd">        ---</span>
+<span class="sd">        As discussed in :mod:`UltraMotionCapture.field`, The purpose of point cloud registration is revealing the displacement field between different frames of 3D objects.</span>
+<span class="sd">        </span>
+<span class="sd">        Once the displacement field is revealed, it can be used to predict an arbitrary point&#39;s movement. Note the point&#39;s location in current frame as :math:`\\boldsymbol x`, its predicted location in the next frame as :math:`\\boldsymbol x_{pd}`, and its actual location in the next frame as :math:`\\boldsymbol x_{gt}`. Then the registration error can be defined as:</span>
+<span class="sd">        </span>
+<span class="sd">        .. math::</span>
+<span class="sd">            E = \lVert\\boldsymbol x_{pd} - \\boldsymbol x_{gt} \\rVert_2</span>
+
+<span class="sd">        where :math:`\lVert \cdot \\rVert_2` is the L2 norm that calculates the Euclidean distance.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ---</span>
+<span class="sd">        :class:`dict`</span>
+<span class="sd">            A dictionary that contains the comparison result:</span>
+
+<span class="sd">            - :code:`&#39;diff_ls&#39;`: a list of the original frame-wise estimation result from :meth:`UltraMotionCapture.kps.Kps_Deform.compare_with_groundtruth`.</span>
+<span class="sd">            - :code:`&#39;dist_mean&#39;`: the mean error of the whole trail error.</span>
+<span class="sd">            - :code:`&#39;dist_std&#39;`: the standard deviation of the whole trail error.</span>
+<span class="sd">            - :code:`&#39;diff_str&#39;`: a string in form of :code:`&#39;dist_mean ± dist_std (mm)`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># estimate frame-wise registration error</span>
+        <span class="c1"># and collect all dist data in dist_ls</span>
+        <span class="n">diff_ls</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">obj_next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">kps</span><span class="o">.</span><span class="n">compare_with_groundtruth</span><span class="p">(</span><span class="n">obj_next</span><span class="o">.</span><span class="n">kps</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;estimated error of frame </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">diff</span><span class="p">[</span><span class="s1">&#39;diff_str&#39;</span><span class="p">]))</span>
+            <span class="n">diff_ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+
+        <span class="c1"># estimate whole period registration error</span>
+        <span class="n">dist_ls</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">diff</span> <span class="ow">in</span> <span class="n">diff_ls</span><span class="p">:</span>
+            <span class="n">dist_ls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">diff</span><span class="p">[</span><span class="s1">&#39;dist&#39;</span><span class="p">])</span>
+
+        <span class="n">dist_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">dist_ls</span><span class="p">)</span>
+        <span class="n">dist_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dist_array</span><span class="p">)</span>
+        <span class="n">dist_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">dist_array</span><span class="p">)</span>
+
+        <span class="c1"># combine the estimation result and print whole period error</span>
+        <span class="n">diff_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;diff_ls&#39;</span><span class="p">:</span> <span class="n">diff_ls</span><span class="p">,</span>
+            <span class="s1">&#39;dist_mean&#39;</span><span class="p">:</span> <span class="n">dist_mean</span><span class="p">,</span>
+            <span class="s1">&#39;dist_std&#39;</span><span class="p">:</span> <span class="n">dist_std</span><span class="p">,</span>
+            <span class="s1">&#39;diff_str&#39;</span><span class="p">:</span> <span class="s2">&quot;diff = </span><span class="si">{:.3}</span><span class="s2"> ± </span><span class="si">{:.3}</span><span class="s2"> (mm)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dist_mean</span><span class="p">,</span> <span class="n">dist_std</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;whole duration error: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">diff_dict</span><span class="p">[</span><span class="s1">&#39;diff_str&#39;</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">diff_dict</span></div>
 
 <div class="viewcode-block" id="Obj4d_Deform.offset_rotate"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj4d.Obj4d_Deform.html#UltraMotionCapture.obj4d.Obj4d_Deform.offset_rotate">[docs]</a>    <span class="k">def</span> <span class="nf">offset_rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Offset the rotation according to the estimated rigid transformation.</span>

@@ -340,38 +340,6 @@
         <span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;selected key points:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kps_source_points</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Kps.load_from_markerset_frame"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.load_from_markerset_frame">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_markerset_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">markerset</span><span class="p">:</span> <span class="n">MarkerSet</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load key points to the :class:`Kps` object providing the :class:`MarkerSet` and frame index.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ---</span>
-<span class="sd">        markerset</span>
-<span class="sd">            a :class:`MarkerSet` object carrying Vicon motion capture data, which contains various frames.</span>
-<span class="sd">        frame_id</span>
-<span class="sd">            the frame index of the Vicon motion capture data to be loaded.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">points</span> <span class="o">=</span> <span class="n">markerset</span><span class="o">.</span><span class="n">get_frame_coord</span><span class="p">(</span><span class="n">frame_id</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_kps_source_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span> <span class="o">=</span> <span class="n">markerset</span><span class="o">.</span><span class="n">scale_rate</span></div>
-
-<div class="viewcode-block" id="Kps.load_from_markerset_time"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.load_from_markerset_time">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_markerset_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">markerset</span><span class="p">:</span> <span class="n">MarkerSet</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load key points to the :class:`Kps` object providing the :class:`MarkerSet` and time stamp.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ---</span>
-<span class="sd">        markerset</span>
-<span class="sd">            a :class:`MarkerSet` object carrying Vicon motion capture data, which contains various frames.</span>
-
-<span class="sd">            Warnings</span>
-<span class="sd">            ---</span>
-<span class="sd">            Before passing into :meth:`load_from_markerset_time`, call :meth:`MarkerSet.interp_field` first so that coordinates data at any specific time is accessible.</span>
-<span class="sd">        time</span>
-<span class="sd">            the time stamp of Vicon motion data to be loaded.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">points</span> <span class="o">=</span> <span class="n">markerset</span><span class="o">.</span><span class="n">get_time_coord</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_kps_source_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span> <span class="o">=</span> <span class="n">markerset</span><span class="o">.</span><span class="n">scale_rate</span></div>
-
 <div class="viewcode-block" id="Kps.set_kps_source_points"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.set_kps_source_points">[docs]</a>    <span class="k">def</span> <span class="nf">set_kps_source_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Other than manually selecting points or loading points from Vicon motion capture data, the :attr:`kps_source_points` can also be directly overridden with a (N, 3) :class:`numpy.array`, representing :math:`N` key points in 3D space.</span>
 
@@ -443,6 +411,7 @@
 <span class="sd">            - :code:`&#39;dist_std&#39;`: the standard deviation of distances from the predicted key points to the ground truth key points.</span>
 <span class="sd">            - :code:`&#39;diff_str&#39;`: a string in form of :code:`&#39;dist_mean ± dist_std (mm)`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># scale_rate is used to transformed to the original unit: mm</span>
         <span class="n">points_pd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kps_deform_points</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span>
         <span class="n">points_gt</span> <span class="o">=</span> <span class="n">kps_gt</span><span class="o">.</span><span class="n">get_kps_source_points</span><span class="p">()</span> <span class="o">/</span> <span class="n">kps_gt</span><span class="o">.</span><span class="n">scale_rate</span>
 
@@ -456,9 +425,8 @@
             <span class="s1">&#39;dist&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="p">,</span>
             <span class="s1">&#39;dist_mean&#39;</span><span class="p">:</span> <span class="n">dist_mean</span><span class="p">,</span>
             <span class="s1">&#39;dist_std&#39;</span><span class="p">:</span> <span class="n">dist_std</span><span class="p">,</span>
-            <span class="s1">&#39;diff_str&#39;</span><span class="p">:</span> <span class="s2">&quot;error = </span><span class="si">{:.3}</span><span class="s2"> ± </span><span class="si">{:.3}</span><span class="s2"> (mm)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dist_mean</span><span class="p">,</span> <span class="n">dist_std</span><span class="p">)</span>
+            <span class="s1">&#39;diff_str&#39;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{:.3}</span><span class="s2"> ± </span><span class="si">{:.3}</span><span class="s2"> (mm)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dist_mean</span><span class="p">,</span> <span class="n">dist_std</span><span class="p">)</span>
         <span class="p">}</span>
-
         <span class="k">return</span> <span class="n">diff_dict</span></div></div>
 
 
@@ -875,31 +843,35 @@
         <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">point</span><span class="o">.</span><span class="n">interp_field</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="MarkerSet.get_frame_coord"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.get_frame_coord">[docs]</a>    <span class="k">def</span> <span class="nf">get_frame_coord</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get coordinates data according to frame id.</span>
+<div class="viewcode-block" id="MarkerSet.get_frame_coord"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.get_frame_coord">[docs]</a>    <span class="k">def</span> <span class="nf">get_frame_coord</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">kps_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Kps</span><span class="p">]</span> <span class="o">=</span> <span class="n">Kps</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">Kps</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get coordinates data according to frame id and packed as a :class:`Kps` object.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ---</span>
 <span class="sd">        frame_id</span>
 <span class="sd">            index of the frame to get coordinates data.</span>
+<span class="sd">        kps_class</span>
+<span class="sd">            the class of key points object to be initialised and returned.</span>
 
 <span class="sd">        Return</span>
 <span class="sd">        ---</span>
-<span class="sd">        :class:`numpy.array`</span>
-<span class="sd">            The structure of the returned array is :code:`array[marker_id][0-2 as x-z][frame_id]`</span>
-
-<span class="sd">        WARNING</span>
-<span class="sd">        ---</span>
-<span class="sd">        The returned value will be transferred to :class:`Kps` in future development.</span>
+<span class="sd">        :class:`Kps` or its derived class</span>
+<span class="sd">            The extracted coordinates data packed as a :class:`Kps` (or its derived class) object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">point</span><span class="o">.</span><span class="n">get_frame_coord</span><span class="p">(</span><span class="n">frame_id</span><span class="p">)</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="p">)</span></div>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MarkerSet.get_time_coord"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.get_time_coord">[docs]</a>    <span class="k">def</span> <span class="nf">get_time_coord</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+        <span class="n">kps</span> <span class="o">=</span> <span class="n">kps_class</span><span class="p">()</span>
+        <span class="n">kps</span><span class="o">.</span><span class="n">set_kps_source_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="n">kps</span><span class="o">.</span><span class="n">scale_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span>
+
+        <span class="k">return</span> <span class="n">kps</span></div>
+
+<div class="viewcode-block" id="MarkerSet.get_time_coord"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.get_time_coord">[docs]</a>    <span class="k">def</span> <span class="nf">get_time_coord</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">kps_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Kps</span><span class="p">]</span> <span class="o">=</span> <span class="n">Kps</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Get coordinates data according to time stamp.</span>
 
 <span class="sd">        Parameters</span>
@@ -925,7 +897,13 @@
             <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">point</span><span class="o">.</span><span class="n">get_time_coord</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="p">)</span></div>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+
+        <span class="n">kps</span> <span class="o">=</span> <span class="n">kps_class</span><span class="p">()</span>
+        <span class="n">kps</span><span class="o">.</span><span class="n">set_kps_source_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="n">kps</span><span class="o">.</span><span class="n">scale_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span>
+
+        <span class="k">return</span> <span class="n">kps</span></div>
 
 <div class="viewcode-block" id="MarkerSet.plot_track"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.plot_track">[docs]</a>    <span class="k">def</span> <span class="nf">plot_track</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>

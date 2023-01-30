@@ -13,7 +13,6 @@ from typing import Type, Union
 
 import copy
 import numpy as np
-import open3d as o3d
 from probreg import cpd
 
 from UltraMotionCapture import obj3d

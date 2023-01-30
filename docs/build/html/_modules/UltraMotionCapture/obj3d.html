@@ -372,12 +372,8 @@
 <span class="sd">    self.kps</span>
 <span class="sd">        key points (:class:`UltraMotionCapture.kps.Kps`) attached to the 3D object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Obj3d_Kps.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">Obj3d</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kps</span> <span class="o">=</span> <span class="n">kps</span><span class="o">.</span><span class="n">Kps_Deform</span><span class="p">()</span></div>
-
 <div class="viewcode-block" id="Obj3d_Kps.load_kps"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps.load_kps">[docs]</a>    <span class="k">def</span> <span class="nf">load_kps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">markerset</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">kps</span><span class="o">.</span><span class="n">MarkerSet</span><span class="p">],</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load key points from a :class:`kps.MarkerSet` object.</span>
+        <span class="sd">&quot;&quot;&quot;Load key points as :attr:`self.kps` from a :class:`kps.MarkerSet` object.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ---</span>
@@ -386,7 +382,7 @@
 <span class="sd">        time</span>
 <span class="sd">            the time from the :class:`kps.MarkerSet`&#39;s recording period to be loaded.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kps</span><span class="o">.</span><span class="n">load_from_markerset_time</span><span class="p">(</span><span class="n">markerset</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kps</span> <span class="o">=</span> <span class="n">markerset</span><span class="o">.</span><span class="n">get_time_coord</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">kps_class</span><span class="o">=</span><span class="n">kps</span><span class="o">.</span><span class="n">Kps</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Obj3d_Kps.show"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Show the loaded mesh, the sampled point cloud, and the key points attached to it.</span>
@@ -442,6 +438,18 @@
         <span class="n">Obj3d_Kps</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trans_rigid</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trans_nonrigid</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Obj3d_Deform.load_kps"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Deform.html#UltraMotionCapture.obj3d.Obj3d_Deform.load_kps">[docs]</a>    <span class="k">def</span> <span class="nf">load_kps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">markerset</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">kps</span><span class="o">.</span><span class="n">MarkerSet</span><span class="p">],</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load key points as :attr:`self.kps` from a :class:`kps.MarkerSet` object.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ---</span>
+<span class="sd">        markerset</span>
+<span class="sd">            the :class:`kps.MarkerSet` object.</span>
+<span class="sd">        time</span>
+<span class="sd">            the time from the :class:`kps.MarkerSet`&#39;s recording period to be loaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kps</span> <span class="o">=</span> <span class="n">markerset</span><span class="o">.</span><span class="n">get_time_coord</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">kps_class</span><span class="o">=</span><span class="n">kps</span><span class="o">.</span><span class="n">Kps_Deform</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Obj3d_Deform.set_trans_rigid"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Deform.html#UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_rigid">[docs]</a>    <span class="k">def</span> <span class="nf">set_trans_rigid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trans_rigid</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">Trans_Rigid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set rigid transformation.</span>

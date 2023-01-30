@@ -172,7 +172,7 @@ class Kps_Deform(Kps):
             'dist': dist,
             'dist_mean': dist_mean,
             'dist_std': dist_std,
-            'diff_str': "error = {:.3} ± {:.3} (mm)".format(dist_mean, dist_std)
+            'diff_str': "{:.3} ± {:.3} (mm)".format(dist_mean, dist_std)
         }
         return diff_dict
 

@@ -278,7 +278,7 @@
 <span class="n">points</span><span class="o">.</span><span class="n">select_kps_points</span><span class="p">()</span>  <span class="c1"># this will trigger a point selection window</span>
 </pre></div>
 </div>
-<p>Load key points from Vicon motion capture data stored in a <a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarkerSet</span></code></a> object with <a class="reference internal" href="#UltraMotionCapture.kps.Kps.load_from_markerset_frame" title="UltraMotionCapture.kps.Kps.load_from_markerset_frame"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_from_markerset_frame()</span></code></a> or <a class="reference internal" href="#UltraMotionCapture.kps.Kps.load_from_markerset_time" title="UltraMotionCapture.kps.Kps.load_from_markerset_time"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_from_markerset_time()</span></code></a>.</p>
+<p>Load key points from Vicon motion capture data stored in a <a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarkerSet</span></code></a> object with <code class="xref py py-meth docutils literal notranslate"><span class="pre">load_from_markerset_frame()</span></code> or <code class="xref py py-meth docutils literal notranslate"><span class="pre">load_from_markerset_time()</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">kps</span>
 
 <span class="n">vicon</span> <span class="o">=</span> <span class="n">kps</span><span class="o">.</span><span class="n">MarkerSet</span><span class="p">()</span>
@@ -309,12 +309,6 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.kps.Kps.get_kps_source_points" title="UltraMotionCapture.kps.Kps.get_kps_source_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_kps_source_points</span></code></a>()</p></td>
 <td><p>Get the key points coordinates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.kps.Kps.load_from_markerset_frame" title="UltraMotionCapture.kps.Kps.load_from_markerset_frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_from_markerset_frame</span></code></a>(markerset[, frame_id])</p></td>
-<td><p>Load key points to the <a class="reference internal" href="#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> object providing the <a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarkerSet</span></code></a> and frame index.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.kps.Kps.load_from_markerset_time" title="UltraMotionCapture.kps.Kps.load_from_markerset_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_from_markerset_time</span></code></a>(markerset[, time])</p></td>
-<td><p>Load key points to the <a class="reference internal" href="#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> object providing the <a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarkerSet</span></code></a> and time stamp.</p></td>
-</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.kps.Kps.select_kps_points" title="UltraMotionCapture.kps.Kps.select_kps_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_kps_points</span></code></a>(source)</p></td>
 <td><p>Interactive manual points selection.</p></td>
 </tr>
@@ -337,39 +331,6 @@
 <p class="admonition-title">Warning</p>
 <p>At current stage, the interactive manual points selection is realised with <code class="xref py py-mod docutils literal notranslate"><span class="pre">open3d</span></code> package. It will be transferred to <code class="xref py py-mod docutils literal notranslate"><span class="pre">pyvista</span></code> package in future development.</p>
 </div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="UltraMotionCapture.kps.Kps.load_from_markerset_frame">
-<span class="sig-name descname"><span class="pre">load_from_markerset_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">markerset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><span class="pre">UltraMotionCapture.kps.MarkerSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/kps.html#Kps.load_from_markerset_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.kps.Kps.load_from_markerset_frame" title="Permalink to this definition">#</a></dt>
-<dd><p>Load key points to the <a class="reference internal" href="#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> object providing the <a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarkerSet</span></code></a> and frame index.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>markerset</strong> – a <a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarkerSet</span></code></a> object carrying Vicon motion capture data, which contains various frames.</p></li>
-<li><p><strong>frame_id</strong> – the frame index of the Vicon motion capture data to be loaded.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="UltraMotionCapture.kps.Kps.load_from_markerset_time">
-<span class="sig-name descname"><span class="pre">load_from_markerset_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">markerset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><span class="pre">UltraMotionCapture.kps.MarkerSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/kps.html#Kps.load_from_markerset_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.kps.Kps.load_from_markerset_time" title="Permalink to this definition">#</a></dt>
-<dd><p>Load key points to the <a class="reference internal" href="#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> object providing the <a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarkerSet</span></code></a> and time stamp.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>markerset</strong> – <p>a <a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarkerSet</span></code></a> object carrying Vicon motion capture data, which contains various frames.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Before passing into <a class="reference internal" href="#UltraMotionCapture.kps.Kps.load_from_markerset_time" title="UltraMotionCapture.kps.Kps.load_from_markerset_time"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_from_markerset_time()</span></code></a>, call <a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.interp_field" title="UltraMotionCapture.kps.MarkerSet.interp_field"><code class="xref py py-meth docutils literal notranslate"><span class="pre">MarkerSet.interp_field()</span></code></a> first so that coordinates data at any specific time is accessible.</p>
-</div>
-</p></li>
-<li><p><strong>time</strong> – the time stamp of Vicon motion data to be loaded.</p></li>
-</ul>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">

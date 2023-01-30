@@ -1,4 +1,4 @@
-UltraMotionCapture.kps.Kps
+﻿UltraMotionCapture.kps.Kps
 ==========================
 
 .. currentmodule:: UltraMotionCapture.kps
@@ -19,8 +19,6 @@ UltraMotionCapture.kps.Kps
    
       ~Kps.__init__
       ~Kps.get_kps_source_points
-      ~Kps.load_from_markerset_frame
-      ~Kps.load_from_markerset_time
       ~Kps.select_kps_points
       ~Kps.set_kps_source_points
    
