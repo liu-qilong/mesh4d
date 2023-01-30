@@ -30,6 +30,8 @@ class Kps(object):
 
     self.kps_source_points
         :math:`N` key points in 3D space stored in a (N, 3) :class:`numpy.array`.
+    self.scale_rate
+        the scaling rate of the Vicon key points.
 
     Example
     ---
@@ -96,8 +98,8 @@ class Kps(object):
             the frame index of the Vicon motion capture data to be loaded.
         """
         points = markerset.get_frame_coord(frame_id)
-        points_cal = points
-        self.set_kps_source_points(points_cal)
+        self.set_kps_source_points(points)
+        self.scale_rate = markerset.scale_rate
 
     def load_from_markerset_time(self, markerset: MarkerSet, time: float = 0.0):
         """Load key points to the :class:`Kps` object providing the :class:`MarkerSet` and time stamp.
@@ -114,8 +116,8 @@ class Kps(object):
             the time stamp of Vicon motion data to be loaded.
         """
         points = markerset.get_time_coord(time)
-        points_cal = points
-        self.set_kps_source_points(points_cal)
+        self.set_kps_source_points(points)
+        self.scale_rate = markerset.scale_rate
 
     def set_kps_source_points(self, points: np.array):
         """Other than manually selecting points or loading points from Vicon motion capture data, the :attr:`kps_source_points` can also be directly overridden with a (N, 3) :class:`numpy.array`, representing :math:`N` key points in 3D space.
@@ -168,6 +170,43 @@ class Kps_Deform(Kps):
         """ Get the key points coordinates after transformation.
         """
         return self.kps_deform_points
+
+    def compare_with_groundtruth(self, kps_gt: Type[Kps_Deform]) -> dict:
+        """Compared the predicted deformed key points with the ground truth.
+
+        Parameters
+        ---
+        kps_gt
+            the :class:`Kps_Deform` object belonging to the next frame of :class:`~UltraMotionCapture.obj3d.Obj3d_Deform` in :class:`~UltraMotionCapture.obj4d.Obj4d_Deform`.
+
+        Returns
+        ---
+        :class:`dict`
+            A dictionary that contains the comparison result:
+
+            - :code:`'disp'`: the displacement vectors from the predicted key points to the ground truth key points stored in a (N, 3) :class:`numpy.array`.
+            - :code:`'dist'`: the distances from the predicted key points to the ground truth key points stored in a (N, ) :class:`numpy.array`.
+            - :code:`'dist_mean'`: the mean distances from the predicted key points to the ground truth key points.
+            - :code:`'dist_std'`: the standard deviation of distances from the predicted key points to the ground truth key points.
+            - :code:`'diff_str'`: a string in form of :code:`'dist_mean ± dist_std (mm)`.
+        """
+        # scale_rate is used to transformed to the original unit: mm
+        points_pd = self.get_kps_deform_points() / self.scale_rate
+        points_gt = kps_gt.get_kps_source_points() / kps_gt.scale_rate
+
+        disp = points_gt - points_pd
+        dist = np.sqrt(np.sum(np.power(disp, 2), axis=1))
+        dist_mean = np.mean(dist)
+        dist_std = np.std(dist)
+
+        diff_dict = {
+            'disp': disp,
+            'dist': dist,
+            'dist_mean': dist_mean,
+            'dist_std': dist_std,
+            'diff_str': "error = {:.3} ± {:.3} (mm)".format(dist_mean, dist_std)
+        }
+        return diff_dict
 
 
 class Marker(object):
@@ -477,7 +516,7 @@ class MarkerSet(object):
         directory of the :code:`.csv` key points coordinates data exported from the motion capture Vicon system.
     scale_rate
         the scaling rate of the Vicon key points.
-        
+
         Attention
         ---
         Noted that the original unit of Vicon raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).

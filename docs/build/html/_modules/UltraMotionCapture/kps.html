@@ -283,6 +283,8 @@
 
 <span class="sd">    self.kps_source_points</span>
 <span class="sd">        :math:`N` key points in 3D space stored in a (N, 3) :class:`numpy.array`.</span>
+<span class="sd">    self.scale_rate</span>
+<span class="sd">        the scaling rate of the Vicon key points.</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    ---</span>
@@ -349,8 +351,8 @@
 <span class="sd">            the frame index of the Vicon motion capture data to be loaded.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">points</span> <span class="o">=</span> <span class="n">markerset</span><span class="o">.</span><span class="n">get_frame_coord</span><span class="p">(</span><span class="n">frame_id</span><span class="p">)</span>
-        <span class="n">points_cal</span> <span class="o">=</span> <span class="n">points</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_kps_source_points</span><span class="p">(</span><span class="n">points_cal</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_kps_source_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span> <span class="o">=</span> <span class="n">markerset</span><span class="o">.</span><span class="n">scale_rate</span></div>
 
 <div class="viewcode-block" id="Kps.load_from_markerset_time"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.load_from_markerset_time">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_markerset_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">markerset</span><span class="p">:</span> <span class="n">MarkerSet</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Load key points to the :class:`Kps` object providing the :class:`MarkerSet` and time stamp.</span>
@@ -367,8 +369,8 @@
 <span class="sd">            the time stamp of Vicon motion data to be loaded.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">points</span> <span class="o">=</span> <span class="n">markerset</span><span class="o">.</span><span class="n">get_time_coord</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
-        <span class="n">points_cal</span> <span class="o">=</span> <span class="n">points</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_kps_source_points</span><span class="p">(</span><span class="n">points_cal</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_kps_source_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span> <span class="o">=</span> <span class="n">markerset</span><span class="o">.</span><span class="n">scale_rate</span></div>
 
 <div class="viewcode-block" id="Kps.set_kps_source_points"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.set_kps_source_points">[docs]</a>    <span class="k">def</span> <span class="nf">set_kps_source_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Other than manually selecting points or loading points from Vicon motion capture data, the :attr:`kps_source_points` can also be directly overridden with a (N, 3) :class:`numpy.array`, representing :math:`N` key points in 3D space.</span>
@@ -420,7 +422,44 @@
 <div class="viewcode-block" id="Kps_Deform.get_kps_deform_points"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps_Deform.html#UltraMotionCapture.kps.Kps_Deform.get_kps_deform_points">[docs]</a>    <span class="k">def</span> <span class="nf">get_kps_deform_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot; Get the key points coordinates after transformation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kps_deform_points</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kps_deform_points</span></div>
+
+<div class="viewcode-block" id="Kps_Deform.compare_with_groundtruth"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps_Deform.html#UltraMotionCapture.kps.Kps_Deform.compare_with_groundtruth">[docs]</a>    <span class="k">def</span> <span class="nf">compare_with_groundtruth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kps_gt</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Kps_Deform</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Compared the predicted deformed key points with the ground truth.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ---</span>
+<span class="sd">        kps_gt</span>
+<span class="sd">            the :class:`Kps_Deform` object belonging to the next frame of :class:`~UltraMotionCapture.obj3d.Obj3d_Deform` in :class:`~UltraMotionCapture.obj4d.Obj4d_Deform`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ---</span>
+<span class="sd">        :class:`dict`</span>
+<span class="sd">            A dictionary that contains the comparison result:</span>
+
+<span class="sd">            - :code:`&#39;disp&#39;`: the displacement vectors from the predicted key points to the ground truth key points stored in a (N, 3) :class:`numpy.array`.</span>
+<span class="sd">            - :code:`&#39;dist&#39;`: the distances from the predicted key points to the ground truth key points stored in a (N, ) :class:`numpy.array`.</span>
+<span class="sd">            - :code:`&#39;dist_mean&#39;`: the mean distances from the predicted key points to the ground truth key points.</span>
+<span class="sd">            - :code:`&#39;dist_std&#39;`: the standard deviation of distances from the predicted key points to the ground truth key points.</span>
+<span class="sd">            - :code:`&#39;diff_str&#39;`: a string in form of :code:`&#39;dist_mean ± dist_std (mm)`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">points_pd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kps_deform_points</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span>
+        <span class="n">points_gt</span> <span class="o">=</span> <span class="n">kps_gt</span><span class="o">.</span><span class="n">get_kps_source_points</span><span class="p">()</span> <span class="o">/</span> <span class="n">kps_gt</span><span class="o">.</span><span class="n">scale_rate</span>
+
+        <span class="n">disp</span> <span class="o">=</span> <span class="n">points_gt</span> <span class="o">-</span> <span class="n">points_pd</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">dist_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+        <span class="n">dist_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+
+        <span class="n">diff_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;disp&#39;</span><span class="p">:</span> <span class="n">disp</span><span class="p">,</span>
+            <span class="s1">&#39;dist&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="p">,</span>
+            <span class="s1">&#39;dist_mean&#39;</span><span class="p">:</span> <span class="n">dist_mean</span><span class="p">,</span>
+            <span class="s1">&#39;dist_std&#39;</span><span class="p">:</span> <span class="n">dist_std</span><span class="p">,</span>
+            <span class="s1">&#39;diff_str&#39;</span><span class="p">:</span> <span class="s2">&quot;error = </span><span class="si">{:.3}</span><span class="s2"> ± </span><span class="si">{:.3}</span><span class="s2"> (mm)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dist_mean</span><span class="p">,</span> <span class="n">dist_std</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">diff_dict</span></div></div>
 
 
 <div class="viewcode-block" id="Marker"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker">[docs]</a><span class="k">class</span> <span class="nc">Marker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -730,7 +769,7 @@
 <span class="sd">        directory of the :code:`.csv` key points coordinates data exported from the motion capture Vicon system.</span>
 <span class="sd">    scale_rate</span>
 <span class="sd">        the scaling rate of the Vicon key points.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Attention</span>
 <span class="sd">        ---</span>
 <span class="sd">        Noted that the original unit of Vicon raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).</span>
