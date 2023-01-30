@@ -19,7 +19,6 @@ from __future__ import annotations
 from typing import Type, Union, Iterable
 
 import os
-import copy
 import numpy as np
 import open3d as o3d
 import pyvista as pv
@@ -27,7 +26,6 @@ import pyvista as pv
 from UltraMotionCapture import kps
 from UltraMotionCapture import field
 
-from UltraMotionCapture import kps
 class Obj3d(object):
     """
     The basic 3D object class. Loads :code:`.obj` 3D mesh image and sampled it as the point cloud.
@@ -71,7 +69,7 @@ class Obj3d(object):
     def __init__(
         self,
         filedir: str,
-        scale_rate: float = 0.01,
+        scale_rate: float = 0.001,
         sample_num: int = 1000,
     ):
         self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
@@ -152,10 +150,10 @@ class Obj3d_Kps(Obj3d):
         # plot sampled point cloud
         width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
         lateral_move = [1.5 * width, 0, 0]
-        scene.add_points(pcd2np(self.pcd) + lateral_move)
+        scene.add_points(pcd2np(self.pcd) + lateral_move, point_size=0.001*width)
 
         # plot key points
-        pvpcd_kps = np2pvpcd(self.kps.get_kps_source_points(), radius=0.1)
+        pvpcd_kps = np2pvpcd(self.kps.get_kps_source_points(), radius=0.02*width)
         scene.add_mesh(pvpcd_kps, color='Gold')
         scene.add_mesh(pvpcd_kps.translate(lateral_move, inplace=False), color='Gold')
 
