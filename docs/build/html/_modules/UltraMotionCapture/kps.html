@@ -437,6 +437,10 @@
 <span class="sd">    scale_rate</span>
 <span class="sd">        the scaling rate of the Vicon key points.</span>
 
+<span class="sd">        Attention</span>
+<span class="sd">        ---</span>
+<span class="sd">        Noted that the original unit of Vicon raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).</span>
+
 <span class="sd">        Warning</span>
 <span class="sd">        ---</span>
 <span class="sd">        This value must be the same as :class:`UltraMotionCapture.obj3d.Obj3d`&#39;s :attr:`scale_rate`.</span>
@@ -487,7 +491,7 @@
     <span class="n">cab_r</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">cab_t</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="Marker.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">scale_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">):</span>
+<div class="viewcode-block" id="Marker.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">scale_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cab_s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">load_cab_rst</span><span class="p">()</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;calibration parameters loaded&#39;</span><span class="p">)</span>
@@ -726,6 +730,10 @@
 <span class="sd">        directory of the :code:`.csv` key points coordinates data exported from the motion capture Vicon system.</span>
 <span class="sd">    scale_rate</span>
 <span class="sd">        the scaling rate of the Vicon key points.</span>
+<span class="sd">        </span>
+<span class="sd">        Attention</span>
+<span class="sd">        ---</span>
+<span class="sd">        Noted that the original unit of Vicon raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).</span>
 
 <span class="sd">        Warning</span>
 <span class="sd">        ---</span>
@@ -769,13 +777,21 @@
 <span class="sd">        vicon.plot_track(step=3, end_frame=100)</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="MarkerSet.load_from_vicon"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.load_from_vicon">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_vicon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filedir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scale_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">):</span>
+<div class="viewcode-block" id="MarkerSet.load_from_vicon"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet.load_from_vicon">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_vicon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filedir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scale_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Load and parse data from :code:`.csv` file exported from the Vicon motion capture system.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ---</span>
 <span class="sd">        filedir</span>
 <span class="sd">            the directory of the :code:`.csv` file.</span>
+<span class="sd">        scale_rate</span>
+<span class="sd">            the scaling rate of the 3D object.</span>
+
+<span class="sd">            .. attention::</span>
+<span class="sd">                Noted that the original unit of 3dMD raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).</span>
+
+<span class="sd">            .. seealso::</span>
+<span class="sd">                Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span> <span class="o">=</span> <span class="n">scale_rate</span>
 

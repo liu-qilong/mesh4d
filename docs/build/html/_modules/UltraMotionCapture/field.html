@@ -518,11 +518,11 @@
 <span class="sd">        :class:`np.array`</span>
 <span class="sd">            (N, 3) :class:`numpy.array` stores the points after transformation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">points_shift</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
             <span class="n">idx</span> <span class="o">=</span> <span class="n">obj3d</span><span class="o">.</span><span class="n">search_nearest_point_idx</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_points</span><span class="p">)</span>
-            <span class="n">idxs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deform_points</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span></div></div>
+            <span class="n">points_shift</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deform_points</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points_shift</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="transform_rst2sm"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.transform_rst2sm.html#UltraMotionCapture.field.transform_rst2sm">[docs]</a><span class="k">def</span> <span class="nf">transform_rst2sm</span><span class="p">(</span><span class="n">R</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]:</span>

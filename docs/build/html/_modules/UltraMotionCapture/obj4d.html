@@ -520,9 +520,11 @@
 <span class="sd">            o3_ls = [o3_a, o3_b]</span>
 <span class="sd">            o4.add_obj(*o3_ls)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">reg_start_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">)</span>
         <span class="n">Obj4d_Kps</span><span class="o">.</span><span class="n">add_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">objs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">reg_end_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
 
-        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj_ls</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">reg_start_index</span><span class="p">,</span> <span class="n">reg_end_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__process_first_obj</span><span class="p">()</span>
                 <span class="k">continue</span>

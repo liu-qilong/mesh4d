@@ -184,6 +184,10 @@ class Marker(object):
     scale_rate
         the scaling rate of the Vicon key points.
 
+        Attention
+        ---
+        Noted that the original unit of Vicon raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
+
         Warning
         ---
         This value must be the same as :class:`UltraMotionCapture.obj3d.Obj3d`'s :attr:`scale_rate`.
@@ -473,6 +477,10 @@ class MarkerSet(object):
         directory of the :code:`.csv` key points coordinates data exported from the motion capture Vicon system.
     scale_rate
         the scaling rate of the Vicon key points.
+        
+        Attention
+        ---
+        Noted that the original unit of Vicon raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
 
         Warning
         ---
@@ -523,6 +531,14 @@ class MarkerSet(object):
         ---
         filedir
             the directory of the :code:`.csv` file.
+        scale_rate
+            the scaling rate of the 3D object.
+
+            .. attention::
+                Noted that the original unit of 3dMD raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
+
+            .. seealso::
+                Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.
         """
         self.scale_rate = scale_rate
 
