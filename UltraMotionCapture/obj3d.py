@@ -119,12 +119,8 @@ class Obj3d_Kps(Obj3d):
     self.kps
         key points (:class:`UltraMotionCapture.kps.Kps`) attached to the 3D object.
     """
-    def __init__(self, **kwargs):
-        Obj3d.__init__(self, **kwargs)
-        self.kps = kps.Kps_Deform()
-
     def load_kps(self, markerset: Type[kps.MarkerSet], time: float = 0.0):
-        """Load key points from a :class:`kps.MarkerSet` object.
+        """Load key points as :attr:`self.kps` from a :class:`kps.MarkerSet` object.
         
         Parameters
         ---
@@ -133,7 +129,7 @@ class Obj3d_Kps(Obj3d):
         time
             the time from the :class:`kps.MarkerSet`'s recording period to be loaded.
         """
-        self.kps.load_from_markerset_time(markerset, time)
+        self.kps = markerset.get_time_coord(time, kps_class=kps.Kps)
 
     def show(self):
         """Show the loaded mesh, the sampled point cloud, and the key points attached to it.
@@ -189,6 +185,18 @@ class Obj3d_Deform(Obj3d_Kps):
         Obj3d_Kps.__init__(self, **kwargs)
         self.trans_rigid = None
         self.trans_nonrigid = None
+
+    def load_kps(self, markerset: Type[kps.MarkerSet], time: float = 0.0):
+        """Load key points as :attr:`self.kps` from a :class:`kps.MarkerSet` object.
+        
+        Parameters
+        ---
+        markerset
+            the :class:`kps.MarkerSet` object.
+        time
+            the time from the :class:`kps.MarkerSet`'s recording period to be loaded.
+        """
+        self.kps = markerset.get_time_coord(time, kps_class=kps.Kps_Deform)
 
     def set_trans_rigid(self, trans_rigid: field.Trans_Rigid):
         """Set rigid transformation.

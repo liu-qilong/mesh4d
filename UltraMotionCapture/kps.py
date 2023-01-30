@@ -87,38 +87,6 @@ class Kps(object):
         )
         print("selected key points:\n{}".format(self.kps_source_points))
 
-    def load_from_markerset_frame(self, markerset: MarkerSet, frame_id: int = 0):
-        """Load key points to the :class:`Kps` object providing the :class:`MarkerSet` and frame index.
-
-        Parameters
-        ---
-        markerset
-            a :class:`MarkerSet` object carrying Vicon motion capture data, which contains various frames.
-        frame_id
-            the frame index of the Vicon motion capture data to be loaded.
-        """
-        points = markerset.get_frame_coord(frame_id)
-        self.set_kps_source_points(points)
-        self.scale_rate = markerset.scale_rate
-
-    def load_from_markerset_time(self, markerset: MarkerSet, time: float = 0.0):
-        """Load key points to the :class:`Kps` object providing the :class:`MarkerSet` and time stamp.
-
-        Parameters
-        ---
-        markerset
-            a :class:`MarkerSet` object carrying Vicon motion capture data, which contains various frames.
-
-            Warnings
-            ---
-            Before passing into :meth:`load_from_markerset_time`, call :meth:`MarkerSet.interp_field` first so that coordinates data at any specific time is accessible.
-        time
-            the time stamp of Vicon motion data to be loaded.
-        """
-        points = markerset.get_time_coord(time)
-        self.set_kps_source_points(points)
-        self.scale_rate = markerset.scale_rate
-
     def set_kps_source_points(self, points: np.array):
         """Other than manually selecting points or loading points from Vicon motion capture data, the :attr:`kps_source_points` can also be directly overridden with a (N, 3) :class:`numpy.array`, representing :math:`N` key points in 3D space.
 
@@ -622,31 +590,35 @@ class MarkerSet(object):
         for point in self.points.values():
             point.interp_field()
 
-    def get_frame_coord(self, frame_id: int) -> np.array:
-        """Get coordinates data according to frame id.
+    def get_frame_coord(self, frame_id: int, kps_class: Type[Kps] = Kps) -> Type[Kps]:
+        """Get coordinates data according to frame id and packed as a :class:`Kps` object.
         
         Parameters
         ---
         frame_id
             index of the frame to get coordinates data.
+        kps_class
+            the class of key points object to be initialised and returned.
 
         Return
         ---
-        :class:`numpy.array`
-            The structure of the returned array is :code:`array[marker_id][0-2 as x-z][frame_id]`
-
-        WARNING
-        ---
-        The returned value will be transferred to :class:`Kps` in future development.
+        :class:`Kps` or its derived class
+            The extracted coordinates data packed as a :class:`Kps` (or its derived class) object.
         """
         points = []
         for point in self.points.values():
             points.append(
                 point.get_frame_coord(frame_id)
             )
-        return np.array(points)
+        points = np.array(points)
 
-    def get_time_coord(self, time: float) -> np.array:
+        kps = kps_class()
+        kps.set_kps_source_points(points)
+        kps.scale_rate = self.scale_rate
+
+        return kps
+
+    def get_time_coord(self, time: float, kps_class: Type[Kps] = Kps) -> np.array:
         """Get coordinates data according to time stamp.
 
         Parameters
@@ -672,7 +644,13 @@ class MarkerSet(object):
             points.append(
                 point.get_time_coord(time)
             )
-        return np.array(points)
+        points = np.array(points)
+
+        kps = kps_class()
+        kps.set_kps_source_points(points)
+        kps.scale_rate = self.scale_rate
+
+        return kps
 
     def plot_track(
             self,
