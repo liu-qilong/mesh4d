@@ -15,6 +15,7 @@
 from __future__ import annotations
 from typing import Type, Union, Iterable
 
+import time
 import numpy as np
 
 from UltraMotionCapture import obj3d
