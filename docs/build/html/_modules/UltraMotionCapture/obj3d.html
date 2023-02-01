@@ -272,7 +272,6 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
 <span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
@@ -280,7 +279,6 @@
 <span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">kps</span>
 <span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">field</span>
 
-<span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">kps</span>
 <div class="viewcode-block" id="Obj3d"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d.html#UltraMotionCapture.obj3d.Obj3d">[docs]</a><span class="k">class</span> <span class="nc">Obj3d</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The basic 3D object class. Loads :code:`.obj` 3D mesh image and sampled it as the point cloud.</span>
@@ -291,6 +289,9 @@
 <span class="sd">        the direction of the 3D object.</span>
 <span class="sd">    scale_rate</span>
 <span class="sd">        the scaling rate of the 3D object.</span>
+
+<span class="sd">        .. attention::</span>
+<span class="sd">            Noted that the original unit of 3dMD raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).</span>
 
 <span class="sd">        .. seealso::</span>
 <span class="sd">            Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.</span>
@@ -324,7 +325,7 @@
 <div class="viewcode-block" id="Obj3d.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d.html#UltraMotionCapture.obj3d.Obj3d.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">filedir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">scale_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">scale_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span>
         <span class="n">sample_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">pvmesh_fix_disconnect</span><span class="p">(</span><span class="n">pv</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filedir</span><span class="p">))</span>
@@ -371,12 +372,8 @@
 <span class="sd">    self.kps</span>
 <span class="sd">        key points (:class:`UltraMotionCapture.kps.Kps`) attached to the 3D object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Obj3d_Kps.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">Obj3d</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kps</span> <span class="o">=</span> <span class="n">kps</span><span class="o">.</span><span class="n">Kps_Deform</span><span class="p">()</span></div>
-
 <div class="viewcode-block" id="Obj3d_Kps.load_kps"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps.load_kps">[docs]</a>    <span class="k">def</span> <span class="nf">load_kps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">markerset</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">kps</span><span class="o">.</span><span class="n">MarkerSet</span><span class="p">],</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load key points from a :class:`kps.MarkerSet` object.</span>
+        <span class="sd">&quot;&quot;&quot;Load key points as :attr:`self.kps` from a :class:`kps.MarkerSet` object.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ---</span>
@@ -385,7 +382,7 @@
 <span class="sd">        time</span>
 <span class="sd">            the time from the :class:`kps.MarkerSet`&#39;s recording period to be loaded.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kps</span><span class="o">.</span><span class="n">load_from_markerset_time</span><span class="p">(</span><span class="n">markerset</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kps</span> <span class="o">=</span> <span class="n">markerset</span><span class="o">.</span><span class="n">get_time_coord</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">kps_class</span><span class="o">=</span><span class="n">kps</span><span class="o">.</span><span class="n">Kps</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Obj3d_Kps.show"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Show the loaded mesh, the sampled point cloud, and the key points attached to it.</span>
@@ -405,10 +402,10 @@
         <span class="c1"># plot sampled point cloud</span>
         <span class="n">width</span> <span class="o">=</span> <span class="n">pcd_get_max_bound</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">pcd_get_min_bound</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">lateral_move</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">width</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-        <span class="n">scene</span><span class="o">.</span><span class="n">add_points</span><span class="p">(</span><span class="n">pcd2np</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">)</span> <span class="o">+</span> <span class="n">lateral_move</span><span class="p">)</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_points</span><span class="p">(</span><span class="n">pcd2np</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcd</span><span class="p">)</span> <span class="o">+</span> <span class="n">lateral_move</span><span class="p">,</span> <span class="n">point_size</span><span class="o">=</span><span class="mf">0.001</span><span class="o">*</span><span class="n">width</span><span class="p">)</span>
 
         <span class="c1"># plot key points</span>
-        <span class="n">pvpcd_kps</span> <span class="o">=</span> <span class="n">np2pvpcd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kps</span><span class="o">.</span><span class="n">get_kps_source_points</span><span class="p">(),</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">pvpcd_kps</span> <span class="o">=</span> <span class="n">np2pvpcd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kps</span><span class="o">.</span><span class="n">get_kps_source_points</span><span class="p">(),</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.02</span><span class="o">*</span><span class="n">width</span><span class="p">)</span>
         <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">pvpcd_kps</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;Gold&#39;</span><span class="p">)</span>
         <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">pvpcd_kps</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">lateral_move</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;Gold&#39;</span><span class="p">)</span>
 
@@ -441,6 +438,18 @@
         <span class="n">Obj3d_Kps</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trans_rigid</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trans_nonrigid</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Obj3d_Deform.load_kps"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Deform.html#UltraMotionCapture.obj3d.Obj3d_Deform.load_kps">[docs]</a>    <span class="k">def</span> <span class="nf">load_kps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">markerset</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">kps</span><span class="o">.</span><span class="n">MarkerSet</span><span class="p">],</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load key points as :attr:`self.kps` from a :class:`kps.MarkerSet` object.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ---</span>
+<span class="sd">        markerset</span>
+<span class="sd">            the :class:`kps.MarkerSet` object.</span>
+<span class="sd">        time</span>
+<span class="sd">            the time from the :class:`kps.MarkerSet`&#39;s recording period to be loaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kps</span> <span class="o">=</span> <span class="n">markerset</span><span class="o">.</span><span class="n">get_time_coord</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">kps_class</span><span class="o">=</span><span class="n">kps</span><span class="o">.</span><span class="n">Kps_Deform</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Obj3d_Deform.set_trans_rigid"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.obj3d.Obj3d_Deform.html#UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_rigid">[docs]</a>    <span class="k">def</span> <span class="nf">set_trans_rigid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trans_rigid</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">Trans_Rigid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set rigid transformation.</span>

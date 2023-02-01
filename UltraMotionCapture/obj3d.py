@@ -19,15 +19,14 @@ from __future__ import annotations
 from typing import Type, Union, Iterable
 
 import os
-import copy
 import numpy as np
 import open3d as o3d
 import pyvista as pv
 
+import UltraMotionCapture
 from UltraMotionCapture import kps
 from UltraMotionCapture import field
 
-from UltraMotionCapture import kps
 class Obj3d(object):
     """
     The basic 3D object class. Loads :code:`.obj` 3D mesh image and sampled it as the point cloud.
@@ -38,6 +37,9 @@ class Obj3d(object):
         the direction of the 3D object.
     scale_rate
         the scaling rate of the 3D object.
+
+        .. attention::
+            Noted that the original unit of 3dMD raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
 
         .. seealso::
             Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.
@@ -71,7 +73,7 @@ class Obj3d(object):
     def __init__(
         self,
         filedir: str,
-        scale_rate: float = 0.01,
+        scale_rate: float = 1e-3,
         sample_num: int = 1000,
     ):
         self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
@@ -118,12 +120,8 @@ class Obj3d_Kps(Obj3d):
     self.kps
         key points (:class:`UltraMotionCapture.kps.Kps`) attached to the 3D object.
     """
-    def __init__(self, **kwargs):
-        Obj3d.__init__(self, **kwargs)
-        self.kps = kps.Kps_Deform()
-
     def load_kps(self, markerset: Type[kps.MarkerSet], time: float = 0.0):
-        """Load key points from a :class:`kps.MarkerSet` object.
+        """Load key points as :attr:`self.kps` from a :class:`kps.MarkerSet` object.
         
         Parameters
         ---
@@ -132,7 +130,7 @@ class Obj3d_Kps(Obj3d):
         time
             the time from the :class:`kps.MarkerSet`'s recording period to be loaded.
         """
-        self.kps.load_from_markerset_time(markerset, time)
+        self.kps = markerset.get_time_coord(time, kps_class=kps.Kps)
 
     def show(self):
         """Show the loaded mesh, the sampled point cloud, and the key points attached to it.
@@ -152,10 +150,10 @@ class Obj3d_Kps(Obj3d):
         # plot sampled point cloud
         width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
         lateral_move = [1.5 * width, 0, 0]
-        scene.add_points(pcd2np(self.pcd) + lateral_move)
+        scene.add_points(pcd2np(self.pcd) + lateral_move, point_size=0.001*width)
 
         # plot key points
-        pvpcd_kps = np2pvpcd(self.kps.get_kps_source_points(), radius=0.1)
+        pvpcd_kps = np2pvpcd(self.kps.get_kps_source_points(), radius=0.02*width)
         scene.add_mesh(pvpcd_kps, color='Gold')
         scene.add_mesh(pvpcd_kps.translate(lateral_move, inplace=False), color='Gold')
 
@@ -189,6 +187,18 @@ class Obj3d_Deform(Obj3d_Kps):
         self.trans_rigid = None
         self.trans_nonrigid = None
 
+    def load_kps(self, markerset: Type[kps.MarkerSet], time: float = 0.0):
+        """Load key points as :attr:`self.kps` from a :class:`kps.MarkerSet` object.
+        
+        Parameters
+        ---
+        markerset
+            the :class:`kps.MarkerSet` object.
+        time
+            the time from the :class:`kps.MarkerSet`'s recording period to be loaded.
+        """
+        self.kps = markerset.get_time_coord(time, kps_class=kps.Kps_Deform)
+
     def set_trans_rigid(self, trans_rigid: field.Trans_Rigid):
         """Set rigid transformation.
 
@@ -218,7 +228,9 @@ class Obj3d_Deform(Obj3d_Kps):
         This method usually serves for reorientate all 3D objects to a referencing direction, since that the rigid transformation (:class:`UltraMotionCapture.field.Trans_Rigid`) is usually estimated according to the difference of two different 3D object.
         """
         if self.trans_rigid is None:
-            print("no rigid transformation")
+            if UltraMotionCapture.output_msg:
+                print("no rigid transformation")
+
             return
 
         rot = self.trans_rigid.rot
@@ -226,8 +238,9 @@ class Obj3d_Deform(Obj3d_Kps):
 
         self.mesh_o3d.rotate(rot, center)
         self.pcd.rotate(rot, center)
-
-        print("reorientated 1 3d object")
+        
+        if UltraMotionCapture.output_msg:
+            print("reorientated 1 3d object")
 
 
 # utils for data & object transform
@@ -625,6 +638,8 @@ def load_obj_series(
     for n in range(start, end + 1, stride):
         filedir = files[n]
         o3_ls.append(obj_type(filedir=filedir, **kwargs))
-        print("loaded 1 mesh file: {}".format(filedir))
+        
+        if UltraMotionCapture.output_msg:
+            print("loaded 1 mesh file: {}".format(filedir))
 
     return o3_ls

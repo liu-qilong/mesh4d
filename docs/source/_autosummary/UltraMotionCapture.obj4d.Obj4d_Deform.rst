@@ -1,4 +1,4 @@
-UltraMotionCapture.obj4d.Obj4d\_Deform
+﻿UltraMotionCapture.obj4d.Obj4d\_Deform
 ======================================
 
 .. currentmodule:: UltraMotionCapture.obj4d
@@ -20,6 +20,7 @@ UltraMotionCapture.obj4d.Obj4d\_Deform
       ~Obj4d_Deform.__init__
       ~Obj4d_Deform.add_obj
       ~Obj4d_Deform.offset_rotate
+      ~Obj4d_Deform.regist_verify
    
    
 

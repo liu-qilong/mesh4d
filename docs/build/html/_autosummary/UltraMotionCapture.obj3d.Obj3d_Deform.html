@@ -296,8 +296,8 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.__init__" title="UltraMotionCapture.obj3d.Obj3d_Deform.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(**kwargs)</p></td>
 <td><p>Initialize self.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_kps</span></code>(markerset[, time])</p></td>
-<td><p>Load key points from a <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code> object.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.load_kps" title="UltraMotionCapture.obj3d.Obj3d_Deform.load_kps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_kps</span></code></a>(markerset[, time])</p></td>
+<td><p>Load key points as <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.kps</span></code> from a <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code> object.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.offset_rotate" title="UltraMotionCapture.obj3d.Obj3d_Deform.offset_rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">offset_rotate</span></code></a>()</p></td>
 <td><p>Offset the rotation according to the estimated rigid transformation.</p></td>
@@ -314,6 +314,20 @@
 </tbody>
 </table>
 </div>
+<dl class="py method">
+<dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d_Deform.load_kps">
+<span class="sig-name descname"><span class="pre">load_kps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">markerset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><span class="pre">UltraMotionCapture.kps.MarkerSet</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d_Deform.load_kps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d_Deform.load_kps" title="Permalink to this definition">#</a></dt>
+<dd><p>Load key points as <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.kps</span></code> from a <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>markerset</strong> – the <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code> object.</p></li>
+<li><p><strong>time</strong> – the time from the <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code>’s recording period to be loaded.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_rigid">
 <span class="sig-name descname"><span class="pre">set_trans_rigid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans_rigid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid" title="UltraMotionCapture.field.Trans_Rigid"><span class="pre">UltraMotionCapture.field.Trans_Rigid</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d_Deform.set_trans_rigid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_rigid" title="Permalink to this definition">#</a></dt>

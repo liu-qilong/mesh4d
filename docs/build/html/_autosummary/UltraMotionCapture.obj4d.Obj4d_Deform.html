@@ -327,6 +327,9 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj4d.Obj4d_Deform.offset_rotate" title="UltraMotionCapture.obj4d.Obj4d_Deform.offset_rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">offset_rotate</span></code></a>()</p></td>
 <td><p>Offset the rotation according to the estimated rigid transformation.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.obj4d.Obj4d_Deform.regist_verify" title="UltraMotionCapture.obj4d.Obj4d_Deform.regist_verify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regist_verify</span></code></a>()</p></td>
+<td><p>Estimate the accuracy of the registration, with frame-wise &amp; whole trail mean error and standard deviation.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -428,6 +431,37 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="UltraMotionCapture.obj4d.Obj4d_Deform.regist_verify">
+<span class="sig-name descname"><span class="pre">regist_verify</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj4d.html#Obj4d_Deform.regist_verify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj4d.Obj4d_Deform.regist_verify" title="Permalink to this definition">#</a></dt>
+<dd><p>Estimate the accuracy of the registration, with frame-wise &amp; whole trail mean error and standard deviation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As discussed in <a class="reference internal" href="UltraMotionCapture.field.html#module-UltraMotionCapture.field" title="UltraMotionCapture.field"><code class="xref py py-mod docutils literal notranslate"><span class="pre">UltraMotionCapture.field</span></code></a>, The purpose of point cloud registration is revealing the displacement field between different frames of 3D objects.</p>
+<p>Once the displacement field is revealed, it can be used to predict an arbitrary point’s movement. Note the point’s location in current frame as <span class="math notranslate nohighlight">\(\boldsymbol x\)</span>, its predicted location in the next frame as <span class="math notranslate nohighlight">\(\boldsymbol x_{pd}\)</span>, and its actual location in the next frame as <span class="math notranslate nohighlight">\(\boldsymbol x_{gt}\)</span>. Then the registration error can be defined as:</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[E = \lVert\boldsymbol x_{pd} - \boldsymbol x_{gt} \rVert_2\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(\lVert \cdot \rVert_2\)</span> is the L2 norm that calculates the Euclidean distance.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p>A dictionary that contains the comparison result:</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">'diff_ls'</span></code>: a list of the original frame-wise estimation result from <a class="reference internal" href="UltraMotionCapture.kps.Kps_Deform.html#UltraMotionCapture.kps.Kps_Deform.compare_with_groundtruth" title="UltraMotionCapture.kps.Kps_Deform.compare_with_groundtruth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">UltraMotionCapture.kps.Kps_Deform.compare_with_groundtruth()</span></code></a>.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">'dist_mean'</span></code>: the mean error of the whole trail error.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">'dist_std'</span></code>: the standard deviation of the whole trail error.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">'diff_str'</span></code>: a string in form of <code class="code docutils literal notranslate"><span class="pre">'dist_mean</span> <span class="pre">±</span> <span class="pre">dist_std</span> <span class="pre">(mm)</span></code>.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="UltraMotionCapture.obj4d.Obj4d_Deform.offset_rotate">
 <span class="sig-name descname"><span class="pre">offset_rotate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj4d.html#Obj4d_Deform.offset_rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj4d.Obj4d_Deform.offset_rotate" title="Permalink to this definition">#</a></dt>
 <dd><p>Offset the rotation according to the estimated rigid transformation.</p>
@@ -510,5 +544,6 @@
     <script src="../_static/scripts/furo.js"></script>
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

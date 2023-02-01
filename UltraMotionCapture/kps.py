@@ -30,6 +30,8 @@ class Kps(object):
 
     self.kps_source_points
         :math:`N` key points in 3D space stored in a (N, 3) :class:`numpy.array`.
+    self.scale_rate
+        the scaling rate of the Vicon key points.
 
     Example
     ---
@@ -68,7 +70,8 @@ class Kps(object):
         ---
         At current stage, the interactive manual points selection is realised with :mod:`open3d` package. It will be transferred to :mod:`pyvista` package in future development.
         """
-        print("please select key points")
+        if UltraMotionCapture.output_msg:
+            print("please select key points")
 
         def pick_points(pcd):
             vis = o3d.visualization.VisualizerWithEditing()
@@ -83,39 +86,8 @@ class Kps(object):
         self.set_kps_source_points(
             points[pick, :]
         )
-        print("selected key points:\n{}".format(self.kps_source_points))
-
-    def load_from_markerset_frame(self, markerset: MarkerSet, frame_id: int = 0):
-        """Load key points to the :class:`Kps` object providing the :class:`MarkerSet` and frame index.
-
-        Parameters
-        ---
-        markerset
-            a :class:`MarkerSet` object carrying Vicon motion capture data, which contains various frames.
-        frame_id
-            the frame index of the Vicon motion capture data to be loaded.
-        """
-        points = markerset.get_frame_coord(frame_id)
-        points_cal = points
-        self.set_kps_source_points(points_cal)
-
-    def load_from_markerset_time(self, markerset: MarkerSet, time: float = 0.0):
-        """Load key points to the :class:`Kps` object providing the :class:`MarkerSet` and time stamp.
-
-        Parameters
-        ---
-        markerset
-            a :class:`MarkerSet` object carrying Vicon motion capture data, which contains various frames.
-
-            Warnings
-            ---
-            Before passing into :meth:`load_from_markerset_time`, call :meth:`MarkerSet.interp_field` first so that coordinates data at any specific time is accessible.
-        time
-            the time stamp of Vicon motion data to be loaded.
-        """
-        points = markerset.get_time_coord(time)
-        points_cal = points
-        self.set_kps_source_points(points_cal)
+        if UltraMotionCapture.output_msg:
+            print("selected key points:\n{}".format(self.kps_source_points))
 
     def set_kps_source_points(self, points: np.array):
         """Other than manually selecting points or loading points from Vicon motion capture data, the :attr:`kps_source_points` can also be directly overridden with a (N, 3) :class:`numpy.array`, representing :math:`N` key points in 3D space.
@@ -131,7 +103,8 @@ class Kps(object):
         """ Get the key points coordinates.
         """
         if self.kps_source_points is None:
-            print("source key points haven't been set")
+            if UltraMotionCapture.output_msg:
+                print("source key points haven't been set")
         else:
             return self.kps_source_points
 
@@ -169,6 +142,43 @@ class Kps_Deform(Kps):
         """
         return self.kps_deform_points
 
+    def compare_with_groundtruth(self, kps_gt: Type[Kps_Deform]) -> dict:
+        """Compared the predicted deformed key points with the ground truth.
+
+        Parameters
+        ---
+        kps_gt
+            the :class:`Kps_Deform` object belonging to the next frame of :class:`~UltraMotionCapture.obj3d.Obj3d_Deform` in :class:`~UltraMotionCapture.obj4d.Obj4d_Deform`.
+
+        Returns
+        ---
+        :class:`dict`
+            A dictionary that contains the comparison result:
+
+            - :code:`'disp'`: the displacement vectors from the predicted key points to the ground truth key points stored in a (N, 3) :class:`numpy.array`.
+            - :code:`'dist'`: the distances from the predicted key points to the ground truth key points stored in a (N, ) :class:`numpy.array`.
+            - :code:`'dist_mean'`: the mean distances from the predicted key points to the ground truth key points.
+            - :code:`'dist_std'`: the standard deviation of distances from the predicted key points to the ground truth key points.
+            - :code:`'diff_str'`: a string in form of :code:`'dist_mean ± dist_std (mm)`.
+        """
+        # scale_rate is used to transformed to the original unit: mm
+        points_pd = self.get_kps_deform_points() / self.scale_rate
+        points_gt = kps_gt.get_kps_source_points() / kps_gt.scale_rate
+
+        disp = points_gt - points_pd
+        dist = np.sqrt(np.sum(np.power(disp, 2), axis=1))
+        dist_mean = np.mean(dist)
+        dist_std = np.std(dist)
+
+        diff_dict = {
+            'disp': disp,
+            'dist': dist,
+            'dist_mean': dist_mean,
+            'dist_std': dist_std,
+            'diff_str': "{:.3} ± {:.3} (mm)".format(dist_mean, dist_std)
+        }
+        return diff_dict
+
 
 class Marker(object):
     """Storing single key point's coordinates data within a time period. Usually loaded from the Vicon motion capture data. In this case, a key point is also referred as a marker.
@@ -183,6 +193,10 @@ class Marker(object):
         the number of frames per second (fps).
     scale_rate
         the scaling rate of the Vicon key points.
+
+        Attention
+        ---
+        Noted that the original unit of Vicon raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
 
         Warning
         ---
@@ -234,10 +248,11 @@ class Marker(object):
     cab_r = None
     cab_t = None
 
-    def __init__(self, name: str, start_time: float = 0.0, fps: int = 100, scale_rate: float = 0.01):
+    def __init__(self, name: str, start_time: float = 0.0, fps: int = 100, scale_rate: float = 0.001):
         if self.cab_s is None:
             self.load_cab_rst()
-            print('calibration parameters loaded')
+            if UltraMotionCapture.output_msg:
+                print('calibration parameters loaded')
 
         self.name = name
         self.start_time = start_time
@@ -296,7 +311,9 @@ class Marker(object):
         Before interpolation, the coordinates data, i.e. :attr:`self.coord`, must be properly loaded.
         """
         if self.coord is None:
-            print("coordinates information not found")
+            if UltraMotionCapture.output_msg:
+                print("coordinates information not found")
+
             return
 
         frame_range = range(len(self.coord[0]))
@@ -338,7 +355,9 @@ class Marker(object):
         The interpolation must be properly done before accessing coordinates data according to time stamp, which means the :meth:`interp_field` must be called first.
         """
         if self.x_field is None:
-            print("coordinates field need to be interped first")
+            if UltraMotionCapture.output_msg:
+                print("coordinates field need to be interped first")
+            
             return
 
         frame_id = (time - self.start_time) * self.fps
@@ -474,6 +493,10 @@ class MarkerSet(object):
     scale_rate
         the scaling rate of the Vicon key points.
 
+        Attention
+        ---
+        Noted that the original unit of Vicon raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
+
         Warning
         ---
         This value must be the same as :class:`UltraMotionCapture.obj3d.Obj3d`'s :attr:`scale_rate`.
@@ -516,13 +539,21 @@ class MarkerSet(object):
         vicon.plot_track(step=3, end_frame=100)
     
     """
-    def load_from_vicon(self, filedir: str, scale_rate: float = 0.01):
+    def load_from_vicon(self, filedir: str, scale_rate: float = 0.001):
         """Load and parse data from :code:`.csv` file exported from the Vicon motion capture system.
 
         Parameters
         ---
         filedir
             the directory of the :code:`.csv` file.
+        scale_rate
+            the scaling rate of the 3D object.
+
+            .. attention::
+                Noted that the original unit of 3dMD raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
+
+            .. seealso::
+                Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.
         """
         self.scale_rate = scale_rate
 
@@ -558,8 +589,9 @@ class MarkerSet(object):
         df = pd.read_csv(filedir, skiprows=2)  # skip the first two rows
         df_head = pd.read_csv(filedir, nrows=1)  # only read the first two rows
         parse(df, df_head)
-
-        print("loaded 1 vicon file: {}".format(filedir))
+        
+        if UltraMotionCapture.output_msg:
+            print("loaded 1 vicon file: {}".format(filedir))
 
     def interp_field(self):
         """After loading Vicon motion capture data, the :class:`MarkerSet` object only carries the key points' coordinates in discrete frames. To access the coordinates at any specific time, it's necessary to call :meth:`interp_field`.
@@ -567,31 +599,35 @@ class MarkerSet(object):
         for point in self.points.values():
             point.interp_field()
 
-    def get_frame_coord(self, frame_id: int) -> np.array:
-        """Get coordinates data according to frame id.
+    def get_frame_coord(self, frame_id: int, kps_class: Type[Kps] = Kps) -> Type[Kps]:
+        """Get coordinates data according to frame id and packed as a :class:`Kps` object.
         
         Parameters
         ---
         frame_id
             index of the frame to get coordinates data.
+        kps_class
+            the class of key points object to be initialised and returned.
 
         Return
         ---
-        :class:`numpy.array`
-            The structure of the returned array is :code:`array[marker_id][0-2 as x-z][frame_id]`
-
-        WARNING
-        ---
-        The returned value will be transferred to :class:`Kps` in future development.
+        :class:`Kps` or its derived class
+            The extracted coordinates data packed as a :class:`Kps` (or its derived class) object.
         """
         points = []
         for point in self.points.values():
             points.append(
                 point.get_frame_coord(frame_id)
             )
-        return np.array(points)
+        points = np.array(points)
 
-    def get_time_coord(self, time: float) -> np.array:
+        kps = kps_class()
+        kps.set_kps_source_points(points)
+        kps.scale_rate = self.scale_rate
+
+        return kps
+
+    def get_time_coord(self, time: float, kps_class: Type[Kps] = Kps) -> np.array:
         """Get coordinates data according to time stamp.
 
         Parameters
@@ -617,7 +653,13 @@ class MarkerSet(object):
             points.append(
                 point.get_time_coord(time)
             )
-        return np.array(points)
+        points = np.array(points)
+
+        kps = kps_class()
+        kps.set_kps_source_points(points)
+        kps.scale_rate = self.scale_rate
+
+        return kps
 
     def plot_track(
             self,
@@ -701,4 +743,6 @@ class MarkerSet(object):
         if is_save:
             filedir = 'output/gif-' + str(frame_id)
             plt.savefig(filedir)
-            print('saved ' + filedir)
+
+            if UltraMotionCapture.output_msg:
+                print('saved ' + filedir)

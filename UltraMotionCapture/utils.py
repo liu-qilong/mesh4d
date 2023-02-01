@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import Type, Union, Iterable
 
 import os
+import sys
 import imageio
 import numpy as np
 import pyvista as pv
@@ -123,3 +124,21 @@ def obj_pick_points(filedir: str, use_texture: bool = False, is_save: bool = Fal
         print("save picked points:\n{}".format(points))
 
     return points
+
+
+def progress_bar(percent: float, bar_len: int = 20):
+    """Print & refresh the progress bar in terminal.
+
+    Parameters
+    ---
+    percent
+        percentage from 0 to 1.
+    bar_len
+        length of the progress bar
+    """
+    sys.stdout.write("\r")
+    sys.stdout.write("[{:<{}}] {:.1%}".format("=" * int(bar_len * percent), bar_len, percent))
+    sys.stdout.flush()
+    # avoiding '%' appears when progress completed
+    if percent == 1:
+        print()

@@ -264,6 +264,10 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filedir</strong> – directory of the <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> key points coordinates data exported from the motion capture Vicon system.</p></li>
 <li><p><strong>scale_rate</strong> – <p>the scaling rate of the Vicon key points.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Noted that the original unit of Vicon raw data is millimetre (mm). The default <code class="xref py py-attr docutils literal notranslate"><span class="pre">scale_rate</span></code> transforms it to metre (m).</p>
+</div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This value must be the same as <a class="reference internal" href="UltraMotionCapture.obj3d.Obj3d.html#UltraMotionCapture.obj3d.Obj3d" title="UltraMotionCapture.obj3d.Obj3d"><code class="xref py py-class docutils literal notranslate"><span class="pre">UltraMotionCapture.obj3d.Obj3d</span></code></a>’s <code class="xref py py-attr docutils literal notranslate"><span class="pre">scale_rate</span></code>.</p>
@@ -325,10 +329,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.kps.MarkerSet.__init__" title="UltraMotionCapture.kps.MarkerSet.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
 <td><p>Initialize self.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.kps.MarkerSet.get_frame_coord" title="UltraMotionCapture.kps.MarkerSet.get_frame_coord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_frame_coord</span></code></a>(frame_id)</p></td>
-<td><p>Get coordinates data according to frame id.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.kps.MarkerSet.get_frame_coord" title="UltraMotionCapture.kps.MarkerSet.get_frame_coord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_frame_coord</span></code></a>(frame_id[, kps_class])</p></td>
+<td><p>Get coordinates data according to frame id and packed as a <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.kps.MarkerSet.get_time_coord" title="UltraMotionCapture.kps.MarkerSet.get_time_coord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_coord</span></code></a>(time)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.kps.MarkerSet.get_time_coord" title="UltraMotionCapture.kps.MarkerSet.get_time_coord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_coord</span></code></a>(time[, kps_class])</p></td>
 <td><p>Get coordinates data according to time stamp.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.kps.MarkerSet.interp_field" title="UltraMotionCapture.kps.MarkerSet.interp_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interp_field</span></code></a>()</p></td>
@@ -348,11 +352,23 @@
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="UltraMotionCapture.kps.MarkerSet.load_from_vicon">
-<span class="sig-name descname"><span class="pre">load_from_vicon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filedir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_rate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/kps.html#MarkerSet.load_from_vicon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.kps.MarkerSet.load_from_vicon" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_from_vicon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filedir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_rate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/kps.html#MarkerSet.load_from_vicon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.kps.MarkerSet.load_from_vicon" title="Permalink to this definition">#</a></dt>
 <dd><p>Load and parse data from <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> file exported from the Vicon motion capture system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filedir</strong> – the directory of the <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> file.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filedir</strong> – the directory of the <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> file.</p></li>
+<li><p><strong>scale_rate</strong> – <p>the scaling rate of the 3D object.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Noted that the original unit of 3dMD raw data is millimetre (mm). The default <code class="xref py py-attr docutils literal notranslate"><span class="pre">scale_rate</span></code> transforms it to metre (m).</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>Reason for providing <code class="code docutils literal notranslate"><span class="pre">scale_rate</span></code> parameter is explained in <code class="xref py py-class docutils literal notranslate"><span class="pre">Obj3d_Deform</span></code>.</p>
+</div>
+</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -365,28 +381,27 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="UltraMotionCapture.kps.MarkerSet.get_frame_coord">
-<span class="sig-name descname"><span class="pre">get_frame_coord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.array</span><a class="reference internal" href="../_modules/UltraMotionCapture/kps.html#MarkerSet.get_frame_coord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.kps.MarkerSet.get_frame_coord" title="Permalink to this definition">#</a></dt>
-<dd><p>Get coordinates data according to frame id.</p>
+<span class="sig-name descname"><span class="pre">get_frame_coord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">frame_id:</span> <span class="pre">int</span></em>, <em class="sig-param"><span class="pre">kps_class:</span> <span class="pre">Type[UltraMotionCapture.kps.Kps]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'UltraMotionCapture.kps.Kps'&gt;</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><span class="pre">UltraMotionCapture.kps.Kps</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/UltraMotionCapture/kps.html#MarkerSet.get_frame_coord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.kps.MarkerSet.get_frame_coord" title="Permalink to this definition">#</a></dt>
+<dd><p>Get coordinates data according to frame id and packed as a <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>frame_id</strong> – index of the frame to get coordinates data.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame_id</strong> – index of the frame to get coordinates data.</p></li>
+<li><p><strong>kps_class</strong> – the class of key points object to be initialised and returned.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The structure of the returned array is <code class="code docutils literal notranslate"><span class="pre">array[marker_id][0-2</span> <span class="pre">as</span> <span class="pre">x-z][frame_id]</span></code></p>
+<dd class="field-even"><p>The extracted coordinates data packed as a <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> (or its derived class) object.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.array</span></code></p>
+<dd class="field-odd"><p><a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> or its derived class</p>
 </dd>
 </dl>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The returned value will be transferred to <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> in future development.</p>
-</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="UltraMotionCapture.kps.MarkerSet.get_time_coord">
-<span class="sig-name descname"><span class="pre">get_time_coord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.array</span><a class="reference internal" href="../_modules/UltraMotionCapture/kps.html#MarkerSet.get_time_coord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.kps.MarkerSet.get_time_coord" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_time_coord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">time:</span> <span class="pre">float</span></em>, <em class="sig-param"><span class="pre">kps_class:</span> <span class="pre">Type[UltraMotionCapture.kps.Kps]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'UltraMotionCapture.kps.Kps'&gt;</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.array</span><a class="reference internal" href="../_modules/UltraMotionCapture/kps.html#MarkerSet.get_time_coord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.kps.MarkerSet.get_time_coord" title="Permalink to this definition">#</a></dt>
 <dd><p>Get coordinates data according to time stamp.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
