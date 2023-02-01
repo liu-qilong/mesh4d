@@ -23,6 +23,7 @@ import numpy as np
 import open3d as o3d
 import pyvista as pv
 
+import UltraMotionCapture
 from UltraMotionCapture import kps
 from UltraMotionCapture import field
 
@@ -227,7 +228,9 @@ class Obj3d_Deform(Obj3d_Kps):
         This method usually serves for reorientate all 3D objects to a referencing direction, since that the rigid transformation (:class:`UltraMotionCapture.field.Trans_Rigid`) is usually estimated according to the difference of two different 3D object.
         """
         if self.trans_rigid is None:
-            print("no rigid transformation")
+            if UltraMotionCapture.output_msg:
+                print("no rigid transformation")
+
             return
 
         rot = self.trans_rigid.rot
@@ -235,8 +238,9 @@ class Obj3d_Deform(Obj3d_Kps):
 
         self.mesh_o3d.rotate(rot, center)
         self.pcd.rotate(rot, center)
-
-        print("reorientated 1 3d object")
+        
+        if UltraMotionCapture.output_msg:
+            print("reorientated 1 3d object")
 
 
 # utils for data & object transform
@@ -634,6 +638,8 @@ def load_obj_series(
     for n in range(start, end + 1, stride):
         filedir = files[n]
         o3_ls.append(obj_type(filedir=filedir, **kwargs))
-        print("loaded 1 mesh file: {}".format(filedir))
+        
+        if UltraMotionCapture.output_msg:
+            print("loaded 1 mesh file: {}".format(filedir))
 
     return o3_ls

@@ -15,6 +15,7 @@ import copy
 import numpy as np
 from probreg import cpd
 
+import UltraMotionCapture
 from UltraMotionCapture import obj3d
 
 class Trans(object):
@@ -95,7 +96,9 @@ class Trans_Rigid(Trans):
         )
         self.__parse(tf_param)
         self.__fix()
-        print("registered 1 rigid transformation")
+        
+        if UltraMotionCapture.output_msg:
+            print("registered 1 rigid transformation")
 
     def __parse(self, tf_param: Type[cpd.CoherentPointDrift]):
         """Parse the registration result to provide :attr:`self.s`, :attr:`self.rot`, and :attr:`self.t`. Called by :meth:`regist`.
@@ -118,7 +121,7 @@ class Trans_Rigid(Trans):
         ---
         At current stage, the fixing logic only checks the scaling rate and raises a warning in terminal. The underline assumption is that since :mod:`UltraMotionCapture` focuses on human body which doesn't scale a lot, the scaling rate shall be closed to 1.
         """
-        if np.abs(self.scale - 1) > 0.05:
+        if np.abs(self.scale - 1) > 0.05 and UltraMotionCapture.output_msg:
             print("warnning: large rigid scale {}".format(self.scale))
 
     def shift_points(self, points: np.array) -> np.array:
@@ -204,7 +207,9 @@ class Trans_Nonrigid(Trans):
         )
         self.__parse(tf_param)
         self.__fix()
-        print("registered 1 nonrigid transformation")
+        
+        if UltraMotionCapture.output_msg:
+            print("registered 1 nonrigid transformation")
 
     def __parse(self, tf_param):
         """Parse the registration result to provide :attr:`self.source_points`, :attr:`self.deform_points`, and :attr:`self.disp`. Called by :meth:`regist`.

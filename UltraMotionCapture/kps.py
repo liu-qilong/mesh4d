@@ -70,7 +70,8 @@ class Kps(object):
         ---
         At current stage, the interactive manual points selection is realised with :mod:`open3d` package. It will be transferred to :mod:`pyvista` package in future development.
         """
-        print("please select key points")
+        if UltraMotionCapture.output_msg:
+            print("please select key points")
 
         def pick_points(pcd):
             vis = o3d.visualization.VisualizerWithEditing()
@@ -85,7 +86,8 @@ class Kps(object):
         self.set_kps_source_points(
             points[pick, :]
         )
-        print("selected key points:\n{}".format(self.kps_source_points))
+        if UltraMotionCapture.output_msg:
+            print("selected key points:\n{}".format(self.kps_source_points))
 
     def set_kps_source_points(self, points: np.array):
         """Other than manually selecting points or loading points from Vicon motion capture data, the :attr:`kps_source_points` can also be directly overridden with a (N, 3) :class:`numpy.array`, representing :math:`N` key points in 3D space.
@@ -101,7 +103,8 @@ class Kps(object):
         """ Get the key points coordinates.
         """
         if self.kps_source_points is None:
-            print("source key points haven't been set")
+            if UltraMotionCapture.output_msg:
+                print("source key points haven't been set")
         else:
             return self.kps_source_points
 
@@ -248,7 +251,8 @@ class Marker(object):
     def __init__(self, name: str, start_time: float = 0.0, fps: int = 100, scale_rate: float = 0.001):
         if self.cab_s is None:
             self.load_cab_rst()
-            print('calibration parameters loaded')
+            if UltraMotionCapture.output_msg:
+                print('calibration parameters loaded')
 
         self.name = name
         self.start_time = start_time
@@ -307,7 +311,9 @@ class Marker(object):
         Before interpolation, the coordinates data, i.e. :attr:`self.coord`, must be properly loaded.
         """
         if self.coord is None:
-            print("coordinates information not found")
+            if UltraMotionCapture.output_msg:
+                print("coordinates information not found")
+
             return
 
         frame_range = range(len(self.coord[0]))
@@ -349,7 +355,9 @@ class Marker(object):
         The interpolation must be properly done before accessing coordinates data according to time stamp, which means the :meth:`interp_field` must be called first.
         """
         if self.x_field is None:
-            print("coordinates field need to be interped first")
+            if UltraMotionCapture.output_msg:
+                print("coordinates field need to be interped first")
+            
             return
 
         frame_id = (time - self.start_time) * self.fps
@@ -581,8 +589,9 @@ class MarkerSet(object):
         df = pd.read_csv(filedir, skiprows=2)  # skip the first two rows
         df_head = pd.read_csv(filedir, nrows=1)  # only read the first two rows
         parse(df, df_head)
-
-        print("loaded 1 vicon file: {}".format(filedir))
+        
+        if UltraMotionCapture.output_msg:
+            print("loaded 1 vicon file: {}".format(filedir))
 
     def interp_field(self):
         """After loading Vicon motion capture data, the :class:`MarkerSet` object only carries the key points' coordinates in discrete frames. To access the coordinates at any specific time, it's necessary to call :meth:`interp_field`.
@@ -734,4 +743,6 @@ class MarkerSet(object):
         if is_save:
             filedir = 'output/gif-' + str(frame_id)
             plt.savefig(filedir)
-            print('saved ' + filedir)
+
+            if UltraMotionCapture.output_msg:
+                print('saved ' + filedir)

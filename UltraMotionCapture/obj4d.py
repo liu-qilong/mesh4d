@@ -18,6 +18,7 @@ from typing import Type, Union, Iterable
 import time
 import numpy as np
 
+import UltraMotionCapture
 from UltraMotionCapture import obj3d
 from UltraMotionCapture import kps
 from UltraMotionCapture import field
@@ -369,8 +370,10 @@ class Obj4d_Deform(Obj4d_Kps):
             obj = self.obj_ls[idx]
             obj_next = self.obj_ls[idx+1]
             diff = obj.kps.compare_with_groundtruth(obj_next.kps)
-            print("estimated error of frame {}: {}".format(idx, diff['diff_str']))
             diff_ls.append(diff)
+
+            if UltraMotionCapture.output_msg:
+                print("estimated error of frame {}: {}".format(idx, diff['diff_str']))
 
         # estimate whole period registration error
         dist_ls = []
@@ -388,7 +391,10 @@ class Obj4d_Deform(Obj4d_Kps):
             'dist_std': dist_std,
             'diff_str': "diff = {:.3} ± {:.3} (mm)".format(dist_mean, dist_std),
         }
-        print("whole duration error: {}".format(diff_dict['diff_str']))
+
+        if UltraMotionCapture.output_msg:
+            print("whole duration error: {}".format(diff_dict['diff_str']))
+
         return diff_dict
 
     def offset_rotate(self):
@@ -412,4 +418,6 @@ class Obj4d_Deform(Obj4d_Kps):
         """
         for obj in self.obj_ls[1:]:  # the first 3d object doesn't need reorientation
             obj.offset_rotate()
-        print("4d object reorientated")
+
+        if UltraMotionCapture.output_msg:
+            print("4d object reorientated")
