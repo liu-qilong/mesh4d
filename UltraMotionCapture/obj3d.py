@@ -117,23 +117,34 @@ class Obj3d_Kps(Obj3d):
     ---
     `Class Attributes`
 
-    self.kps
-        key points (:class:`UltraMotionCapture.kps.Kps`) attached to the 3D object.
+    self.kps_group
+        a dictionary of various :class:`UltraMotionCapture.kps.Kps` object (set of key points) attached to the 3D object, used for different purposes, such as measurement, registration guiding, virtue key point tracking, registration error estimation, etc.
     """
-    def load_kps(self, markerset: Type[kps.MarkerSet], time: float = 0.0):
+    def __init__(self, **kwargs):
+        Obj3d.__init__(self, **kwargs)
+        self.kps_group = {}
+
+    def load_kps(self, name: str, markerset: Type[kps.MarkerSet], time: float = 0.0):
         """Load key points as :attr:`self.kps` from a :class:`kps.MarkerSet` object.
         
         Parameters
         ---
+        name
+            name of the kps as its key in :attr:`self.kps_group`.
         markerset
             the :class:`kps.MarkerSet` object.
         time
             the time from the :class:`kps.MarkerSet`'s recording period to be loaded.
         """
-        self.kps = markerset.get_time_coord(time, kps_class=kps.Kps)
+        self.kps_group[name] = markerset.get_time_coord(time, kps_class=kps.Kps)
 
-    def show(self):
+    def show(self, kps_names: Union[None, tuple, list] = None):
         """Show the loaded mesh, the sampled point cloud, and the key points attached to it.
+
+        Parameters
+        ---
+        kps_names
+            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
 
         Attention
         ---
@@ -153,9 +164,16 @@ class Obj3d_Kps(Obj3d):
         scene.add_points(pcd2np(self.pcd) + lateral_move, point_size=0.001*width)
 
         # plot key points
-        pvpcd_kps = np2pvpcd(self.kps.get_kps_source_points(), radius=0.02*width)
-        scene.add_mesh(pvpcd_kps, color='Gold')
-        scene.add_mesh(pvpcd_kps.translate(lateral_move, inplace=False), color='Gold')
+        if self.kps_group != {}:
+            if kps_names is None:
+                kps_points_ls = [kps.get_kps_source_points() for kps in self.kps_group.values()]
+            else:
+                kps_points_ls = [self.kps_group[name].get_kps_source_points() for name in kps_names]
+            
+            kps_group_points = np.concatenate(kps_points_ls)
+            pvpcd_kps = np2pvpcd(kps_group_points, radius=0.02*width)
+            scene.add_mesh(pvpcd_kps)
+            scene.add_mesh(pvpcd_kps.translate(lateral_move, inplace=False))
 
         scene.show()
 
@@ -187,17 +205,19 @@ class Obj3d_Deform(Obj3d_Kps):
         self.trans_rigid = None
         self.trans_nonrigid = None
 
-    def load_kps(self, markerset: Type[kps.MarkerSet], time: float = 0.0):
-        """Load key points as :attr:`self.kps` from a :class:`kps.MarkerSet` object.
+    def load_kps(self, name: str, markerset: Type[kps.MarkerSet], time: float = 0.0):
+        """Load a set of key points as into :attr:`self.kps_group` dictionary from a :class:`kps.MarkerSet` object with a name.
         
         Parameters
         ---
+        name
+            the name of the :class:`~UltraMotionCapture.kps.Kps` objects. Noted that this name will also been used as its keyword in :attr:`self.kps_group`.
         markerset
             the :class:`kps.MarkerSet` object.
         time
             the time from the :class:`kps.MarkerSet`'s recording period to be loaded.
         """
-        self.kps = markerset.get_time_coord(time, kps_class=kps.Kps_Deform)
+        self.kps_group[name] = markerset.get_time_coord(time, kps_class=kps.Kps_Deform)
 
     def set_trans_rigid(self, trans_rigid: field.Trans_Rigid):
         """Set rigid transformation.
@@ -218,7 +238,6 @@ class Obj3d_Deform(Obj3d_Kps):
             the non-rigid transformation (:class:`UltraMotionCapture.field.Trans_Nonrigid`).
         """
         self.trans_nonrigid = trans_nonrigid
-        self.kps.set_trans(trans_nonrigid)
 
     def offset_rotate(self):
         """Offset the rotation according to the estimated rigid transformation.
