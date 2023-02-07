@@ -11,11 +11,9 @@ from UltraMotionCapture import kps
 from UltraMotionCapture import field
 
 class Obj4d_VKps(obj4d.Obj4d_Deform):
-    def virtual_kps(self, kps, frame_id):
-        """tbf"""
-        pass
+    
 
-    def regist_verify(self, markerset) -> dict:
+    def regist_verify(self, markerset_gt: kps.MarkerSet) -> dict:
         """Estimate the accuracy of the registration, with frame-wise & whole trail mean error and standard deviation.
 
         Parameters

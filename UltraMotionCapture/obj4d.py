@@ -162,7 +162,7 @@ class Obj4d_Kps(Obj4d):
         Parameters
         ---
         name
-            the name of the :class:`~UltraMotionCapture.kps.Kps` objects. Noted that this name will also been used as its keyword in :attr:`self.kps_group`.
+            the name of the :class:`~UltraMotionCapture.kps.Kps` objects. Noted that this name will also been used as its keyword in :class:`~UltraMotionCapture.obj3d.Obj3d_Kps` object's :attr:`kps_group` attribute.
         markerset
             Vicon motion capture data (:class:`UltraMotionCapture.kps.MarkerSet`).
         """
@@ -359,3 +359,7 @@ class Obj4d_Deform(Obj4d_Kps):
 
         if UltraMotionCapture.output_msg:
             print("4d object reorientated")
+
+    def vkps_track(self, kps: Type[kps.Kps], start_frame: int = 0, end_frame: int = -1):
+        """tbf"""
+        pass

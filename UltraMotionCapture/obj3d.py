@@ -166,14 +166,14 @@ class Obj3d_Kps(Obj3d):
         # plot key points
         if self.kps_group != {}:
             if kps_names is None:
-                kps_points_ls = [kps.get_kps_source_points() for kps in self.kps_group.values()]
+                kps_points_ls = [kps.get_points_coord() for kps in self.kps_group.values()]
             else:
-                kps_points_ls = [self.kps_group[name].get_kps_source_points() for name in kps_names]
+                kps_points_ls = [self.kps_group[name].get_points_coord() for name in kps_names]
             
             kps_group_points = np.concatenate(kps_points_ls)
             pvpcd_kps = np2pvpcd(kps_group_points, radius=0.02*width)
-            scene.add_mesh(pvpcd_kps)
-            scene.add_mesh(pvpcd_kps.translate(lateral_move, inplace=False))
+            scene.add_mesh(pvpcd_kps, color='gold')
+            scene.add_mesh(pvpcd_kps.translate(lateral_move, inplace=False), color='gold')
 
         scene.show()
 
