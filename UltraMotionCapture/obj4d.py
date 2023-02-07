@@ -18,6 +18,7 @@ from typing import Type, Union, Iterable
 import numpy as np
 
 import UltraMotionCapture
+import UltraMotionCapture.config.param
 from UltraMotionCapture import obj3d
 from UltraMotionCapture import kps
 from UltraMotionCapture import field

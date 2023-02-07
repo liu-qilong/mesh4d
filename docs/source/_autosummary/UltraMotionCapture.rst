@@ -33,6 +33,7 @@
    :recursive:
 
    UltraMotionCapture.analysis
+   UltraMotionCapture.config
    UltraMotionCapture.field
    UltraMotionCapture.kps
    UltraMotionCapture.obj3d

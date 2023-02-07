@@ -24,6 +24,7 @@ import open3d as o3d
 import pyvista as pv
 
 import UltraMotionCapture
+import UltraMotionCapture.config.param
 from UltraMotionCapture import kps
 from UltraMotionCapture import field
 

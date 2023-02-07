@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 from scipy import interpolate
 
 import UltraMotionCapture
+import UltraMotionCapture.config.param
 from UltraMotionCapture import field
 from UltraMotionCapture import obj3d
 from UltraMotionCapture import utils
@@ -29,22 +30,13 @@ class Kps(object):
     `Class Attributes`
 
     self.points
-        :math:`N` key points in 3D space stored in a (N, 3) :class:`numpy.array`.
+        :math:`N` key points in 3D space stored in a dictionary.
     self.scale_rate
         the scaling rate of the Vicon key points.
 
     Example
     ---
-    After initialisation, the :class:`Kps` object is empty. There are two ways to load key points into it:
-
-    Manually selecting key points with :meth:`select_kps_points`. ::
-
-        from UltraMotionCapture import kps
-
-        points = kps.Kps()
-        points.select_kps_points()  # this will trigger a point selection window
-
-    Load key points from Vicon motion capture data stored in a :class:`MarkerSet` object with :meth:`load_from_markerset_frame` or :meth:`load_from_markerset_time`. ::
+    After initialisation, the :class:`Kps` object is empty. Load key points from Vicon motion capture data stored in a :class:`MarkerSet` object with :meth:`load_from_markerset_frame` or :meth:`load_from_markerset_time`. ::
 
         from UltraMotionCapture import kps
         
@@ -53,13 +45,13 @@ class Kps(object):
         vicon.interp_field()
 
         points = kps.Kps()
-        points.load_from_markerset_frame(vicon)
+        points.load_from_markerset_time(vicon, time = 1.01)
     """
     def __init__(self):
         self.points = {}
 
     def add_point(self, name: str, coord: np.array):
-        """Other than manually selecting points or loading points from Vicon motion capture data, the :attr:`kps_source_points` can also be directly overridden with a (N, 3) :class:`numpy.array`, representing :math:`N` key points in 3D space.
+        """Add a point to :attr:`self.points` with its name and its coordinates represented in a (3, ) :class:`numpy.array`.
 
         Parameters
         ---
@@ -70,10 +62,69 @@ class Kps(object):
         """
         self.points[name] = coord
 
-    def get_points_coord(self):
-        """tbf"""
-        points = [np.expand_dims(coord, axis=0) for coord in self.points.values()]
+    def get_points_coord(self, names: Union[None, list, tuple] = None) -> np.array:
+        """Concatenating all coordinates into a (N, 3) :class:`numpy.array` and return.
+        
+        Parameters
+        ---
+        names
+            the names of the points to be retrieved. If doesn't input this parameter, all points will be returned.
+
+        Returns
+        ---
+        :class:`np.array`
+            coordinates stored in a (N, 3) :class:`np.array` in the order of the :attr:`names`.
+        """
+        if names is None:
+            points = [np.expand_dims(coord, axis=0) for coord in self.points.values()]
+        else:
+            points = [np.expand_dims(self.points[name], axis=0) for name in names]
+
         return np.concatenate(points)
+
+    @staticmethod
+    def diff(kps1: Type[Kps], kps2: Type[Kps]) -> dict:
+        """Compute the difference of one key points object with another.
+
+        Warning
+        ---
+        These two key points objects must contain the same number of points with the same names.
+
+        Parameters
+        ---
+        kps1
+            a key points object.
+        kps2
+            another key points object.
+
+        Returns
+        ---
+        :class:`dict`
+            A dictionary that contains the comparison result:
+
+            - :code:`'disp'`: the displacement vectors from the predicted key points to the ground truth key points stored in a (N, 3) :class:`numpy.array`.
+            - :code:`'dist'`: the distances from the predicted key points to the ground truth key points stored in a (N, ) :class:`numpy.array`.
+            - :code:`'dist_mean'`: the mean distances from the predicted key points to the ground truth key points.
+            - :code:`'dist_std'`: the standard deviation of distances from the predicted key points to the ground truth key points.
+            - :code:`'diff_str'`: a string in form of :code:`'dist_mean ± dist_std (mm)`.
+        """
+        names = kps1.points.keys()
+        points1 = kps1.get_points_coord(names) / kps1.scale_rate
+        points2 = kps2.get_points_coord(names) / kps2.scale_rate
+
+        disp = points1 - points2
+        dist = np.sqrt(np.sum(np.power(disp, 2), axis=1))
+        dist_mean = np.mean(dist)
+        dist_std = np.std(dist)
+
+        diff_dict = {
+            'disp': disp,
+            'dist': dist,
+            'dist_mean': dist_mean,
+            'dist_std': dist_std,
+            'diff_str': "{:.3} ± {:.3} (mm)".format(dist_mean, dist_std)
+        }
+        return diff_dict
 
 
 class Kps_Deform(Kps):
@@ -84,15 +135,15 @@ class Kps_Deform(Kps):
     `Class Attributes`
 
     self.trans
-        An :class:`UltraMotionCapture.field.Trans_Nonrigid` object that stores the deformation information.
-    self.kps_deform_points
-        (N, 3) :class:`numpy.array`.
+        an :class:`UltraMotionCapture.field.Trans_Nonrigid` object that stores the deformation information.
+    self.deform_kps
+        the deformed key points object.
     """
     def __init__(self):
         Kps.__init__(self)
         self.trans = None
 
-    def trans(self, trans: field.Trans_Nonrigid, kps_class: Type[Kps_Deform]) -> Type[Kps_Deform]:
+    def set_trans(self, trans: field.Trans_Nonrigid, kps_class: Type[Kps_Deform]) -> Type[Kps_Deform]:
         """ Setting the transformation of the deformable key points object.
 
         Parameters
@@ -100,7 +151,11 @@ class Kps_Deform(Kps):
         trans
             an :meth:`UltraMotionCapture.field.Trans_Nonrigid` object that represents the transformation.
         kps_class
-            tbf
+            the key point object class to loaded the deformed key points.
+
+        Returns
+        ---
+        the deformed key points object.
         """
         self.trans = trans
         self.deform_kps = kps_class()
@@ -115,43 +170,6 @@ class Kps_Deform(Kps):
         """ Get the key points coordinates after transformation.
         """
         return self.deform_kps.get_points_coord()
-
-    def compare_with_groundtruth(self, kps_gt: Type[Kps_Deform]) -> dict:
-        """Compared the predicted deformed key points with the ground truth.
-
-        Parameters
-        ---
-        kps_gt
-            the :class:`Kps_Deform` object belonging to the next frame of :class:`~UltraMotionCapture.obj3d.Obj3d_Deform` in :class:`~UltraMotionCapture.obj4d.Obj4d_Deform`.
-
-        Returns
-        ---
-        :class:`dict`
-            A dictionary that contains the comparison result:
-
-            - :code:`'disp'`: the displacement vectors from the predicted key points to the ground truth key points stored in a (N, 3) :class:`numpy.array`.
-            - :code:`'dist'`: the distances from the predicted key points to the ground truth key points stored in a (N, ) :class:`numpy.array`.
-            - :code:`'dist_mean'`: the mean distances from the predicted key points to the ground truth key points.
-            - :code:`'dist_std'`: the standard deviation of distances from the predicted key points to the ground truth key points.
-            - :code:`'diff_str'`: a string in form of :code:`'dist_mean ± dist_std (mm)`.
-        """
-        # scale_rate is used to transformed to the original unit: mm
-        points_pd = self.get_deform_points_coord() / self.scale_rate
-        points_gt = kps_gt.get_points_coord() / kps_gt.scale_rate
-
-        disp = points_gt - points_pd
-        dist = np.sqrt(np.sum(np.power(disp, 2), axis=1))
-        dist_mean = np.mean(dist)
-        dist_std = np.std(dist)
-
-        diff_dict = {
-            'disp': disp,
-            'dist': dist,
-            'dist_mean': dist_mean,
-            'dist_std': dist_std,
-            'diff_str': "{:.3} ± {:.3} (mm)".format(dist_mean, dist_std)
-        }
-        return diff_dict
 
 
 class Marker(object):
@@ -712,8 +730,3 @@ class MarkerSet(object):
 
             if UltraMotionCapture.output_msg:
                 print('saved ' + filedir)
-
-    @staticmethod
-    def diff(markerset1: MarkerSet, markerset2: MarkerSet) -> dict:
-        """tbf"""
-        pass

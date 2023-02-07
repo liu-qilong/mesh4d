@@ -16,6 +16,7 @@ import numpy as np
 from probreg import cpd
 
 import UltraMotionCapture
+import UltraMotionCapture.config.param
 from UltraMotionCapture import obj3d
 
 class Trans(object):

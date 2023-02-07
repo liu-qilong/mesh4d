@@ -24,6 +24,7 @@ UltraMotionCapture.utils
    
       images_to_gif
       obj_pick_points
+      progress_bar
    
    
 

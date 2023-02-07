@@ -7,6 +7,8 @@ import imageio
 import numpy as np
 import pyvista as pv
 
+import UltraMotionCapture.config.param
+
 def images_to_gif(path: Union[str, None] = None, remove: bool = False):
     """Convert images in a folder into a gif.
     
