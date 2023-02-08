@@ -288,7 +288,7 @@ class Obj4d_Deform(Obj4d_Kps):
         Called by :meth:`add_obj`."""
         pass
 
-    def process_rigid_dynamic(self, idx_source, idx_target, **kwargs):
+    def process_rigid_dynamic(self, idx_source: int, idx_target: int, **kwargs):
         """Estimate the rigid transformation of the added 3D object. The lastly added 3D object is used as source object and the newly added 3D object as the target object.
 
         Parameters
@@ -312,7 +312,7 @@ class Obj4d_Deform(Obj4d_Kps):
         trans.regist(**kwargs)
         self.obj_ls[idx_source].set_trans_rigid(trans)
 
-    def process_nonrigid_dynamic(self, idx_source, idx_target, **kwargs):
+    def process_nonrigid_dynamic(self, idx_source: int, idx_target: int, **kwargs):
         """Estimate the non-rigid transformation of the added 3D object. The lastly added 3D object is used as source object and the newly added 3D object as the target object.
 
         Parameters
