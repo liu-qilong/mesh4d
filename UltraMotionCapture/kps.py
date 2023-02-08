@@ -12,7 +12,6 @@ from typing import Type, Union, Iterable
 import os
 import numpy as np
 import pandas as pd
-import open3d as o3d
 import matplotlib.pyplot as plt
 from scipy import interpolate
 
@@ -234,12 +233,10 @@ class Marker(object):
     ---
     In other parts of the package, points coordinates storing in :class:`numpy.array` are usually in the shape of (N, 3), while here we adopt (3, N), for the convenience of data interpolation :meth:`interp_field`.
     """
-    cab_s = None
-    cab_r = None
-    cab_t = None
+    trans_cab = None
 
     def __init__(self, name: str, start_time: float = 0.0, fps: int = 100, scale_rate: float = 1):
-        if self.cab_s is None:
+        if self.trans_cab is None:
             self.load_cab_rst()
             if UltraMotionCapture.output_msg:
                 print('calibration parameters loaded')
@@ -265,9 +262,11 @@ class Marker(object):
         """Load the calibration parameters from Vicon to 3dMD coordination system.
         """
         mod_path = os.path.dirname(UltraMotionCapture.__file__)
-        cls.cab_r = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
-        cls.cab_s = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
-        cls.cab_t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
+        cls.trans_cab = field.Trans_Rigid(source_obj=None, target_obj=None)
+        
+        cls.trans_cab.rot = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
+        cls.trans_cab.scale = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
+        cls.trans_cab.t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
 
     def fill_data(self, data_input: np.array):
         """Filling coordinates, speed, and acceleration data after converting to 3dMD coordinates, one by one, into the :class:`Marker` object.
@@ -281,9 +280,7 @@ class Marker(object):
         ---
         Called by the :class:`MarkerSet` object when parsing the Vicon motion capture data (:meth:`MarkerSet.load_from_vicon`). Usually the end user don't need to call this method manually.
         """
-        data_input = self.scale_rate * (
-            self.cab_s * np.matmul(self.cab_r, data_input) + np.expand_dims(self.cab_t, axis=1)
-            )
+        data_input = self.scale_rate * self.trans_cab.shift_points(data_input.T)
 
         if self.coord is None:
             self.coord = data_input

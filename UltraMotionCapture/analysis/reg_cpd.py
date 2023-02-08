@@ -72,7 +72,7 @@ class Trans_Nonrigid_CPD(field.Trans_Nonrigid):
             `probreg.cpd.registration_cpd <https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd>`_
         """
         tf_param, _, _ = method(
-            self.source, self.target, 'nonrigid', **kwargs
+            self.source.pcd, self.target.pcd, 'nonrigid', **kwargs
         )
         self.parse(tf_param)
         

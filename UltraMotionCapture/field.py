@@ -33,13 +33,13 @@ class Trans(object):
     `Class Attributes`
 
     self.source
-        The source point cloud (:class:`open3d.geometry.PointCloud`) of the transformation.
+        The source object of the transformation.
     self.target
-        The target point cloud (:class:`open3d.geometry.PointCloud`) of the transformation.
+        The target object of the transformation.
     """
     def __init__(self, source_obj: Type[obj3d.Obj3d], target_obj: Type[obj3d.Obj3d], **kwargs):
-        self.source = source_obj.pcd
-        self.target = target_obj.pcd
+        self.source = source_obj
+        self.target = target_obj
 
 
 class Trans_Rigid(Trans):
@@ -92,7 +92,7 @@ class Trans_Rigid(Trans):
             `probreg.cpd.registration_cpd <https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd>`_
         """
         tf_param, _, _ = method(
-            self.source, self.target, 'rigid', **kwargs
+            self.source.pcd, self.target.pcd, 'rigid', **kwargs
         )
         self.parse(tf_param)
         self.fix()
@@ -141,7 +141,8 @@ class Trans_Rigid(Trans):
         ---
         This method will be realised in future development.
         """
-        pass
+        # return self.scale * np.matmul(points, self.rot.T) + np.expand_dims(self.t, axis=0)
+        return self.scale * np.matmul(self.rot, points.T) + np.expand_dims(self.t, axis=1)
 
     def show(self):
         """Illustrate the estimated transformation.
@@ -198,8 +199,8 @@ class Trans_Nonrigid(Trans):
     def regist(self, **kwargs):
         """Align every point from the source object to the nearest point in the target object and use it a this point's displacement.
         """
-        self.source_points = obj3d.pcd2np(self.source)
-        target_points = obj3d.pcd2np(self.target)
+        self.source_points = obj3d.pcd2np(self.source.pcd)
+        target_points = obj3d.pcd2np(self.target.pcd)
 
         tree = KDTree(target_points)
         _, idx = tree.query(self.source_points)
