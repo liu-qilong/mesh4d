@@ -113,7 +113,7 @@ class Kps(object):
         points2 = kps2.get_points_coord(names) / kps2.scale_rate
 
         disp = points1 - points2
-        dist = np.sqrt(np.sum(np.power(disp, 2), axis=1))
+        dist = np.linalg.norm(disp, axis=1)
         dist_mean = np.mean(dist)
         dist_std = np.std(dist)
 
@@ -240,7 +240,7 @@ class Marker(object):
     cab_r = None
     cab_t = None
 
-    def __init__(self, name: str, start_time: float = 0.0, fps: int = 100, scale_rate: float = 0.001):
+    def __init__(self, name: str, start_time: float = 0.0, fps: int = 100, scale_rate: float = 1e-3):
         if self.cab_s is None:
             self.load_cab_rst()
             if UltraMotionCapture.output_msg:
@@ -531,7 +531,7 @@ class MarkerSet(object):
         vicon.plot_track(step=3, end_frame=100)
     
     """
-    def load_from_vicon(self, filedir: str, scale_rate: float = 0.001):
+    def load_from_vicon(self, filedir: str, scale_rate: float = 1e-3):
         """Load and parse data from :code:`.csv` file exported from the Vicon motion capture system.
 
         Parameters

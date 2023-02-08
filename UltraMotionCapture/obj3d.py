@@ -82,6 +82,7 @@ class Obj3d(object):
         self.mesh.scale(scale_rate, inplace=True)
 
         self.pcd = pvmesh2pcd_pro(self.mesh, sample_num)
+        # self.pcd = pvmesh2pcd(self.mesh, sample_num)
 
     def show(self):
         """Show the loaded mesh and the sampled point cloud.
@@ -261,6 +262,42 @@ class Obj3d_Deform(Obj3d_Kps):
         
         if UltraMotionCapture.output_msg:
             print("reorientated 1 3d object")
+
+    def show_with_deform(self, kps_names: Union[None, tuple, list] = None):
+        """tbf"""
+        scene = pv.Plotter()
+        
+        # plot mesh with displacement distance
+        _, dist = self.trans_nonrigid.shift_disp_dist(self.mesh.points)
+        self.mesh["distances"] = dist
+        scene.add_mesh(self.mesh, scalars="distances", show_edges=True)
+
+        # plot sampled point cloud
+        width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
+        lateral_move = [1.5 * width, 0, 0]
+        pcd_points = pcd2np(self.pcd)
+        scene.add_points(pcd_points + lateral_move, point_size=0.001*width)
+
+        # plot displacement of the sampled point cloud
+        disp, _ = self.trans_nonrigid.shift_disp_dist(pcd_points)
+        pdata = pv.vector_poly_data(pcd_points + lateral_move, disp)
+        glyph = pdata.glyph()
+        
+        scene.add_mesh(glyph, lighting=False)
+
+        # plot key points
+        if self.kps_group != {}:
+            if kps_names is None:
+                kps_points_ls = [kps.get_points_coord() for kps in self.kps_group.values()]
+            else:
+                kps_points_ls = [self.kps_group[name].get_points_coord() for name in kps_names]
+            
+            kps_group_points = np.concatenate(kps_points_ls)
+            pvpcd_kps = np2pvpcd(kps_group_points, radius=0.02*width)
+            scene.add_mesh(pvpcd_kps, color='gold')
+            scene.add_mesh(pvpcd_kps.translate(lateral_move, inplace=False), color='gold')
+
+        scene.show()
 
 
 # utils for data & object transform

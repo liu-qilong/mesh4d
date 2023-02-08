@@ -9,7 +9,7 @@ The :mod:`UltraMotionCapture.field` aims at revealing the so-called inner-relati
 """
 
 from __future__ import annotations
-from typing import Type, Union
+from typing import Type, Union, Iterable
 
 import copy
 import numpy as np
@@ -235,6 +235,10 @@ class Trans_Nonrigid(Trans):
         Attention
         ---
         At current stage, the fixing logic aligns the deformed points to their closest points in the target point cloud, to avoid distortion effect after long-chain registration procedure. This logic may be discarded or replaced by better scheme in future development.
+        tbf
+        """
+        pass
+    
         """
         deform_fix_points = []
         target_points = obj3d.pcd2np(self.target)
@@ -246,6 +250,7 @@ class Trans_Nonrigid(Trans):
 
         self.deform_points = deform_fix_points
         self.disp = self.deform_points - self.source_points
+        """
 
     def shift_points(self, points: np.array) -> np.array:
         """Implement the transformation to set of points.
@@ -276,6 +281,12 @@ class Trans_Nonrigid(Trans):
             points_shift.append(self.deform_points[idx])
         return np.array(points_shift)
 
+    def shift_disp_dist(self, points: np.array) -> Iterable[np.array, np.array]:
+        """tbf"""
+        points_deform = self.shift_points(points)
+        disp = points_deform - points
+        dist = np.linalg.norm(disp, axis=1)
+        return disp, dist
 
 def transform_rst2sm(R: np.array, s: float, t: np.array) -> tuple[float, np.array]:
     """Transform rigid transformation representation from
