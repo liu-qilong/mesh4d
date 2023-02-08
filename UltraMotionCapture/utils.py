@@ -7,6 +7,8 @@ import imageio
 import numpy as np
 import pyvista as pv
 
+import UltraMotionCapture.config.param
+
 def images_to_gif(path: Union[str, None] = None, remove: bool = False):
     """Convert images in a folder into a gif.
     
@@ -58,8 +60,8 @@ def obj_pick_points(filedir: str, use_texture: bool = False, is_save: bool = Fal
 
     Returns
     ---
-    :class:`np.array`
-        (N, 3) :class:`np.array` storing the picked points' coordinates.
+    :class:`numpy.array`
+        (N, 3) :class:`numpy.array` storing the picked points' coordinates.
 
     Example
     ---

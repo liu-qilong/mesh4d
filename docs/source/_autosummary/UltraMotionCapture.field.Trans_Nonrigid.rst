@@ -1,4 +1,4 @@
-UltraMotionCapture.field.Trans\_Nonrigid
+﻿UltraMotionCapture.field.Trans\_Nonrigid
 ========================================
 
 .. currentmodule:: UltraMotionCapture.field
@@ -19,6 +19,7 @@ UltraMotionCapture.field.Trans\_Nonrigid
    
       ~Trans_Nonrigid.__init__
       ~Trans_Nonrigid.regist
+      ~Trans_Nonrigid.shift_disp_dist
       ~Trans_Nonrigid.shift_points
    
    

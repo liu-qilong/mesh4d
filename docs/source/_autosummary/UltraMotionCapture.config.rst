@@ -1,7 +1,7 @@
-UltraMotionCapture.analysis
-===========================
+UltraMotionCapture.config
+=========================
 
-.. automodule:: UltraMotionCapture.analysis
+.. automodule:: UltraMotionCapture.config
   
    
    
@@ -32,5 +32,5 @@ UltraMotionCapture.analysis
    :template: custom-module-template.rst
    :recursive:
 
-   UltraMotionCapture.analysis.virtual_kps
+   UltraMotionCapture.config.param
 

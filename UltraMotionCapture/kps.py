@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 from scipy import interpolate
 
 import UltraMotionCapture
+import UltraMotionCapture.config.param
 from UltraMotionCapture import field
 from UltraMotionCapture import obj3d
 from UltraMotionCapture import utils
@@ -28,23 +29,14 @@ class Kps(object):
     ---
     `Class Attributes`
 
-    self.kps_source_points
-        :math:`N` key points in 3D space stored in a (N, 3) :class:`numpy.array`.
+    self.points
+        :math:`N` key points in 3D space stored in a dictionary.
     self.scale_rate
         the scaling rate of the Vicon key points.
 
     Example
     ---
-    After initialisation, the :class:`Kps` object is empty. There are two ways to load key points into it:
-
-    Manually selecting key points with :meth:`select_kps_points`. ::
-
-        from UltraMotionCapture import kps
-
-        points = kps.Kps()
-        points.select_kps_points()  # this will trigger a point selection window
-
-    Load key points from Vicon motion capture data stored in a :class:`MarkerSet` object with :meth:`load_from_markerset_frame` or :meth:`load_from_markerset_time`. ::
+    After initialisation, the :class:`Kps` object is empty. Load key points from Vicon motion capture data stored in a :class:`MarkerSet` object with :meth:`load_from_markerset_frame` or :meth:`load_from_markerset_time`. ::
 
         from UltraMotionCapture import kps
         
@@ -53,102 +45,57 @@ class Kps(object):
         vicon.interp_field()
 
         points = kps.Kps()
-        points.load_from_markerset_frame(vicon)
+        points.load_from_markerset_time(vicon, time = 1.01)
     """
     def __init__(self):
-        self.kps_source_points = None  # key points are stored in Nx3 numpy array
+        self.points = {}
 
-    def select_kps_points(self, source: o3d.geometry.PointCloud):
-        """ Interactive manual points selection.
-
-        Parameters
-        ---
-        source
-            an :class:`open3d.geometry.PointCloud` object for points selection.
-
-        Warnings
-        ---
-        At current stage, the interactive manual points selection is realised with :mod:`open3d` package. It will be transferred to :mod:`pyvista` package in future development.
-        """
-        if UltraMotionCapture.output_msg:
-            print("please select key points")
-
-        def pick_points(pcd):
-            vis = o3d.visualization.VisualizerWithEditing()
-            vis.create_window()
-            vis.add_geometry(pcd)
-            vis.run()
-            vis.destroy_window()
-            return vis.get_picked_points()
-
-        pick = pick_points(source)
-        points = obj3d.pcd2np(source)
-        self.set_kps_source_points(
-            points[pick, :]
-        )
-        if UltraMotionCapture.output_msg:
-            print("selected key points:\n{}".format(self.kps_source_points))
-
-    def set_kps_source_points(self, points: np.array):
-        """Other than manually selecting points or loading points from Vicon motion capture data, the :attr:`kps_source_points` can also be directly overridden with a (N, 3) :class:`numpy.array`, representing :math:`N` key points in 3D space.
+    def add_point(self, name: str, coord: np.array):
+        """Add a point to :attr:`self.points` with its name and its coordinates represented in a (3, ) :class:`numpy.array`.
 
         Parameters
         ---
-        points
-            (N, 3) :class:`numpy.array`.
+        name
+            the name of the added point.
+        point
+            (3, ) :class:`numpy.array`.
         """
-        self.kps_source_points = points
+        self.points[name] = coord
 
-    def get_kps_source_points(self) -> np.array:
-        """ Get the key points coordinates.
+    def get_points_coord(self, names: Union[None, list, tuple] = None) -> np.array:
+        """Concatenating all coordinates into a (N, 3) :class:`numpy.array` and return.
+        
+        Parameters
+        ---
+        names
+            the names of the points to be retrieved. If doesn't input this parameter, all points will be returned.
+
+        Returns
+        ---
+        :class:`numpy.array`
+            coordinates stored in a (N, 3) :class:`numpy.array` in the order of the :attr:`names`.
         """
-        if self.kps_source_points is None:
-            if UltraMotionCapture.output_msg:
-                print("source key points haven't been set")
+        if names is None:
+            points = [np.expand_dims(coord, axis=0) for coord in self.points.values()]
         else:
-            return self.kps_source_points
+            points = [np.expand_dims(self.points[name], axis=0) for name in names]
 
+        return np.concatenate(points)
 
-class Kps_Deform(Kps):
-    """Adding deformation feature to the :class:`Kps` class.
+    @staticmethod
+    def diff(kps1: Type[Kps], kps2: Type[Kps]) -> dict:
+        """Compute the difference of one key points object with another.
 
-    Note
-    ---
-    `Class Attributes`
-
-    self.trans
-        An :class:`UltraMotionCapture.field.Trans_Nonrigid` object that stores the deformation information.
-    self.kps_deform_points
-        (N, 3) :class:`numpy.array`.
-    """
-    def __init__(self):
-        Kps.__init__(self)
-        self.trans = None
-        self.kps_deform_points = None
-
-    def set_trans(self, trans: field.Trans_Nonrigid):
-        """ Setting the transformation of the deformable key points object.
+        Warning
+        ---
+        These two key points objects must contain the same number of points with the same names.
 
         Parameters
         ---
-        trans
-            an :meth:`UltraMotionCapture.field.Trans_Nonrigid` object that represents the transformation.
-        """
-        self.trans = trans
-        self.kps_deform_points = self.trans.shift_points(self.kps_source_points)
-
-    def get_kps_deform_points(self) -> np.array:
-        """ Get the key points coordinates after transformation.
-        """
-        return self.kps_deform_points
-
-    def compare_with_groundtruth(self, kps_gt: Type[Kps_Deform]) -> dict:
-        """Compared the predicted deformed key points with the ground truth.
-
-        Parameters
-        ---
-        kps_gt
-            the :class:`Kps_Deform` object belonging to the next frame of :class:`~UltraMotionCapture.obj3d.Obj3d_Deform` in :class:`~UltraMotionCapture.obj4d.Obj4d_Deform`.
+        kps1
+            a key points object.
+        kps2
+            another key points object.
 
         Returns
         ---
@@ -161,12 +108,12 @@ class Kps_Deform(Kps):
             - :code:`'dist_std'`: the standard deviation of distances from the predicted key points to the ground truth key points.
             - :code:`'diff_str'`: a string in form of :code:`'dist_mean ± dist_std (mm)`.
         """
-        # scale_rate is used to transformed to the original unit: mm
-        points_pd = self.get_kps_deform_points() / self.scale_rate
-        points_gt = kps_gt.get_kps_source_points() / kps_gt.scale_rate
+        names = kps1.points.keys()
+        points1 = kps1.get_points_coord(names) / kps1.scale_rate
+        points2 = kps2.get_points_coord(names) / kps2.scale_rate
 
-        disp = points_gt - points_pd
-        dist = np.sqrt(np.sum(np.power(disp, 2), axis=1))
+        disp = points1 - points2
+        dist = np.linalg.norm(disp, axis=1)
         dist_mean = np.mean(dist)
         dist_std = np.std(dist)
 
@@ -178,6 +125,51 @@ class Kps_Deform(Kps):
             'diff_str': "{:.3} ± {:.3} (mm)".format(dist_mean, dist_std)
         }
         return diff_dict
+
+
+class Kps_Deform(Kps):
+    """Adding deformation feature to the :class:`Kps` class.
+
+    Note
+    ---
+    `Class Attributes`
+
+    self.trans
+        an :class:`UltraMotionCapture.field.Trans_Nonrigid` object that stores the deformation information.
+    self.deform_kps
+        the deformed key points object.
+    """
+    def __init__(self):
+        Kps.__init__(self)
+        self.trans = None
+
+    def set_trans(self, trans: field.Trans_Nonrigid, kps_class: Type[Kps_Deform]) -> Type[Kps_Deform]:
+        """ Setting the transformation of the deformable key points object.
+
+        Parameters
+        ---
+        trans
+            an :meth:`UltraMotionCapture.field.Trans_Nonrigid` object that represents the transformation.
+        kps_class
+            the key point object class to loaded the deformed key points.
+
+        Returns
+        ---
+        the deformed key points object.
+        """
+        self.trans = trans
+        self.deform_kps = kps_class()
+        
+        for name, coord in self.points.items():
+            coord_deform = self.trans.shift_points((coord, ))
+            self.deform_kps.add_point(name, coord_deform)
+        
+        return self.deform_kps
+
+    def get_deform_points_coord(self) -> np.array:
+        """ Get the key points coordinates after transformation.
+        """
+        return self.deform_kps.get_points_coord()
 
 
 class Marker(object):
@@ -242,13 +234,13 @@ class Marker(object):
 
     Tip
     ---
-    In other parts of the package, points coordinates storing in :class:`np.array` are usually in the shape of (N, 3), while here we adopt (3, N), for the convenience of data interpolation :meth:`interp_field`.
+    In other parts of the package, points coordinates storing in :class:`numpy.array` are usually in the shape of (N, 3), while here we adopt (3, N), for the convenience of data interpolation :meth:`interp_field`.
     """
     cab_s = None
     cab_r = None
     cab_t = None
 
-    def __init__(self, name: str, start_time: float = 0.0, fps: int = 100, scale_rate: float = 0.001):
+    def __init__(self, name: str, start_time: float = 0.0, fps: int = 100, scale_rate: float = 1e-3):
         if self.cab_s is None:
             self.load_cab_rst()
             if UltraMotionCapture.output_msg:
@@ -369,18 +361,18 @@ class Marker(object):
         return coord_interp
 
     def plot_track(
-            self,
-            line_start_frame: int = 0,
-            line_end_frame: Union[int, None] = None,
-            dot_start_frame: int = 0,
-            dot_end_frame: Union[int, None] = None,
-            line_alpha: float = 0.5,
-            line_width: float = 1.0,
-            dot_s: float = 10,
-            dot_alpha: float = 0.5,
-            dpi: int = 300,
-            is_show: bool = True,
-            is_save: bool = False,
+        self,
+        line_start_frame: int = 0,
+        line_end_frame: Union[int, None] = None,
+        dot_start_frame: int = 0,
+        dot_end_frame: Union[int, None] = None,
+        line_alpha: float = 0.5,
+        line_width: float = 1.0,
+        dot_s: float = 10,
+        dot_alpha: float = 0.5,
+        dpi: int = 300,
+        is_show: bool = True,
+        is_save: bool = False,
     ):
         """Plotting the marker motion track.
 
@@ -510,7 +502,7 @@ class MarkerSet(object):
         the number of frames per second (fps).
     self.scale_rate
         the scaling rate of the Vicon key points.
-    self.points
+    self.markers
         a :class:`Dictonary` of :class:`Marker` s, with the corresponding marker names as their keywords.
 
     Example
@@ -539,7 +531,7 @@ class MarkerSet(object):
         vicon.plot_track(step=3, end_frame=100)
     
     """
-    def load_from_vicon(self, filedir: str, scale_rate: float = 0.001):
+    def load_from_vicon(self, filedir: str, scale_rate: float = 1e-3):
         """Load and parse data from :code:`.csv` file exported from the Vicon motion capture system.
 
         Parameters
@@ -559,7 +551,7 @@ class MarkerSet(object):
 
         def parse(df, df_head):
             self.fps = df_head.values.tolist()[0][0]  # parse the fps
-            self.points = {}
+            self.markers = {}
             col_names = df.columns.values.tolist()
 
             for col_id in range(len(col_names)):
@@ -576,15 +568,15 @@ class MarkerSet(object):
                     continue
 
                 # the first occurrence of a point
-                if point_name not in self.points.keys():
-                    self.points[point_name] = Marker(
+                if point_name not in self.markers.keys():
+                    self.markers[point_name] = Marker(
                         name=point_name, 
                         fps=self.fps, 
                         scale_rate=self.scale_rate)
 
                 # fill the following 3 columns' X, Y, Z values into the point's object
                 data_input = df.loc[2:, col_name:col_names[col_id+2]].to_numpy(dtype=float).transpose()
-                self.points[point_name].fill_data(data_input)
+                self.markers[point_name].fill_data(data_input)
 
         df = pd.read_csv(filedir, skiprows=2)  # skip the first two rows
         df_head = pd.read_csv(filedir, nrows=1)  # only read the first two rows
@@ -596,7 +588,7 @@ class MarkerSet(object):
     def interp_field(self):
         """After loading Vicon motion capture data, the :class:`MarkerSet` object only carries the key points' coordinates in discrete frames. To access the coordinates at any specific time, it's necessary to call :meth:`interp_field`.
         """
-        for point in self.points.values():
+        for point in self.markers.values():
             point.interp_field()
 
     def get_frame_coord(self, frame_id: int, kps_class: Type[Kps] = Kps) -> Type[Kps]:
@@ -614,16 +606,12 @@ class MarkerSet(object):
         :class:`Kps` or its derived class
             The extracted coordinates data packed as a :class:`Kps` (or its derived class) object.
         """
-        points = []
-        for point in self.points.values():
-            points.append(
-                point.get_frame_coord(frame_id)
-            )
-        points = np.array(points)
-
         kps = kps_class()
-        kps.set_kps_source_points(points)
         kps.scale_rate = self.scale_rate
+
+        for name, marker in self.markers.items():
+            coord = marker.get_frame_coord(frame_id)
+            kps.add_point(name, coord)
 
         return kps
 
@@ -648,16 +636,12 @@ class MarkerSet(object):
         ---
         The returned value will be transferred to :class:`Kps` in future development.
         """
-        points = []
-        for point in self.points.values():
-            points.append(
-                point.get_time_coord(time)
-            )
-        points = np.array(points)
-
         kps = kps_class()
-        kps.set_kps_source_points(points)
         kps.scale_rate = self.scale_rate
+
+        for name, marker in self.markers.items():
+            coord = marker.get_time_coord(time)
+            kps.add_point(name, coord)
 
         return kps
 
@@ -688,7 +672,7 @@ class MarkerSet(object):
         Additional appearance controlling parameters can be passed into :code:`**kwargs`, please refer to `*args and **kwargs - Python Tips <https://book.pythontips.com/en/latest/args_and_kwargs.html>`_ and `Pyplot tutorial - matplotlib <https://matplotlib.org/stable/tutorials/introductory/pyplot.html#pyplot-tutorial>`_
         """
         if end_frame is None:
-            first_point = list(self.points.values())[0]
+            first_point = list(self.markers.values())[0]
             end_frame = first_point.frame_num
 
         for frame_id in range(start_frame, end_frame, step):
@@ -724,7 +708,7 @@ class MarkerSet(object):
         fig = plt.figure(dpi=dpi)
         ax = fig.add_subplot(projection='3d')
 
-        for point in self.points.values():
+        for point in self.markers.values():
             point.plot_add_dot(ax, frame_id, frame_id+1, **kwargs)
             if is_add_line:
                 point.plot_add_line(ax)

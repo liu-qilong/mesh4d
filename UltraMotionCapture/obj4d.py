@@ -15,10 +15,10 @@
 from __future__ import annotations
 from typing import Type, Union, Iterable
 
-import time
 import numpy as np
 
 import UltraMotionCapture
+import UltraMotionCapture.config.param
 from UltraMotionCapture import obj3d
 from UltraMotionCapture import kps
 from UltraMotionCapture import field
@@ -97,17 +97,8 @@ class Obj4d_Kps(Obj4d):
 
     Parameters
     ---
-    markerset
-        Vicon motion capture data (:class:`UltraMotionCapture.kps.MarkerSet`).
     **kwargs
         configuration parameters of the base classes (:class:`Obj3d`) can be passed in via :code:`**kwargs`.
-
-    Note
-    ---
-    `Class Attributes`
-
-    self.markerset
-        Vicon motion capture data (:class:`UltraMotionCapture.kps.MarkerSet`).
 
     Example
     ---
@@ -134,10 +125,6 @@ class Obj4d_Kps(Obj4d):
 
         o4.add_obj(*o3_ls)
     """
-    def __init__(self, markerset: Union[kps.MarkerSet, None] = None, **kwargs):
-        Obj4d.__init__(self, **kwargs)
-        self.markerset = markerset
-
     def add_obj(self, *objs: Iterable[Type[obj3d.Obj3d_Kps]], **kwargs):
         """ Add object(s) and attach key points (:class:`UltraMotionCapture.kps.Kps`) to each of the 3D object via Vicon motion capture data (:attr:`markerset`).
         
@@ -170,9 +157,19 @@ class Obj4d_Kps(Obj4d):
         """
         Obj4d.add_obj(self, *objs, **kwargs)
 
+    def load_markerset(self, name: str, markerset: Union[kps.MarkerSet, None] = None):
+        """Slice the :class:`~UltraMotionCapture.kps.MarkerSet` object into :class:`~UltraMotionCapture.kps.kps` objects and attached them to the corresponding frames.
+
+        Parameters
+        ---
+        name
+            the name of the :class:`~UltraMotionCapture.kps.Kps` objects. Noted that this name will also been used as its keyword in :class:`~UltraMotionCapture.obj3d.Obj3d_Kps` object's :attr:`kps_group` attribute.
+        markerset
+            Vicon motion capture data (:class:`UltraMotionCapture.kps.MarkerSet`).
+        """
         for idx in range(len(self.obj_ls)):
             obj = self.obj_ls[idx]
-            obj.load_kps(self.markerset, self.start_time + idx / self.fps)
+            obj.load_kps(name, markerset, self.start_time + idx / self.fps)
 
 
 class Obj4d_Deform(Obj4d_Kps):
@@ -339,64 +336,6 @@ class Obj4d_Deform(Obj4d_Kps):
         trans.regist(**kwargs)
         self.obj_ls[idx_source].set_trans_nonrigid(trans)
 
-    def regist_verify(self) -> dict:
-        """Estimate the accuracy of the registration, with frame-wise & whole trail mean error and standard deviation.
-        
-        Note
-        ---
-        As discussed in :mod:`UltraMotionCapture.field`, The purpose of point cloud registration is revealing the displacement field between different frames of 3D objects.
-        
-        Once the displacement field is revealed, it can be used to predict an arbitrary point's movement. Note the point's location in current frame as :math:`\\boldsymbol x`, its predicted location in the next frame as :math:`\\boldsymbol x_{pd}`, and its actual location in the next frame as :math:`\\boldsymbol x_{gt}`. Then the registration error can be defined as:
-        
-        .. math::
-            E = \lVert\\boldsymbol x_{pd} - \\boldsymbol x_{gt} \\rVert_2
-
-        where :math:`\lVert \cdot \\rVert_2` is the L2 norm that calculates the Euclidean distance.
-
-        Returns
-        ---
-        :class:`dict`
-            A dictionary that contains the comparison result:
-
-            - :code:`'diff_ls'`: a list of the original frame-wise estimation result from :meth:`UltraMotionCapture.kps.Kps_Deform.compare_with_groundtruth`.
-            - :code:`'dist_mean'`: the mean error of the whole trail error.
-            - :code:`'dist_std'`: the standard deviation of the whole trail error.
-            - :code:`'diff_str'`: a string in form of :code:`'dist_mean ± dist_std (mm)`.
-        """
-        # estimate frame-wise registration error
-        # and collect all dist data in dist_ls
-        diff_ls = []
-        for idx in range(len(self.obj_ls) - 1):
-            obj = self.obj_ls[idx]
-            obj_next = self.obj_ls[idx+1]
-            diff = obj.kps.compare_with_groundtruth(obj_next.kps)
-            diff_ls.append(diff)
-
-            if UltraMotionCapture.output_msg:
-                print("estimated error of frame {}: {}".format(idx, diff['diff_str']))
-
-        # estimate whole period registration error
-        dist_ls = []
-        for diff in diff_ls:
-            dist_ls.append(diff['dist'])
-
-        dist_array = np.concatenate(dist_ls)
-        dist_mean = np.mean(dist_array)
-        dist_std = np.std(dist_array)
-
-        # combine the estimation result and print whole period error
-        diff_dict = {
-            'diff_ls': diff_ls,
-            'dist_mean': dist_mean,
-            'dist_std': dist_std,
-            'diff_str': "diff = {:.3} ± {:.3} (mm)".format(dist_mean, dist_std),
-        }
-
-        if UltraMotionCapture.output_msg:
-            print("whole duration error: {}".format(diff_dict['diff_str']))
-
-        return diff_dict
-
     def offset_rotate(self):
         """Offset the rotation according to the estimated rigid transformation.
 
@@ -421,3 +360,7 @@ class Obj4d_Deform(Obj4d_Kps):
 
         if UltraMotionCapture.output_msg:
             print("4d object reorientated")
+
+    def vkps_track(self, kps: Type[kps.Kps], start_frame: int = 0, end_frame: int = -1):
+        """tbf"""
+        pass

@@ -9,13 +9,14 @@ The :mod:`UltraMotionCapture.field` aims at revealing the so-called inner-relati
 """
 
 from __future__ import annotations
-from typing import Type, Union
+from typing import Type, Union, Iterable
 
 import copy
 import numpy as np
 from probreg import cpd
 
 import UltraMotionCapture
+import UltraMotionCapture.config.param
 from UltraMotionCapture import obj3d
 
 class Trans(object):
@@ -134,7 +135,7 @@ class Trans_Rigid(Trans):
 
         Return
         ---
-        :class:`np.array`
+        :class:`numpy.array`
             (N, 3) :class:`numpy.array` stores the points after transformation.
 
         Warning
@@ -234,6 +235,10 @@ class Trans_Nonrigid(Trans):
         Attention
         ---
         At current stage, the fixing logic aligns the deformed points to their closest points in the target point cloud, to avoid distortion effect after long-chain registration procedure. This logic may be discarded or replaced by better scheme in future development.
+        tbf
+        """
+        pass
+    
         """
         deform_fix_points = []
         target_points = obj3d.pcd2np(self.target)
@@ -245,10 +250,10 @@ class Trans_Nonrigid(Trans):
 
         self.deform_points = deform_fix_points
         self.disp = self.deform_points - self.source_points
+        """
 
     def shift_points(self, points: np.array) -> np.array:
         """Implement the transformation to set of points.
-
 
         To apply proper transformation to an arbitrary point :math:`\\boldsymbol x`:
 
@@ -266,7 +271,7 @@ class Trans_Nonrigid(Trans):
 
         Return
         ---
-        :class:`np.array`
+        :class:`numpy.array`
             (N, 3) :class:`numpy.array` stores the points after transformation.
         """
         points_shift = []
@@ -275,6 +280,25 @@ class Trans_Nonrigid(Trans):
             points_shift.append(self.deform_points[idx])
         return np.array(points_shift)
 
+    def shift_disp_dist(self, points: np.array) -> Iterable[np.array, np.array]:
+        """Evaluate the displacement and distance of the transformation implemented to a set of points.
+
+        Parameters
+        ---
+        points
+            :math:`N` points in 3D space that we want to implement the transformation on. Stored in a (N, 3) :class:`numpy.array`.
+
+        Return
+        ---
+        :class:`numpy.array`
+            the displacement vectors stored in (N, 3) array.
+        :class:`numpy.array`
+            the displacement distances stored in (N, ) array.
+        """
+        points_deform = self.shift_points(points)
+        disp = points_deform - points
+        dist = np.linalg.norm(disp, axis=1)
+        return disp, dist
 
 def transform_rst2sm(R: np.array, s: float, t: np.array) -> tuple[float, np.array]:
     """Transform rigid transformation representation from
