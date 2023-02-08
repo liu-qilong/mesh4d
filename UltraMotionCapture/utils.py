@@ -60,8 +60,8 @@ def obj_pick_points(filedir: str, use_texture: bool = False, is_save: bool = Fal
 
     Returns
     ---
-    :class:`np.array`
-        (N, 3) :class:`np.array` storing the picked points' coordinates.
+    :class:`numpy.array`
+        (N, 3) :class:`numpy.array` storing the picked points' coordinates.
 
     Example
     ---

@@ -72,8 +72,8 @@ class Kps(object):
 
         Returns
         ---
-        :class:`np.array`
-            coordinates stored in a (N, 3) :class:`np.array` in the order of the :attr:`names`.
+        :class:`numpy.array`
+            coordinates stored in a (N, 3) :class:`numpy.array` in the order of the :attr:`names`.
         """
         if names is None:
             points = [np.expand_dims(coord, axis=0) for coord in self.points.values()]
@@ -234,7 +234,7 @@ class Marker(object):
 
     Tip
     ---
-    In other parts of the package, points coordinates storing in :class:`np.array` are usually in the shape of (N, 3), while here we adopt (3, N), for the convenience of data interpolation :meth:`interp_field`.
+    In other parts of the package, points coordinates storing in :class:`numpy.array` are usually in the shape of (N, 3), while here we adopt (3, N), for the convenience of data interpolation :meth:`interp_field`.
     """
     cab_s = None
     cab_r = None

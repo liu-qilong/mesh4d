@@ -1,4 +1,4 @@
-UltraMotionCapture.obj3d.Obj3d\_Kps
+﻿UltraMotionCapture.obj3d.Obj3d\_Kps
 ===================================
 
 .. currentmodule:: UltraMotionCapture.obj3d
@@ -18,6 +18,7 @@ UltraMotionCapture.obj3d.Obj3d\_Kps
    .. autosummary::
    
       ~Obj3d_Kps.__init__
+      ~Obj3d_Kps.get_kps_coord
       ~Obj3d_Kps.load_kps
       ~Obj3d_Kps.show
    

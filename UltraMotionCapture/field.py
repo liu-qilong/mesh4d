@@ -135,7 +135,7 @@ class Trans_Rigid(Trans):
 
         Return
         ---
-        :class:`np.array`
+        :class:`numpy.array`
             (N, 3) :class:`numpy.array` stores the points after transformation.
 
         Warning
@@ -255,7 +255,6 @@ class Trans_Nonrigid(Trans):
     def shift_points(self, points: np.array) -> np.array:
         """Implement the transformation to set of points.
 
-
         To apply proper transformation to an arbitrary point :math:`\\boldsymbol x`:
 
         - Find the closest point :math:`\\boldsymbol s_{\\boldsymbol x}` and its displacement :math:`\\boldsymbol t_{\\boldsymbol x}`.
@@ -272,7 +271,7 @@ class Trans_Nonrigid(Trans):
 
         Return
         ---
-        :class:`np.array`
+        :class:`numpy.array`
             (N, 3) :class:`numpy.array` stores the points after transformation.
         """
         points_shift = []
@@ -282,7 +281,20 @@ class Trans_Nonrigid(Trans):
         return np.array(points_shift)
 
     def shift_disp_dist(self, points: np.array) -> Iterable[np.array, np.array]:
-        """tbf"""
+        """Evaluate the displacement and distance of the transformation implemented to a set of points.
+
+        Parameters
+        ---
+        points
+            :math:`N` points in 3D space that we want to implement the transformation on. Stored in a (N, 3) :class:`numpy.array`.
+
+        Return
+        ---
+        :class:`numpy.array`
+            the displacement vectors stored in (N, 3) array.
+        :class:`numpy.array`
+            the displacement distances stored in (N, ) array.
+        """
         points_deform = self.shift_points(points)
         disp = points_deform - points
         dist = np.linalg.norm(disp, axis=1)
