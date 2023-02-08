@@ -32,5 +32,6 @@ UltraMotionCapture.analysis
    :template: custom-module-template.rst
    :recursive:
 
+   UltraMotionCapture.analysis.reg_closest
    UltraMotionCapture.analysis.virtual_kps
 

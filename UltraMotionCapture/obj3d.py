@@ -27,8 +27,7 @@ from scipy.spatial import KDTree
 
 import UltraMotionCapture
 import UltraMotionCapture.config.param
-from UltraMotionCapture import kps
-from UltraMotionCapture import field
+from UltraMotionCapture import kps, field
 
 class Obj3d(object):
     """
@@ -322,7 +321,10 @@ class Obj3d_Deform(Obj3d_Kps):
         kps_names
             a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
         cmap
-            the color map name. For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+            the color map name. 
+            
+            .. seealso::
+                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
 
         Attention
         ---
@@ -372,7 +374,10 @@ class Obj3d_Deform(Obj3d_Kps):
         kps_names
             a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
         cmap
-            the color map name. For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+            the color map name. 
+            
+            .. seealso::
+                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
 
         Attention
         ---
@@ -395,7 +400,7 @@ class Obj3d_Deform(Obj3d_Kps):
         scene.add_mesh(mesh_gt, opacity=0.5)
 
         if UltraMotionCapture.output_msg:
-            print("average distance between the deformed mesh and the ground truth: (mm)".format(np.mean(d_kdtree)/self.scale_rate))
+            print("average distance between the deformed mesh and the ground truth: {:.3} (mm)".format(np.mean(d_kdtree)/self.scale_rate))
 
         # plot the distance between key points
         width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]

@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.obj3d.Obj3d\_Deform
+UltraMotionCapture.obj3d.Obj3d\_Deform
 ======================================
 
 .. currentmodule:: UltraMotionCapture.obj3d

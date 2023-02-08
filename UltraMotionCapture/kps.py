@@ -18,9 +18,7 @@ from scipy import interpolate
 
 import UltraMotionCapture
 import UltraMotionCapture.config.param
-from UltraMotionCapture import field
-from UltraMotionCapture import obj3d
-from UltraMotionCapture import utils
+from UltraMotionCapture import field, utils
 
 class Kps(object):
     """A collection of the key points that can be attached to a 3D object, i.e. a frame of the 4D object.
