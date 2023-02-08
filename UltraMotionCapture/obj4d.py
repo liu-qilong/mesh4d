@@ -328,7 +328,8 @@ class Obj4d_Deform(Obj4d_Kps):
         
         Attention
         ---
-        Called by :meth:`add_obj`."""
+        Called by :meth:`add_obj`.
+        """
         trans = field.Trans_Nonrigid(
             source_obj=self.obj_ls[idx_source],
             target_obj=self.obj_ls[idx_target],

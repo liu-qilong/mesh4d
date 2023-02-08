@@ -41,7 +41,7 @@ class Obj3d(object):
         the scaling rate of the 3D object.
 
         .. attention::
-            Noted that the original unit of 3dMD raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
+            Noted that the original unit of 3dMD raw data is millimetre (mm). The default :attr:`scale_rate` remains this unit.
 
         .. seealso::
             Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.
@@ -77,16 +77,14 @@ class Obj3d(object):
     def __init__(
         self,
         filedir: str,
-        scale_rate: float = 1e-3,
-        sample_num: int = 1000,
+        scale_rate: float = 1,
     ):
         self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
         self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
         self.scale_rate = scale_rate
-        self.mesh.scale(self.scale_rate, inplace=True)
 
-        self.pcd = pvmesh2pcd_pro(self.mesh, sample_num)
-        # self.pcd = pvmesh2pcd(self.mesh, sample_num)
+        self.mesh.scale(self.scale_rate, inplace=True)
+        self.pcd = np2pcd(self.mesh.points)
 
     def show(self):
         """Show the loaded mesh and the sampled point cloud.
