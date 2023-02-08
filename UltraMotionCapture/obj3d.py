@@ -335,8 +335,9 @@ class Obj3d_Deform(Obj3d_Kps):
         
         # plot mesh with displacement distance
         _, dist = self.trans_nonrigid.shift_disp_dist(self.mesh.points)
-        self.mesh["distances"] = dist
-        scene.add_mesh(self.mesh, scalars="distances", cmap=cmap)
+        mesh = copy.deepcopy(self.mesh)
+        mesh["distances"] = dist
+        scene.add_mesh(mesh, scalars="distances", cmap=cmap)
 
         if UltraMotionCapture.output_msg:
             print("average displacemnt: {:.3} (mm)".format(np.average(dist)/self.scale_rate))

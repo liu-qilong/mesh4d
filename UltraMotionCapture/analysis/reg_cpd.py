@@ -57,13 +57,11 @@ class Obj3d_CPD(obj3d.Obj3d_Deform):
 class Trans_Nonrigid_CPD(field.Trans_Nonrigid):
     """Derived from :class:`UltraMotionCapture.field.Trans_Nonrigid` and replace the displacement field estimation as Coherent Point Drift (CPD) based approach.
     """
-    def regist(self, method=cpd.registration_cpd, **kwargs):
+    def regist(self, **kwargs):
         """The registration method.
 
         Parameters
         ---
-        method
-            At current stage, only methods from :mod:`probreg` package are supported. Default as :func:`probreg.cpd.registration_cpd`.
         **kwargs
             Configurations parameters of the registration.
             
@@ -71,7 +69,7 @@ class Trans_Nonrigid_CPD(field.Trans_Nonrigid):
             --------
             `probreg.cpd.registration_cpd <https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd>`_
         """
-        tf_param, _, _ = method(
+        tf_param, _, _ = cpd.registration_cpd(
             self.source.pcd, self.target.pcd, 'nonrigid', **kwargs
         )
         self.parse(tf_param)
@@ -89,11 +87,11 @@ class Trans_Nonrigid_CPD(field.Trans_Nonrigid):
             ---
             At current stage, the default registration method is Coherent Point Drift (CPD) method realised by :mod:`probreg` package. Therefore the accepted transformation object to be parse is derived from :class:`cpd.CoherentPointDrift`. Transformation object provided by other registration method shall be tested in future development.
         """
-        deform = copy.deepcopy(self.source)
+        deform = copy.deepcopy(self.source.pcd)
         deform.points = tf_param.transform(deform.points)
         
         self.deform_points = obj3d.pcd2np(deform)
-        self.source_points = obj3d.pcd2np(self.source)
+        self.source_points = obj3d.pcd2np(self.source.pcd)
         self.disp = self.deform_points - self.source_points
         self.search_tree = KDTree(self.source_points)
 
