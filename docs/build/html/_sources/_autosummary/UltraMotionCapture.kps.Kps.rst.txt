@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.kps.Kps
+UltraMotionCapture.kps.Kps
 ==========================
 
 .. currentmodule:: UltraMotionCapture.kps
@@ -18,9 +18,9 @@
    .. autosummary::
    
       ~Kps.__init__
-      ~Kps.get_kps_source_points
-      ~Kps.select_kps_points
-      ~Kps.set_kps_source_points
+      ~Kps.add_point
+      ~Kps.diff
+      ~Kps.get_points_coord
    
    
 

@@ -1,0 +1,6 @@
+UltraMotionCapture.config.param.param\_init
+===========================================
+
+.. currentmodule:: UltraMotionCapture.config.param
+
+.. autofunction:: param_init
