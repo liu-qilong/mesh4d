@@ -27,8 +27,7 @@ from scipy.spatial import KDTree
 
 import UltraMotionCapture
 import UltraMotionCapture.config.param
-from UltraMotionCapture import kps
-from UltraMotionCapture import field
+from UltraMotionCapture import kps, field
 
 class Obj3d(object):
     """
@@ -42,7 +41,7 @@ class Obj3d(object):
         the scaling rate of the 3D object.
 
         .. attention::
-            Noted that the original unit of 3dMD raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
+            Noted that the original unit of 3dMD raw data is millimetre (mm). The default :attr:`scale_rate` remains this unit.
 
         .. seealso::
             Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.
@@ -78,16 +77,14 @@ class Obj3d(object):
     def __init__(
         self,
         filedir: str,
-        scale_rate: float = 1e-3,
-        sample_num: int = 1000,
+        scale_rate: float = 1,
     ):
         self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
         self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
         self.scale_rate = scale_rate
-        self.mesh.scale(self.scale_rate, inplace=True)
 
-        self.pcd = pvmesh2pcd_pro(self.mesh, sample_num)
-        # self.pcd = pvmesh2pcd(self.mesh, sample_num)
+        self.mesh.scale(self.scale_rate, inplace=True)
+        self.pcd = np2pcd(self.mesh.points)
 
     def show(self):
         """Show the loaded mesh and the sampled point cloud.
@@ -315,14 +312,17 @@ class Obj3d_Deform(Obj3d_Kps):
         """Illustrate the revealed deformation of the loaded mesh, the sampled point cloud, and the key points attached to it.
         
         - The mesh will be coloured with the distance of deformation. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
-        - The sampled points will be attached with displacement vectors.
+        - The sampled points will be attached with displacement vectors to illustrate the displacement field.
 
         Parameters
         ---
         kps_names
             a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
         cmap
-            the color map name. For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+            the color map name. 
+            
+            .. seealso::
+                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
 
         Attention
         ---
@@ -336,18 +336,21 @@ class Obj3d_Deform(Obj3d_Kps):
         # plot mesh with displacement distance
         _, dist = self.trans_nonrigid.shift_disp_dist(self.mesh.points)
         self.mesh["distances"] = dist
-        scene.add_mesh(self.mesh, scalars="distances", cmap=cmap, lighting=True)
+        scene.add_mesh(self.mesh, scalars="distances", cmap=cmap)
 
-        # plot sampled point cloud
+        if UltraMotionCapture.output_msg:
+            print("average displacemnt: {:.3} (mm)".format(np.average(dist)/self.scale_rate))
+
+        # plot displacement of the sampled point cloud
         width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
         lateral_move = [1.5 * width, 0, 0]
         pcd_points = pcd2np(self.pcd)
-        scene.add_points(pcd_points + lateral_move, point_size=0.001*width)
-
-        # plot displacement of the sampled point cloud
         disp, _ = self.trans_nonrigid.shift_disp_dist(pcd_points)
+
         pdata = pv.vector_poly_data(pcd_points + lateral_move, disp)
         glyph = pdata.glyph()
+        # pdata = pv.vector_poly_data(pcd_points + disp/2 + lateral_move, disp)
+        # glyph = pdata.glyph(geom=pv.Line())
         
         scene.add_mesh(glyph, lighting=False)
 
@@ -360,19 +363,25 @@ class Obj3d_Deform(Obj3d_Kps):
 
         scene.show()
 
-    def show_diff_deform_gt(self, obj3d_gt: Type[Obj3d_Kps], kps_names: Union[None, tuple, list] = None, cmap: str = "cool"):
+    def show_diff_deform_gt(self, obj3d_gt: Type[Obj3d_Kps], kps_names: Union[None, tuple, list] = None, cmap: str = "cool", opacity: float = 0.2):
         """Illustrate the distance between the deformed 3d object under revealed deformation and the ground-truth deformed 3d object.
         
         - The deformed mesh will be coloured with the distance of ground-truth mesh. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
-        - The ground-truth mesh will be displayed with low opacity.
         - The deformed key points will be coloured in gold while the ground-truth key points will be coloured in green.
+        - The deformed sampled points will be illustrated to the right.
+        - The ground-truth mesh will be displayed in low opacity with the deformed mesh and sampled points.
 
         Parameters
         ---
         kps_names
             a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
         cmap
-            the color map name. For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+            the color map name. 
+            
+            .. seealso::
+                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+        opacity
+            the opacity of the ground-truth 3D object.
 
         Attention
         ---
@@ -391,16 +400,22 @@ class Obj3d_Deform(Obj3d_Kps):
         d_kdtree, _ = tree.query(mesh_deform.points)
         mesh_deform["distances"] = d_kdtree
         
-        scene.add_mesh(mesh_deform, scalars="distances", cmap=cmap, lighting=True)
-        scene.add_mesh(mesh_gt, opacity=0.5)
+        scene.add_mesh(mesh_deform, scalars="distances", cmap=cmap)
+        scene.add_mesh(mesh_gt, opacity=opacity)
 
         if UltraMotionCapture.output_msg:
-            print("average distance between the deformed mesh and the ground truth: (mm)".format(np.mean(d_kdtree)/self.scale_rate))
+            print("average distance between the deformed mesh and the ground truth: {:.3} (mm)".format(np.mean(d_kdtree)/self.scale_rate))
 
-        # plot the distance between key points
+        # plot the deformed sampled point cloud
         width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
         lateral_move = [1.5 * width, 0, 0]
 
+        pcd_points = pcd2np(self.pcd)
+        pcd_deform_points = self.trans_nonrigid.shift_points(pcd_points)
+        scene.add_points(pcd_deform_points + lateral_move, point_size=0.001*width, color='Gold')
+        scene.add_mesh(mesh_gt.translate(lateral_move, inplace=False), opacity=opacity)
+
+        # plot the difference between key points
         if self.kps_group != {}:
             kps_deform_group_points = self.get_deform_kps_coord(kps_names)
             kps_gt_group_points = obj3d_gt.get_kps_coord(kps_names)
@@ -409,7 +424,6 @@ class Obj3d_Deform(Obj3d_Kps):
 
             scene.add_mesh(pvpcd_deform_kps, color='gold')
             scene.add_mesh(pvpcd_gt_kps, color='green')
-            # .translate(lateral_move, inplace=False)
 
         scene.show()
 

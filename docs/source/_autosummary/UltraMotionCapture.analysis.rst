@@ -1,4 +1,4 @@
-UltraMotionCapture.analysis
+﻿UltraMotionCapture.analysis
 ===========================
 
 .. automodule:: UltraMotionCapture.analysis
@@ -32,5 +32,6 @@ UltraMotionCapture.analysis
    :template: custom-module-template.rst
    :recursive:
 
+   UltraMotionCapture.analysis.reg_cpd
    UltraMotionCapture.analysis.virtual_kps
 

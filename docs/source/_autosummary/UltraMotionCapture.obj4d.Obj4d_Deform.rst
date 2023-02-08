@@ -21,6 +21,9 @@ UltraMotionCapture.obj4d.Obj4d\_Deform
       ~Obj4d_Deform.add_obj
       ~Obj4d_Deform.load_markerset
       ~Obj4d_Deform.offset_rotate
+      ~Obj4d_Deform.process_first_obj
+      ~Obj4d_Deform.process_nonrigid_dynamic
+      ~Obj4d_Deform.process_rigid_dynamic
       ~Obj4d_Deform.vkps_track
    
    

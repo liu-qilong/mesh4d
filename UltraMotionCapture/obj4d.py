@@ -268,19 +268,19 @@ class Obj4d_Deform(Obj4d_Kps):
         reg_start_index = len(self.obj_ls)
         Obj4d_Kps.add_obj(self, *objs, **kwargs)
         reg_end_index = len(self.obj_ls) - 1
-
+        
         for idx in range(reg_start_index, reg_end_index + 1):
             if idx == 0:
-                self.__process_first_obj()
+                self.process_first_obj()
                 continue
 
             if self.enable_rigid:
-                self.__process_rigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the previous one
+                self.process_rigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the previous one
 
             if self.enable_nonrigid:
-                self.__process_nonrigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the later one
+                self.process_nonrigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the later one
 
-    def __process_first_obj(self):
+    def process_first_obj(self):
         """Process the first added 3D object.
         
         Attention
@@ -288,7 +288,7 @@ class Obj4d_Deform(Obj4d_Kps):
         Called by :meth:`add_obj`."""
         pass
 
-    def __process_rigid_dynamic(self, idx_source, idx_target, **kwargs):
+    def process_rigid_dynamic(self, idx_source: int, idx_target: int, **kwargs):
         """Estimate the rigid transformation of the added 3D object. The lastly added 3D object is used as source object and the newly added 3D object as the target object.
 
         Parameters
@@ -312,7 +312,7 @@ class Obj4d_Deform(Obj4d_Kps):
         trans.regist(**kwargs)
         self.obj_ls[idx_source].set_trans_rigid(trans)
 
-    def __process_nonrigid_dynamic(self, idx_source, idx_target, **kwargs):
+    def process_nonrigid_dynamic(self, idx_source: int, idx_target: int, **kwargs):
         """Estimate the non-rigid transformation of the added 3D object. The lastly added 3D object is used as source object and the newly added 3D object as the target object.
 
         Parameters
@@ -328,7 +328,8 @@ class Obj4d_Deform(Obj4d_Kps):
         
         Attention
         ---
-        Called by :meth:`add_obj`."""
+        Called by :meth:`add_obj`.
+        """
         trans = field.Trans_Nonrigid(
             source_obj=self.obj_ls[idx_source],
             target_obj=self.obj_ls[idx_target],

@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.kps.Kps\_Deform
+UltraMotionCapture.kps.Kps\_Deform
 ==================================
 
 .. currentmodule:: UltraMotionCapture.kps
@@ -18,11 +18,10 @@
    .. autosummary::
    
       ~Kps_Deform.__init__
-      ~Kps_Deform.compare_with_groundtruth
-      ~Kps_Deform.get_kps_deform_points
-      ~Kps_Deform.get_kps_source_points
-      ~Kps_Deform.select_kps_points
-      ~Kps_Deform.set_kps_source_points
+      ~Kps_Deform.add_point
+      ~Kps_Deform.diff
+      ~Kps_Deform.get_deform_points_coord
+      ~Kps_Deform.get_points_coord
       ~Kps_Deform.set_trans
    
    

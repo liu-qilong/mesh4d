@@ -7,13 +7,12 @@
 
 The :mod:`UltraMotionCapture.field` aims at revealing the so-called inner-relationship information between different frames. In the context of mathematical, the most meticulous level of such information can be represented as *displacement field* and other kinds of transformation. Actually, the whole :mod:`UltraMotionCapture` project is motivated and centred around this bottleneck problem.
 """
-
 from __future__ import annotations
 from typing import Type, Union, Iterable
 
-import copy
 import numpy as np
 from probreg import cpd
+from scipy.spatial import KDTree
 
 import UltraMotionCapture
 import UltraMotionCapture.config.param
@@ -34,13 +33,13 @@ class Trans(object):
     `Class Attributes`
 
     self.source
-        The source point cloud (:class:`open3d.geometry.PointCloud`) of the transformation.
+        The source object of the transformation.
     self.target
-        The target point cloud (:class:`open3d.geometry.PointCloud`) of the transformation.
+        The target object of the transformation.
     """
     def __init__(self, source_obj: Type[obj3d.Obj3d], target_obj: Type[obj3d.Obj3d], **kwargs):
-        self.source = source_obj.pcd
-        self.target = target_obj.pcd
+        self.source = source_obj
+        self.target = target_obj
 
 
 class Trans_Rigid(Trans):
@@ -93,15 +92,15 @@ class Trans_Rigid(Trans):
             `probreg.cpd.registration_cpd <https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd>`_
         """
         tf_param, _, _ = method(
-            self.source, self.target, 'rigid', **kwargs
+            self.source.pcd, self.target.pcd, 'rigid', **kwargs
         )
-        self.__parse(tf_param)
-        self.__fix()
+        self.parse(tf_param)
+        self.fix()
         
         if UltraMotionCapture.output_msg:
             print("registered 1 rigid transformation")
 
-    def __parse(self, tf_param: Type[cpd.CoherentPointDrift]):
+    def parse(self, tf_param: Type[cpd.CoherentPointDrift]):
         """Parse the registration result to provide :attr:`self.s`, :attr:`self.rot`, and :attr:`self.t`. Called by :meth:`regist`.
         
         Parameters
@@ -115,7 +114,7 @@ class Trans_Rigid(Trans):
         self.scale = tf_param.scale
         self.t = tf_param.t
 
-    def __fix(self):
+    def fix(self):
         """Fix the registration result. Called by :meth:`regist`.
         
         Attention
@@ -142,7 +141,8 @@ class Trans_Rigid(Trans):
         ---
         This method will be realised in future development.
         """
-        pass
+        # return self.scale * np.matmul(points, self.rot.T) + np.expand_dims(self.t, axis=0)
+        return self.scale * np.matmul(self.rot, points.T) + np.expand_dims(self.t, axis=1)
 
     def show(self):
         """Illustrate the estimated transformation.
@@ -171,6 +171,13 @@ class Trans_Nonrigid(Trans):
         The deformed points :math:`\\boldsymbol S + \\boldsymbol T \in \mathbb R^{N \\times 3}` stored in (N, 3) :class:`numpy.array`.
     self.disp
         The displacement matrix :math:`\\boldsymbol T \in \mathbb R^{N \\times 3}` stored in (N, 3) :class:`numpy.array`.
+    self.search_tree
+        :class:`scipy.spatial.KDTree` of :attr:`self.source_points`, used for acquired the nearest point for a given point from :attr:`self.source_points`.
+
+        .. seealso::
+            `scipy.spatial.KDTree <https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.KDTree.html>`_
+
+            `scipy.spatial.KDTree.query <https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.KDTree.query.html#scipy.spatial.KDTree.query>`_
     
     Attention
     ---
@@ -189,68 +196,24 @@ class Trans_Nonrigid(Trans):
         trans.regist()
         print(trans.deform_points, trans.disp)
     """
-    def regist(self, method=cpd.registration_cpd, **kwargs):
-        """The registration method.
-
-        Parameters
-        ---
-        method
-            At current stage, only methods from :mod:`probreg` package are supported. Default as :func:`probreg.cpd.registration_cpd`.
-        **kwargs
-            Configurations parameters of the registration.
-            
-            See Also
-            --------
-            `probreg.cpd.registration_cpd <https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd>`_
+    def regist(self, **kwargs):
+        """Align every point from the source object to the nearest point in the target object and use it a this point's displacement.
         """
-        tf_param, _, _ = method(
-            self.source, self.target, 'nonrigid', **kwargs
-        )
-        self.__parse(tf_param)
-        self.__fix()
+        self.source_points = obj3d.pcd2np(self.source.pcd)
+        target_points = obj3d.pcd2np(self.target.pcd)
+
+        tree = KDTree(target_points)
+        _, idx = tree.query(self.source_points)
+        self.deform_points = target_points[idx]
         
+        _, idx = tree.query(self.source_points)
+        self.deform_points = target_points[idx]
+
+        self.disp = self.deform_points - self.source_points
+        self.search_tree = KDTree(self.source_points)
+
         if UltraMotionCapture.output_msg:
             print("registered 1 nonrigid transformation")
-
-    def __parse(self, tf_param):
-        """Parse the registration result to provide :attr:`self.source_points`, :attr:`self.deform_points`, and :attr:`self.disp`. Called by :meth:`regist`.
-        
-        Parameters
-        ---
-        tf_param
-            Attention
-            ---
-            At current stage, the default registration method is Coherent Point Drift (CPD) method realised by :mod:`probreg` package. Therefore the accepted transformation object to be parse is derived from :class:`cpd.CoherentPointDrift`. Transformation object provided by other registration method shall be tested in future development.
-        """
-        deform = copy.deepcopy(self.source)
-        deform.points = tf_param.transform(deform.points)
-        
-        self.deform_points = obj3d.pcd2np(deform)
-        self.source_points = obj3d.pcd2np(self.source)
-        self.disp = self.deform_points - self.source_points
-
-    def __fix(self):
-        """Fix the registration result. Called by :meth:`regist`.
-        
-        Attention
-        ---
-        At current stage, the fixing logic aligns the deformed points to their closest points in the target point cloud, to avoid distortion effect after long-chain registration procedure. This logic may be discarded or replaced by better scheme in future development.
-        tbf
-        """
-        pass
-    
-        """
-        deform_fix_points = []
-        target_points = obj3d.pcd2np(self.target)
-
-        for n in range(len(self.deform_points)):
-            deform_fix_points.append(
-                obj3d.search_nearest_point(self.deform_points[n], target_points)
-            )
-
-        self.deform_points = deform_fix_points
-        self.disp = self.deform_points - self.source_points
-        """
 
     def shift_points(self, points: np.array) -> np.array:
         """Implement the transformation to set of points.
@@ -274,11 +237,8 @@ class Trans_Nonrigid(Trans):
         :class:`numpy.array`
             (N, 3) :class:`numpy.array` stores the points after transformation.
         """
-        points_shift = []
-        for point in points:
-            idx = obj3d.search_nearest_point_idx(point, self.source_points)
-            points_shift.append(self.deform_points[idx])
-        return np.array(points_shift)
+        _, idx = self.search_tree.query(points)
+        return self.deform_points[idx]
 
     def shift_disp_dist(self, points: np.array) -> Iterable[np.array, np.array]:
         """Evaluate the displacement and distance of the transformation implemented to a set of points.

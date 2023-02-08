@@ -1,4 +1,4 @@
-UltraMotionCapture.field.Trans\_Rigid
+﻿UltraMotionCapture.field.Trans\_Rigid
 =====================================
 
 .. currentmodule:: UltraMotionCapture.field
@@ -18,6 +18,8 @@ UltraMotionCapture.field.Trans\_Rigid
    .. autosummary::
    
       ~Trans_Rigid.__init__
+      ~Trans_Rigid.fix
+      ~Trans_Rigid.parse
       ~Trans_Rigid.regist
       ~Trans_Rigid.shift_points
       ~Trans_Rigid.show
