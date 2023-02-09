@@ -10,8 +10,10 @@ The :mod:`UltraMotionCapture.field` aims at revealing the so-called inner-relati
 from __future__ import annotations
 from typing import Type, Union, Iterable
 
+import copy
 import numpy as np
 import pyvista as pv
+import open3d as o3d
 from probreg import cpd
 from scipy.spatial import KDTree
 
@@ -83,47 +85,17 @@ class Trans(object):
         
         return deform_kps
 
-    def shift_disp_dist(self, points: np.array) -> Iterable[np.array, np.array]:
-        """Evaluate the displacement and distance of the transformation implemented to a set of points.
+    def shift_mesh(self, mesh: pv.core.pointset.PolyData) -> pv.core.pointset.PolyData:
+        """tbf"""
+        mesh_deform = copy.deepcopy(mesh)
+        mesh_deform.points = self.shift_points(mesh_deform.points)
+        return mesh_deform
 
-        Parameters
-        ---
-        points
-            :math:`N` points in 3D space that we want to implement the transformation on. Stored in a (N, 3) :class:`numpy.array`.
-
-        Return
-        ---
-        :class:`numpy.array`
-            the displacement vectors stored in (N, 3) array.
-        :class:`numpy.array`
-            the displacement distances stored in (N, ) array.
-        """
+    def shift_pcd(self, pcd: o3d.cpu.pybind.geometry.PointCloud) -> o3d.cpu.pybind.geometry.PointCloud:
+        """tbf"""
+        points = obj3d.pcd2np(pcd)
         points_deform = self.shift_points(points)
-        disp = points_deform - points
-        dist = np.linalg.norm(disp, axis=1)
-        return disp, dist
-
-    def shift_kps_disp_dist(self, kps: Type[kps.Kps]) -> Iterable[np.array, np.array]:
-        """tbf
-        Evaluate the displacement and distance of the transformation implemented to a set of points.
-
-        Parameters
-        ---
-        points
-            :math:`N` points in 3D space that we want to implement the transformation on. Stored in a (N, 3) :class:`numpy.array`.
-
-        Return
-        ---
-        :class:`numpy.array`
-            the displacement vectors stored in (N, 3) array.
-        :class:`numpy.array`
-            the displacement distances stored in (N, ) array.
-        """
-        points = kps.get_points_coord()
-        points_deform = self.shift_points(points)
-        disp = points_deform - points
-        dist = np.linalg.norm(disp, axis=1)
-        return disp, dist
+        return obj3d.np2pcd(points_deform)
 
     def show(self):
         """Illustrate the estimated non-rigid transformation.

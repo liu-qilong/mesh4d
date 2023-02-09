@@ -349,9 +349,8 @@ class Obj3d_Deform(Obj3d_Kps):
             pv.set_jupyter_backend('pythreejs')
         """
         # plot mesh with displacement distance
-        _, dist = self.trans_nonrigid.shift_disp_dist(self.mesh.points)
-        mesh_deform = copy.deepcopy(self.mesh)
-        mesh_deform.points = self.trans_nonrigid.shift_points(mesh_deform.points)
+        mesh_deform = self.trans_nonrigid.shift_mesh(self.mesh)
+        dist = np.linalg.norm(self.mesh.points - mesh_deform.points, axis = 1)
         mesh_deform["distances"] = dist
         scene.add_mesh(mesh_deform.translate(shift, inplace=False), scalars="distances", cmap=cmap)
 
@@ -418,8 +417,7 @@ class Obj3d_Deform(Obj3d_Kps):
             pv.set_jupyter_backend('pythreejs')"""
         # plot the distance between the deformed mesh and the ground truth
         mesh_gt = obj3d_gt.mesh
-        mesh_deform = copy.deepcopy(self.mesh)
-        mesh_deform.points = self.trans_nonrigid.shift_points(mesh_deform.points)
+        mesh_deform = self.trans_nonrigid.shift_mesh(self.mesh)
         
         tree = KDTree(mesh_gt.points)
         d_kdtree, _ = tree.query(mesh_deform.points)
@@ -505,6 +503,10 @@ def mesh2pcd(mesh: o3d.geometry.TriangleMesh, sample_num: int) -> o3d.geometry.P
 def pcd2np(pcd: o3d.geometry.PointCloud) -> np.array:
     """Extracted the points coordinates data from a :mod:`open3d` point cloud (:class:`open3d.geometry.PointCloud`).
 
+    Attention
+    ---
+    The changing of the extracted data won't affect the original one.
+
     Parameters
     ---
     pcd
@@ -515,7 +517,8 @@ def pcd2np(pcd: o3d.geometry.PointCloud) -> np.array:
     :class:`numpy.array`
         the points coordinates data stored in a (N, 3) :class:`numpy.array`.
     """
-    return np.asarray(pcd.points)
+    pcd_copy = copy.deepcopy(pcd)
+    return np.asarray(pcd_copy.points)
 
 
 def np2pcd(points: np.array) -> o3d.cpu.pybind.geometry.PointCloud:
