@@ -264,7 +264,7 @@ class Marker(object):
         ---
         Called by the :class:`MarkerSet` object when parsing the Vicon motion capture data (:meth:`MarkerSet.load_from_vicon`). Usually the end user don't need to call this method manually.
         """
-        data_input = self.scale_rate * self.trans_cab.shift_points(data_input.T)
+        data_input = self.scale_rate * self.trans_cab.shift_points(data_input.T).T
 
         if self.coord is None:
             self.coord = data_input

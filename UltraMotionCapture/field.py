@@ -42,6 +42,114 @@ class Trans(object):
         self.source = source_obj
         self.target = target_obj
 
+    def shift_points(self, points: np.array) -> np.array:
+        """tbf
+        Implement the transformation to set of points.
+
+        Parameters
+        ---
+        points
+            :math:`N` points in 3D space that we want to implement the transformation on. Stored in a (N, 3) :class:`numpy.array`.
+
+        Return
+        ---
+        :class:`numpy.array`
+            (N, 3) :class:`numpy.array` stores the points after transformation.
+
+        Warning
+        ---
+        This method will be realised in future development.
+        """
+        return points
+
+    def shift_kps(self, kps: Type[kps.Kps]) -> Type[kps.Kps]:
+        """tbf
+        Setting the transformation of the deformable key points object.
+
+        Parameters
+        ---
+        trans
+            an :meth:`UltraMotionCapture.field.Trans_Nonrigid` object that represents the transformation.
+
+        Returns
+        ---
+        the deformed key points object.
+        """
+        deform_kps = type(kps)()
+        
+        for name, coord in kps.points.items():
+            coord_deform = self.shift_points((coord, ))
+            deform_kps.add_point(name, coord_deform[0])
+        
+        return deform_kps
+
+    def shift_disp_dist(self, points: np.array) -> Iterable[np.array, np.array]:
+        """Evaluate the displacement and distance of the transformation implemented to a set of points.
+
+        Parameters
+        ---
+        points
+            :math:`N` points in 3D space that we want to implement the transformation on. Stored in a (N, 3) :class:`numpy.array`.
+
+        Return
+        ---
+        :class:`numpy.array`
+            the displacement vectors stored in (N, 3) array.
+        :class:`numpy.array`
+            the displacement distances stored in (N, ) array.
+        """
+        points_deform = self.shift_points(points)
+        disp = points_deform - points
+        dist = np.linalg.norm(disp, axis=1)
+        return disp, dist
+
+    def shift_kps_disp_dist(self, kps: Type[kps.Kps]) -> Iterable[np.array, np.array]:
+        """tbf
+        Evaluate the displacement and distance of the transformation implemented to a set of points.
+
+        Parameters
+        ---
+        points
+            :math:`N` points in 3D space that we want to implement the transformation on. Stored in a (N, 3) :class:`numpy.array`.
+
+        Return
+        ---
+        :class:`numpy.array`
+            the displacement vectors stored in (N, 3) array.
+        :class:`numpy.array`
+            the displacement distances stored in (N, ) array.
+        """
+        points = kps.get_points_coord()
+        points_deform = self.shift_points(points)
+        disp = points_deform - points
+        dist = np.linalg.norm(disp, axis=1)
+        return disp, dist
+
+    def show(self):
+        """Illustrate the estimated non-rigid transformation.
+
+        tbf
+        """
+        pass
+
+    def add_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0))) -> pv.Plotter:
+        """tbf
+        Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
+        
+        Parameters
+        ---
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        shift
+            shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
+
+        Returns
+        ---
+        :class:`pyvista.Plotter`
+            :class:`pyvista.Plotter` scene added the visualisation.
+        """
+        return scene
+
 
 class Trans_Rigid(Trans):
     """The rigid transformation, which can be expressed in the form of :math:`\mathcal{T}`:
@@ -143,16 +251,19 @@ class Trans_Rigid(Trans):
         This method will be realised in future development.
         """
         # return self.scale * np.matmul(points, self.rot.T) + np.expand_dims(self.t, axis=0)
-        return self.scale * np.matmul(self.rot, points.T) + np.expand_dims(self.t, axis=1)
+        return (self.scale * np.matmul(self.rot, points.T) + np.expand_dims(self.t, axis=1)).T
 
     def show(self):
         """Illustrate the estimated rigid transformation.
-
-        tbf
+        
+        - The original axes is displaced in low opacity while the shifted axes is displaced in full opacity.
+        - The x, y, z axis is coloured in yellow, blue, and green.
         """
-        pass
+        scene = pv.Plotter()
+        self.add_to_scene(scene)
+        scene.show()
 
-    def add_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0))) -> pv.Plotter:
+    def add_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0)), opacity=1) -> pv.Plotter:
         """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
         
         Parameters
@@ -161,13 +272,41 @@ class Trans_Rigid(Trans):
             :class:`pyvista.Plotter` scene to add the visualisation.
         shift
             shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
+        opacity
+            tbf
 
         Returns
         ---
         :class:`pyvista.Plotter`
             :class:`pyvista.Plotter` scene added the visualisation.
         """
-        pass
+        vectors = np.array([
+            [0, 0, 0],  # origin
+            [1, 0, 0],  # x axis
+            [0, 1, 0],  # y axis
+            [0, 0, 1],  # z axis
+        ])
+        vectors_deform = self.shift_points(vectors)
+        scale_rate = np.linalg.norm(vectors_deform[0] - vectors[0])/2
+
+        def add_axes(scene, vectors, shaft_radius=0.02, tip_radius=0.05, opacity=1):
+            param = {
+                'start': vectors[0],
+                'scale': np.linalg.norm(vectors[1] - vectors[0]) * scale_rate,
+                'shaft_radius': shaft_radius,
+                'tip_radius': tip_radius,   
+            }
+            arrow_x = pv.Arrow(direction=vectors[1] - vectors[0], **param)
+            arrow_y = pv.Arrow(direction=vectors[2] - vectors[0], **param)
+            arrow_z = pv.Arrow(direction=vectors[3] - vectors[0], **param)
+
+            scene.add_mesh(arrow_x.translate(shift, inplace=True), color='gold', opacity=opacity)
+            scene.add_mesh(arrow_y.translate(shift, inplace=True), color='teal', opacity=opacity)
+            scene.add_mesh(arrow_z.translate(shift, inplace=True), color='darkolivegreen', opacity=opacity)
+
+        add_axes(scene, vectors, opacity=0.3*opacity)
+        add_axes(scene, vectors_deform, opacity=opacity)
+        return scene
 
 
 class Trans_Nonrigid(Trans):
@@ -256,55 +395,7 @@ class Trans_Nonrigid(Trans):
         _, idx = self.search_tree.query(points)
         return self.deform_points[idx]
 
-    def shift_disp_dist(self, points: np.array) -> Iterable[np.array, np.array]:
-        """Evaluate the displacement and distance of the transformation implemented to a set of points.
-
-        Parameters
-        ---
-        points
-            :math:`N` points in 3D space that we want to implement the transformation on. Stored in a (N, 3) :class:`numpy.array`.
-
-        Return
-        ---
-        :class:`numpy.array`
-            the displacement vectors stored in (N, 3) array.
-        :class:`numpy.array`
-            the displacement distances stored in (N, ) array.
-        """
-        points_deform = self.shift_points(points)
-        disp = points_deform - points
-        dist = np.linalg.norm(disp, axis=1)
-        return disp, dist
-
-    def shift_kps(self, kps: Type[kps.Kps]) -> Type[kps.Kps]:
-        """tbf
-        Setting the transformation of the deformable key points object.
-
-        Parameters
-        ---
-        trans
-            an :meth:`UltraMotionCapture.field.Trans_Nonrigid` object that represents the transformation.
-
-        Returns
-        ---
-        the deformed key points object.
-        """
-        deform_kps = type(kps)()
-        
-        for name, coord in kps.points.items():
-            coord_deform = self.shift_points((coord, ))
-            deform_kps.add_point(name, coord_deform[0])
-        
-        return deform_kps
-
-    def show(self):
-        """Illustrate the estimated non-rigid transformation.
-
-        tbf
-        """
-        pass
-
-    def add_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0))) -> pv.Plotter:
+    def add_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0)), cmap: str = "cool") -> pv.Plotter:
         """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
         
         Parameters
@@ -313,13 +404,22 @@ class Trans_Nonrigid(Trans):
             :class:`pyvista.Plotter` scene to add the visualisation.
         shift
             shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
+        cmap
+            the color map name. 
+            
+            .. seealso::
+                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
 
         Returns
         ---
         :class:`pyvista.Plotter`
             :class:`pyvista.Plotter` scene added the visualisation.
         """
-        pass
+        pdata = pv.vector_poly_data(self.source_points, self.disp)
+        glyph = pdata.glyph()
+        scene.add_mesh(glyph.translate(shift, inplace=False), lighting=False, cmap=cmap)
+        
+        return scene
 
 
 def transform_rst2sm(R: np.array, s: float, t: np.array) -> tuple[float, np.array]:

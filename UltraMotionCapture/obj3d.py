@@ -361,12 +361,7 @@ class Obj3d_Deform(Obj3d_Kps):
         # plot displacement of the sampled point cloud
         width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
         lateral_move = [1.5 * width, 0, 0]
-        pcd_points = pcd2np(self.pcd)
-        disp, _ = self.trans_nonrigid.shift_disp_dist(pcd_points)
-
-        pdata = pv.vector_poly_data(pcd_points + lateral_move, disp)
-        glyph = pdata.glyph()
-        scene.add_mesh(glyph.translate(shift, inplace=False), lighting=False)
+        self.trans_nonrigid.add_to_scene(scene, shift=lateral_move + shift)
 
         # plot key points
         if kps_names is None:
