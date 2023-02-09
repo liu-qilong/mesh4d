@@ -11,12 +11,13 @@ from __future__ import annotations
 from typing import Type, Union, Iterable
 
 import numpy as np
+import pyvista as pv
 from probreg import cpd
 from scipy.spatial import KDTree
 
 import UltraMotionCapture
 import UltraMotionCapture.config.param
-from UltraMotionCapture import obj3d
+from UltraMotionCapture import obj3d, kps
 
 class Trans(object):
     """The base class of transformation. Different types of transformation, such as rigid and non-rigid transformation, are further defined in the children classes like :class:`Trans_Rigid` and :class:`Trans_Nonrigid`.
@@ -145,11 +146,26 @@ class Trans_Rigid(Trans):
         return self.scale * np.matmul(self.rot, points.T) + np.expand_dims(self.t, axis=1)
 
     def show(self):
-        """Illustrate the estimated transformation.
+        """Illustrate the estimated rigid transformation.
 
-        Warning
+        tbf
+        """
+        pass
+
+    def add_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0))) -> pv.Plotter:
+        """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
+        
+        Parameters
         ---
-        This method will be realised in future development.
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        shift
+            shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
+
+        Returns
+        ---
+        :class:`pyvista.Plotter`
+            :class:`pyvista.Plotter` scene added the visualisation.
         """
         pass
 
@@ -259,6 +275,52 @@ class Trans_Nonrigid(Trans):
         disp = points_deform - points
         dist = np.linalg.norm(disp, axis=1)
         return disp, dist
+
+    def shift_kps(self, kps: Type[kps.Kps]) -> Type[kps.Kps]:
+        """tbf
+        Setting the transformation of the deformable key points object.
+
+        Parameters
+        ---
+        trans
+            an :meth:`UltraMotionCapture.field.Trans_Nonrigid` object that represents the transformation.
+
+        Returns
+        ---
+        the deformed key points object.
+        """
+        deform_kps = type(kps)()
+        
+        for name, coord in kps.points.items():
+            coord_deform = self.shift_points((coord, ))
+            deform_kps.add_point(name, coord_deform[0])
+        
+        return deform_kps
+
+    def show(self):
+        """Illustrate the estimated non-rigid transformation.
+
+        tbf
+        """
+        pass
+
+    def add_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0))) -> pv.Plotter:
+        """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
+        
+        Parameters
+        ---
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        shift
+            shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
+
+        Returns
+        ---
+        :class:`pyvista.Plotter`
+            :class:`pyvista.Plotter` scene added the visualisation.
+        """
+        pass
+
 
 def transform_rst2sm(R: np.array, s: float, t: np.array) -> tuple[float, np.array]:
     """Transform rigid transformation representation from

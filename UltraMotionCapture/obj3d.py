@@ -20,10 +20,12 @@ from typing import Type, Union, Iterable
 
 import os
 import copy
+import random
 import numpy as np
 import open3d as o3d
 import pyvista as pv
 from scipy.spatial import KDTree
+import matplotlib.colors as mcolors
 
 import UltraMotionCapture
 import UltraMotionCapture.config.param
@@ -159,27 +161,6 @@ class Obj3d_Kps(Obj3d):
         """
         self.kps_group[name] = markerset.get_time_coord(time, kps_class=kps.Kps)
 
-    def get_kps_coord(self, kps_names: Union[None, tuple, list] = None) -> np.array:
-        """Get key points coordinates concatenated as a (N, 3) :class:`numpy.array`.
-        
-        Parameters
-        ---
-        kps_names
-            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
-
-        Returns
-        ---
-        :class:`numpy.array`
-            key points coordinates concatenated as a (N, 3) array.
-        """
-        if self.kps_group != {}:
-            if kps_names is None:
-                    kps_points_ls = [kps.get_points_coord() for kps in self.kps_group.values()]
-            else:
-                kps_points_ls = [self.kps_group[name].get_points_coord() for name in kps_names]
-            
-            return np.concatenate(kps_points_ls)
-
     def show(self, kps_names: Union[None, list, tuple] = None):
         """Show the loaded mesh, the sampled point cloud, and the key points attached to it.
 
@@ -225,12 +206,21 @@ class Obj3d_Kps(Obj3d):
         scene.add_points(pcd2np(self.pcd) + lateral_move + shift, point_size=0.001*width)
 
         # plot key points
-        if self.kps_group != {}:
-            kps_group_points = self.get_kps_coord(kps_names)
-            pvpcd_kps = np2pvpcd(kps_group_points, radius=0.02*width)
-            scene.add_mesh(pvpcd_kps.translate(shift, inplace=False), color='gold')
-            scene.add_mesh(pvpcd_kps.translate(lateral_move + shift, inplace=False), color='gold')
-        
+        if kps_names is None:
+            kps_names = self.kps_group.keys()
+
+        seed = 26
+        color_ls = list(mcolors.CSS4_COLORS.keys())
+
+        for name in kps_names:
+            # random color select
+            random.seed(seed)
+            color = random.choice(color_ls)
+            seed = seed + 1
+
+            self.kps_group[name].add_to_scene(scene, shift=shift, radius=0.02*width, color=color)
+            self.kps_group[name].add_to_scene(scene, shift=lateral_move + shift, radius=0.02*width, color=color)
+            
         return scene
 
 
@@ -273,34 +263,7 @@ class Obj3d_Deform(Obj3d_Kps):
         time
             the time from the :class:`kps.MarkerSet`'s recording period to be loaded.
         """
-        self.kps_group[name] = markerset.get_time_coord(time, kps_class=kps.Kps_Deform)
-
-    def get_deform_kps_coord(self, kps_names: Union[None, tuple, list] = None) -> np.array:
-        """Get key points coordinates after non-rigid transformation concatenated as a (N, 3) :class:`numpy.array`.
-        
-        Parameters
-        ---
-        kps_names
-            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
-
-        Returns
-        ---
-        :class:`numpy.array`
-            key points coordinates concatenated as a (N, 3) array.
-        """
-        if self.kps_group != {} and self.trans_nonrigid is not None:
-            if kps_names is None:
-                kps_deform_points_ls = [
-                    self.trans_nonrigid.shift_points(kps.get_points_coord())
-                    for kps in self.kps_group.values()
-                    ]
-            else:
-                kps_deform_points_ls = [
-                    self.trans_nonrigid.shift_points(self.kps_group[name].get_points_coord())
-                    for name in kps_names
-                    ]
-            
-            return np.concatenate(kps_deform_points_ls)
+        self.kps_group[name] = markerset.get_time_coord(time, kps_class=kps.Kps)
 
     def set_trans_rigid(self, trans_rigid: field.Trans_Rigid):
         """Set rigid transformation.
@@ -406,11 +369,21 @@ class Obj3d_Deform(Obj3d_Kps):
         scene.add_mesh(glyph.translate(shift, inplace=False), lighting=False)
 
         # plot key points
-        if self.kps_group != {}:
-            kps_group_points = self.get_kps_coord(kps_names)
-            pvpcd_kps = np2pvpcd(kps_group_points, radius=0.02*width)
-            scene.add_mesh(pvpcd_kps.translate(shift, inplace=False), color='gold')
-            scene.add_mesh(pvpcd_kps.translate(lateral_move + shift, inplace=False), color='gold')
+        if kps_names is None:
+            kps_names = self.kps_group.keys()
+
+        seed = 26
+        color_ls = list(mcolors.CSS4_COLORS.keys())
+
+        for name in kps_names:
+            # random color select
+            random.seed(seed)
+            color = random.choice(color_ls)
+            seed = seed + 1
+
+            kps_deform = self.trans_nonrigid.shift_kps(self.kps_group[name])
+            kps_deform.add_to_scene(scene, shift=shift, radius=0.02*width, color=color)
+            kps_deform.add_to_scene(scene, shift=lateral_move + shift, radius=0.02*width, color=color)
 
         return scene
 
@@ -473,14 +446,15 @@ class Obj3d_Deform(Obj3d_Kps):
         scene.add_mesh(mesh_gt.translate(lateral_move + shift, inplace=False), opacity=opacity)
 
         # plot the difference between key points
-        if self.kps_group != {}:
-            kps_deform_group_points = self.get_deform_kps_coord(kps_names)
-            kps_gt_group_points = obj3d_gt.get_kps_coord(kps_names)
-            pvpcd_deform_kps = np2pvpcd(kps_deform_group_points, radius=0.02*width)
-            pvpcd_gt_kps = np2pvpcd(kps_gt_group_points, radius=0.02*width)
+        if kps_names is None:
+            kps_names = self.kps_group.keys()
 
-            scene.add_mesh(pvpcd_deform_kps.translate(shift, inplace=False), color='gold')
-            scene.add_mesh(pvpcd_gt_kps.translate(shift, inplace=False), color='green')
+        for name in kps_names:
+            kps_deform = self.trans_nonrigid.shift_kps(self.kps_group[name])
+            kps_deform.add_to_scene(scene, shift=shift, radius=0.02*width, color='gold')
+
+            kps_gt = obj3d_gt.kps_group[name]
+            kps_gt.add_to_scene(scene, shift=shift, radius=0.02*width, color='green')
 
         return scene
 
