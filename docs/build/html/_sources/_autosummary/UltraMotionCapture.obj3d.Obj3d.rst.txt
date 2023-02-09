@@ -18,6 +18,7 @@ UltraMotionCapture.obj3d.Obj3d
    .. autosummary::
    
       ~Obj3d.__init__
+      ~Obj3d.add_to_scene
       ~Obj3d.show
    
    

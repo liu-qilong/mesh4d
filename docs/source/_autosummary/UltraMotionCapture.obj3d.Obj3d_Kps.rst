@@ -18,7 +18,7 @@ UltraMotionCapture.obj3d.Obj3d\_Kps
    .. autosummary::
    
       ~Obj3d_Kps.__init__
-      ~Obj3d_Kps.get_kps_coord
+      ~Obj3d_Kps.add_to_scene
       ~Obj3d_Kps.load_kps
       ~Obj3d_Kps.show
    

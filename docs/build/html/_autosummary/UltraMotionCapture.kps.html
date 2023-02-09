@@ -192,7 +192,6 @@
 </li>
 <li class="toctree-l3 current has-children current-page"><a class="current reference internal" href="#">UltraMotionCapture.kps</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Kps.html">UltraMotionCapture.kps.Kps</a></li>
-<li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Kps_Deform.html">UltraMotionCapture.kps.Kps_Deform</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Marker.html">UltraMotionCapture.kps.Marker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html">UltraMotionCapture.kps.MarkerSet</a></li>
 </ul>
@@ -274,7 +273,7 @@
 <p>The <a class="reference internal" href="#module-UltraMotionCapture.kps" title="UltraMotionCapture.kps"><code class="xref py py-mod docutils literal notranslate"><span class="pre">UltraMotionCapture.kps</span></code></a> module stands for <em>key points</em>. In <a class="reference internal" href="UltraMotionCapture.html#module-UltraMotionCapture" title="UltraMotionCapture"><code class="xref py py-mod docutils literal notranslate"><span class="pre">UltraMotionCapture</span></code></a> package, key points are essential elements to facilitate the processing of 4D images.</p>
 <p>There are two different perspectives to arrange key points data: <em>time-wise</em> and <em>point-wise</em>. Reflecting these two ways of arrangement:</p>
 <ul class="simple">
-<li><p>The <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> and <cite>Kps_Deform</cite> contain all key points’ data at a specific moment;</p></li>
+<li><p>The <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> contain all key points’ data at a specific moment;</p></li>
 <li><p>While the <a class="reference internal" href="UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker" title="UltraMotionCapture.kps.Marker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Marker</span></code></a> contains a specific key point’s data within a time period. To aggregate all key points’ data, <a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarkerSet</span></code></a> is provided.</p></li>
 </ul>
 <p class="rubric">Classes</p>
@@ -288,25 +287,21 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kps</span></code></a>()</p></td>
 <td><p>A collection of the key points that can be attached to a 3D object, i.e. a frame of the 4D object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="UltraMotionCapture.kps.Kps_Deform.html#UltraMotionCapture.kps.Kps_Deform" title="UltraMotionCapture.kps.Kps_Deform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kps_Deform</span></code></a>()</p></td>
-<td><p>Adding deformation feature to the <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> class.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker" title="UltraMotionCapture.kps.Marker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Marker</span></code></a>(name, start_time, fps, scale_rate)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker" title="UltraMotionCapture.kps.Marker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Marker</span></code></a>(name, start_time, fps, scale_rate)</p></td>
 <td><p>Storing single key point’s coordinates data within a time period.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MarkerSet</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MarkerSet</span></code></a>()</p></td>
 <td><p>A collection of <a class="reference internal" href="UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker" title="UltraMotionCapture.kps.Marker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Marker</span></code></a> s.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <figure class="align-default" id="id1">
-<div class="graphviz"><img src="../_images/inheritance-1d6ce29e72f3b58592f840c774afa3293c3212a1.png" alt="Inheritance diagram of UltraMotionCapture.kps" usemap="#inheritance32900ee2dc" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-93bf70f8f9501745764ad159e29ffc0632dd7371.png" alt="Inheritance diagram of UltraMotionCapture.kps" usemap="#inheritance32900ee2dc" class="inheritance graphviz" /></div>
 <map id="inheritance32900ee2dc" name="inheritance32900ee2dc">
 <area shape="rect" id="node1" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" target="_top" title="A collection of the key points that can be attached to a 3D object, i.e. a frame of the 4D object." alt="" coords="23,104,95,129"/>
-<area shape="rect" id="node2" href="UltraMotionCapture.kps.Kps_Deform.html#UltraMotionCapture.kps.Kps_Deform" target="_top" title="Adding deformation feature to the :class:`Kps` class." alt="" coords="160,104,280,129"/>
-<area shape="rect" id="node3" href="UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker" target="_top" title="Storing single key point&#39;s coordinates data within a time period. Usually loaded from the Vicon motion capture data. In this case, a key point is also referred as a marker." alt="" coords="15,55,102,80"/>
-<area shape="rect" id="node4" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" target="_top" title="A collection of :class:`Marker` s. At current stage, it&#39;s usually loaded from the Vicon motion capture data." alt="" coords="5,5,112,31"/>
+<area shape="rect" id="node2" href="UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker" target="_top" title="Storing single key point&#39;s coordinates data within a time period. Usually loaded from the Vicon motion capture data. In this case, a key point is also referred as a marker." alt="" coords="15,55,102,80"/>
+<area shape="rect" id="node3" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" target="_top" title="A collection of :class:`Marker` s. At current stage, it&#39;s usually loaded from the Vicon motion capture data." alt="" coords="5,5,112,31"/>
 </map><figcaption>
 <p><span class="caption-text">Inheritance Relationship</span><a class="headerlink" href="#id1" title="Permalink to this image">#</a></p>
 </figcaption>

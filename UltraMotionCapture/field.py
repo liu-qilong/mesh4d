@@ -45,8 +45,7 @@ class Trans(object):
         self.target = target_obj
 
     def shift_points(self, points: np.array) -> np.array:
-        """tbf
-        Implement the transformation to set of points.
+        """Implement the transformation to set of points.
 
         Parameters
         ---
@@ -65,13 +64,12 @@ class Trans(object):
         return points
 
     def shift_kps(self, kps: Type[kps.Kps]) -> Type[kps.Kps]:
-        """tbf
-        Setting the transformation of the deformable key points object.
+        """Implement the transformation to the key points object.
 
         Parameters
         ---
-        trans
-            an :meth:`UltraMotionCapture.field.Trans_Nonrigid` object that represents the transformation.
+        kps
+            :class:`~UltraMotionCapture.kps.Kps` key points object.
 
         Returns
         ---
@@ -86,39 +84,62 @@ class Trans(object):
         return deform_kps
 
     def shift_mesh(self, mesh: pv.core.pointset.PolyData) -> pv.core.pointset.PolyData:
-        """tbf"""
+        """Implement the transformation to the mesh object.
+
+        Parameters
+        ---
+        kps
+            the mesh object.
+
+        Returns
+        ---
+        the deformed mesh object.
+        """
         mesh_deform = copy.deepcopy(mesh)
         mesh_deform.points = self.shift_points(mesh_deform.points)
         return mesh_deform
 
     def shift_pcd(self, pcd: o3d.cpu.pybind.geometry.PointCloud) -> o3d.cpu.pybind.geometry.PointCloud:
-        """tbf"""
+        """Implement the transformation to the point cloud object.
+
+        Parameters
+        ---
+        kps
+            the point cloud object.
+
+        Returns
+        ---
+        the deformed point cloud object."""
         points = obj3d.pcd2np(pcd)
         points_deform = self.shift_points(points)
         return obj3d.np2pcd(points_deform)
 
     def show(self):
-        """Illustrate the estimated non-rigid transformation.
+        """Illustrate the estimated transformation.
 
-        tbf
+        Attention
+        ---
+        This method is leave blank intentionally.
         """
-        pass
+        scene = pv.Plotter()
+        self.add_to_scene(scene)
+        scene.show()
 
     def add_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0))) -> pv.Plotter:
-        """tbf
-        Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
-        
+        """Illustrate the estimated transformation.
+
+        Attention
+        ---
+        This method is leave blank intentionally.
+
+        Parameters
+        ---
         Parameters
         ---
         scene
             :class:`pyvista.Plotter` scene to add the visualisation.
         shift
             shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
-
-        Returns
-        ---
-        :class:`pyvista.Plotter`
-            :class:`pyvista.Plotter` scene added the visualisation.
         """
         return scene
 
@@ -225,17 +246,7 @@ class Trans_Rigid(Trans):
         # return self.scale * np.matmul(points, self.rot.T) + np.expand_dims(self.t, axis=0)
         return (self.scale * np.matmul(self.rot, points.T) + np.expand_dims(self.t, axis=1)).T
 
-    def show(self):
-        """Illustrate the estimated rigid transformation.
-        
-        - The original axes is displaced in low opacity while the shifted axes is displaced in full opacity.
-        - The x, y, z axis is coloured in yellow, blue, and green.
-        """
-        scene = pv.Plotter()
-        self.add_to_scene(scene)
-        scene.show()
-
-    def add_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0)), opacity=1) -> pv.Plotter:
+    def add_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0))) -> pv.Plotter:
         """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
         
         Parameters
@@ -244,8 +255,6 @@ class Trans_Rigid(Trans):
             :class:`pyvista.Plotter` scene to add the visualisation.
         shift
             shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
-        opacity
-            tbf
 
         Returns
         ---
@@ -276,8 +285,8 @@ class Trans_Rigid(Trans):
             scene.add_mesh(arrow_y.translate(shift, inplace=True), color='teal', opacity=opacity)
             scene.add_mesh(arrow_z.translate(shift, inplace=True), color='darkolivegreen', opacity=opacity)
 
-        add_axes(scene, vectors, opacity=0.3*opacity)
-        add_axes(scene, vectors_deform, opacity=opacity)
+        add_axes(scene, vectors, opacity=0.3)
+        add_axes(scene, vectors_deform)
         return scene
 
 

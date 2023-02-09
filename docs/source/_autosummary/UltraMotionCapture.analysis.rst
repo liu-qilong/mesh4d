@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.analysis
+UltraMotionCapture.analysis
 ===========================
 
 .. automodule:: UltraMotionCapture.analysis

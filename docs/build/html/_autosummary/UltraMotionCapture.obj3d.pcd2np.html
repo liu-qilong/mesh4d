@@ -192,7 +192,6 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="UltraMotionCapture.kps.html">UltraMotionCapture.kps</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Kps.html">UltraMotionCapture.kps.Kps</a></li>
-<li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Kps_Deform.html">UltraMotionCapture.kps.Kps_Deform</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Marker.html">UltraMotionCapture.kps.Marker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html">UltraMotionCapture.kps.MarkerSet</a></li>
 </ul>
@@ -275,6 +274,10 @@
 <dt class="sig sig-object py" id="UltraMotionCapture.obj3d.pcd2np">
 <span class="sig-prename descclassname"><span class="pre">UltraMotionCapture.obj3d.</span></span><span class="sig-name descname"><span class="pre">pcd2np</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pcd</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">open3d.cpu.pybind.geometry.PointCloud</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.array</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#pcd2np"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.pcd2np" title="Permalink to this definition">#</a></dt>
 <dd><p>Extracted the points coordinates data from a <code class="xref py py-mod docutils literal notranslate"><span class="pre">open3d</span></code> point cloud (<code class="xref py py-class docutils literal notranslate"><span class="pre">open3d.geometry.PointCloud</span></code>).</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The changing of the extracted data won’t affect the original one.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>pcd</strong> – the point cloud (<code class="xref py py-class docutils literal notranslate"><span class="pre">open3d.geometry.PointCloud</span></code>).</p>

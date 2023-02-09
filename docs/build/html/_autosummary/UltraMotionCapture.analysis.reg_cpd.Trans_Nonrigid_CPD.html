@@ -192,7 +192,6 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="UltraMotionCapture.kps.html">UltraMotionCapture.kps</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Kps.html">UltraMotionCapture.kps.Kps</a></li>
-<li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Kps_Deform.html">UltraMotionCapture.kps.Kps_Deform</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Marker.html">UltraMotionCapture.kps.Marker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html">UltraMotionCapture.kps.MarkerSet</a></li>
 </ul>
@@ -293,36 +292,45 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.__init__" title="UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(source_obj, target_obj, **kwargs)</p></td>
 <td><p>Initialize self.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.parse" title="UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.parse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse</span></code></a>(tf_param)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_scene</span></code>(scene[, shift, cmap])</p></td>
+<td><p>Add the visualisation of current object to a <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.parse" title="UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.parse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse</span></code></a>(tf_param)</p></td>
 <td><p>Parse the registration result to provide <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.source_points</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.deform_points</span></code>, and <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.disp</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.regist" title="UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.regist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regist</span></code></a>([method])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.regist" title="UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.regist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regist</span></code></a>(**kwargs)</p></td>
 <td><p>The registration method.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_disp_dist</span></code>(points)</p></td>
-<td><p>Evaluate the displacement and distance of the transformation implemented to a set of points.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_kps</span></code>(kps)</p></td>
+<td><p>Implement the transformation to the key points object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_points</span></code>(points)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_mesh</span></code>(mesh)</p></td>
+<td><p>Implement the transformation to the mesh object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_pcd</span></code>(pcd)</p></td>
+<td><p>Implement the transformation to the point cloud object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_points</span></code>(points)</p></td>
 <td><p>Implement the transformation to set of points.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">show</span></code>()</p></td>
+<td><p>Illustrate the estimated transformation.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.regist">
-<span class="sig-name descname"><span class="pre">regist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">method=&lt;function</span> <span class="pre">registration_cpd&gt;</span></em>, <em class="sig-param"><span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/analysis/reg_cpd.html#Trans_Nonrigid_CPD.regist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.regist" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">regist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/analysis/reg_cpd.html#Trans_Nonrigid_CPD.regist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.regist" title="Permalink to this definition">#</a></dt>
 <dd><p>The registration method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>method</strong> – At current stage, only methods from <code class="xref py py-mod docutils literal notranslate"><span class="pre">probreg</span></code> package are supported. Default as <code class="xref py py-func docutils literal notranslate"><span class="pre">probreg.cpd.registration_cpd()</span></code>.</p></li>
-<li><p><strong>**kwargs</strong> – <p>Configurations parameters of the registration.</p>
+<dd class="field-odd"><p><strong>**kwargs</strong> – <p>Configurations parameters of the registration.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><a class="reference external" href="https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd">probreg.cpd.registration_cpd</a></p>
 </div>
-</p></li>
-</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>

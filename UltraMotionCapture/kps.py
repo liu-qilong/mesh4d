@@ -124,9 +124,7 @@ class Kps(object):
         return diff_dict
 
     def show(self):
-        """Illustrate the key points.
-
-        tbf
+        """Illustrate the key points object.
         """
         pass
 
@@ -140,9 +138,9 @@ class Kps(object):
         shift
             shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
         radius
-            tbf
+            radius of the points.
         color
-            tbf
+            color of the points.
 
         Returns
         ---
