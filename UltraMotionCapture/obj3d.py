@@ -48,8 +48,10 @@ class Obj3d(object):
         .. seealso::
             Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.
 
-    sample_num
-        the number of the points sampled from the mesh to construct the point cloud.
+    mode
+        
+        - :code:`load` the default mode is load from a file.
+        - :code:`empty` create a 3D object without any 3D data.
 
     Note
     ---
@@ -78,15 +80,23 @@ class Obj3d(object):
     """
     def __init__(
         self,
-        filedir: str,
+        filedir: str = '',
         scale_rate: float = 1,
+        mode: str = "load"
     ):
-        self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
-        self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
-        self.scale_rate = scale_rate
+        if mode == "load":
+            self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
+            self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
+            self.scale_rate = scale_rate
 
-        self.mesh.scale(self.scale_rate, inplace=True)
-        self.pcd = np2pcd(self.mesh.points)
+            self.mesh.scale(self.scale_rate, inplace=True)
+            self.pcd = np2pcd(self.mesh.points)
+
+        elif mode == "empty":
+            self.mesh = None
+            self.texture = None
+            self.pcd = None
+            self.scale_rate = scale_rate
 
     def show(self):
         """Show the loaded mesh and the sampled point cloud.
@@ -102,44 +112,56 @@ class Obj3d(object):
 
         width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
         self.add_mesh_to_scene(scene)
-        self.add_pcd_to_scene(scene, shift=[1.5*width, 0, 0])
+        self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0])
 
         scene.show()
 
-    def add_mesh_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0))) -> pv.Plotter:
+    def add_mesh_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
         """Add the visualisation of the mesh to a :class:`pyvista.Plotter` scene.
         
         Parameters
         ---
         scene
             :class:`pyvista.Plotter` scene to add the visualisation.
-        shift
-            shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
+        location
+            the displace location represented in a (3, ) :class:`numpy.array`.
+        **kwargs
+            other visualisation parameters.
+
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
 
         Returns
         ---
         :class:`pyvista.Plotter`
             :class:`pyvista.Plotter` scene added the visualisation.
         """
-        scene.add_mesh(self.mesh.translate(shift, inplace=False), show_edges=True)
+        scene.add_mesh(self.mesh.translate(location, inplace=False), show_edges=True, **kwargs)
         return scene
 
-    def add_pcd_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0))) -> pv.Plotter:
+    def add_pcd_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
         """Add the visualisation of the sampled key points to a :class:`pyvista.Plotter` scene.
         
         Parameters
         ---
         scene
             :class:`pyvista.Plotter` scene to add the visualisation.
-        shift
-            shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
+        location
+            the displace location represented in a (3, ) :class:`numpy.array`.
+        **kwargs
+            other visualisation parameters.
+
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
 
         Returns
         ---
         :class:`pyvista.Plotter`
             :class:`pyvista.Plotter` scene added the visualisation.
         """
-        scene.add_points(pcd2np(self.pcd) + shift)
+        scene.add_points(pcd2np(self.pcd) + location, **kwargs)
         return scene
 
 
@@ -197,13 +219,13 @@ class Obj3d_Kps(Obj3d):
         width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
 
         self.add_mesh_to_scene(scene)
-        self.add_pcd_to_scene(scene, shift=[1.5*width, 0, 0])
+        self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0])
         self.add_kps_to_scene(scene, kps_names, radius=0.02*width)
-        self.add_kps_to_scene(scene, kps_names, radius=0.02*width, shift=[1.5*width, 0, 0])
+        self.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
 
         scene.show()
 
-    def add_kps_to_scene(self, scene: pv.Plotter, kps_names: Union[None, tuple, list] = None, shift: np.array = np.array((0, 0, 0)), radius: float = 1) -> pv.Plotter:
+    def add_kps_to_scene(self, scene: pv.Plotter, kps_names: Union[None, tuple, list] = None, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
         """Add the visualisation of key points to a :class:`pyvista.Plotter` scene.
         
         Parameters
@@ -214,8 +236,12 @@ class Obj3d_Kps(Obj3d):
             a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
         shift
 	        shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
-        radius
-            radius of the points.
+        **kwargs
+            other visualisation parameters.
+
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
 
         Returns
         ---
@@ -234,7 +260,7 @@ class Obj3d_Kps(Obj3d):
             color = random.choice(color_ls)
             seed = seed + 1
 
-            self.kps_group[name].add_to_scene(scene, shift=shift, radius=radius, color=color)
+            self.kps_group[name].add_to_scene(scene, location=location, color=color, **kwargs)
             
         return scene
 
@@ -266,20 +292,6 @@ class Obj3d_Deform(Obj3d_Kps):
         self.trans_rigid = None
         self.trans_nonrigid = None
 
-    def load_kps(self, name: str, markerset: Type[kps.MarkerSet], time: float = 0.0):
-        """Load a set of key points as into :attr:`self.kps_group` dictionary from a :class:`kps.MarkerSet` object with a name.
-        
-        Parameters
-        ---
-        name
-            the name of the :class:`~UltraMotionCapture.kps.Kps` objects. Noted that this name will also been used as its keyword in :attr:`self.kps_group`.
-        markerset
-            the :class:`kps.MarkerSet` object.
-        time
-            the time from the :class:`kps.MarkerSet`'s recording period to be loaded.
-        """
-        self.kps_group[name] = markerset.get_time_coord(time, kps_class=kps.Kps)
-
     def set_trans_rigid(self, trans_rigid: field.Trans_Rigid):
         """Set rigid transformation.
 
@@ -300,9 +312,38 @@ class Obj3d_Deform(Obj3d_Kps):
         """
         self.trans_nonrigid = trans_nonrigid
 
-    def get_deform_obj3d(self):
-        """tbf"""
-        pass
+    def get_deform_obj3d(self, mode: str = 'nonrigid'):
+        """Get the deformed 3D object.
+        
+        Parameters
+        ---
+        mode
+            
+            - :code:`nonrigid`: the non-rigid transformation will be used to deform the object.
+            - :code:`rigid`: the rigid transformation will be used to deform the object.
+
+        Warning
+        ---
+        Before calling this method, please make sure that the transformation has been estimated.
+        """
+        if mode == 'nonrigid' and self.trans_nonrigid is not None:
+            trans = self.trans_nonrigid
+        elif mode == 'rigid' and self.trans_rigid is not None:
+            trans = self.trans_rigid
+        else:
+            if UltraMotionCapture.output_msg:
+                print("fail to provide deformed object")
+            
+            return 
+
+        deform_obj = type(self)(mode='empty', scale_rate = self.scale_rate)
+        deform_obj.mesh = trans.shift_mesh(self.mesh)
+        deform_obj.pcd = trans.shift_pcd(self.pcd)
+        
+        for name in self.kps_group.keys():
+            deform_obj.kps_group[name] = trans.shift_kps(self.kps_group[name])
+
+        return deform_obj
 
     def show_deform(self, kps_names: Union[None, list, tuple] = None, cmap: str = "cool"):
         """Illustrate the mesh, the sampled point cloud, and the key points after the estimated deformation.
@@ -332,118 +373,17 @@ class Obj3d_Deform(Obj3d_Kps):
         """
         scene = pv.Plotter()
 
-        width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
+        deform_obj = self.get_deform_obj3d()
+        dist = np.linalg.norm(self.mesh.points - deform_obj.mesh.points, axis = 1)
+        deform_obj.mesh["distances"] = dist
 
-        self.add_deform_mesh_to_scene(scene)
-        self.add_deform_pcd_to_scene(scene, shift=[1.5*width, 0, 0])
-        self.add_deform_kps_to_scene(scene, kps_names, radius=0.02*width)
-        self.add_deform_kps_to_scene(scene, kps_names, radius=0.02*width, shift=[1.5*width, 0, 0])
+        width = pcd_get_max_bound(deform_obj.pcd)[0] - pcd_get_min_bound(deform_obj.pcd)[0]
+        deform_obj.add_mesh_to_scene(scene, cmap=cmap)
+        self.trans_nonrigid.add_to_scene(scene, location=[1.5*width, 0, 0], cmap=cmap)
+        deform_obj.add_kps_to_scene(scene, kps_names, radius=0.02*width)
+        deform_obj.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
         
         scene.show()
-
-    def add_deform_mesh_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0)), cmap: str = "cool"):
-        """Add the visualisation of deformed mesh to a :class:`pyvista.Plotter` scene.
-        
-        The mesh will be coloured with the distance of deformation. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
-
-        Parameters
-        ---
-        scene
-            :class:`pyvista.Plotter` scene to add the visualisation.
-        shift
-			shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
-        cmap
-            the color map name. 
-            
-            .. seealso::
-                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
-
-        Attention
-        ---
-        Before calling this method in Jupyter Notebook environment, the `pythreejs <https://docs.pyvista.org/user-guide/jupyter/pythreejs.html>`_ backend of :mod:`pyvista` is needed to be selected: ::
-
-            import pyvista as pv
-            pv.set_jupyter_backend('pythreejs')
-        """
-        mesh_deform = self.trans_nonrigid.shift_mesh(self.mesh)
-        dist = np.linalg.norm(self.mesh.points - mesh_deform.points, axis = 1)
-        mesh_deform["distances"] = dist
-        scene.add_mesh(mesh_deform.translate(shift, inplace=False), scalars="distances", cmap=cmap)
-
-        if UltraMotionCapture.output_msg:
-            print("average displacemnt: {:.3} (mm)".format(np.average(dist)/self.scale_rate))
-
-        return scene
-
-    def add_deform_pcd_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0)), cmap: str = "cool"):
-        """Add the visualisation of deformed sampled point cloud to a :class:`pyvista.Plotter` scene.
-        
-        The sampled points will be attached with displacement vectors to illustrate the displacement field.
-
-        Parameters
-        ---
-        scene
-            :class:`pyvista.Plotter` scene to add the visualisation.
-        shift
-			shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
-        cmap
-            the color map name. 
-            
-            .. seealso::
-                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
-
-        Attention
-        ---
-        Before calling this method in Jupyter Notebook environment, the `pythreejs <https://docs.pyvista.org/user-guide/jupyter/pythreejs.html>`_ backend of :mod:`pyvista` is needed to be selected: ::
-
-            import pyvista as pv
-            pv.set_jupyter_backend('pythreejs')
-        """
-        source_points = pcd2np(self.pcd)
-        deform_points = self.trans_nonrigid.shift_points(source_points)
-        dist = np.linalg.norm(deform_points - source_points, axis=1)
-        scene.add_points(deform_points + shift, scalars=dist, point_size=0.01, cmap=cmap)
-
-        return scene
-
-    def add_deform_kps_to_scene(self, scene: pv.Plotter, kps_names: Union[None, tuple, list] = None, shift: np.array = np.array((0, 0, 0)), radius: float = 1):
-        """Add the visualisation of deformed key points to a :class:`pyvista.Plotter` scene.
-
-        Parameters
-        ---
-        scene
-            :class:`pyvista.Plotter` scene to add the visualisation.
-        kps_names
-            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
-        shift
-			shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
-        radius
-            the radius of the key points.
-
-        Attention
-        ---
-        Before calling this method in Jupyter Notebook environment, the `pythreejs <https://docs.pyvista.org/user-guide/jupyter/pythreejs.html>`_ backend of :mod:`pyvista` is needed to be selected: ::
-
-            import pyvista as pv
-            pv.set_jupyter_backend('pythreejs')
-        """
-        if kps_names is None:
-            kps_names = self.kps_group.keys()
-
-        seed = 26
-        color_ls = list(mcolors.CSS4_COLORS.keys())
-
-        for name in kps_names:
-            # random color select
-            random.seed(seed)
-            color = random.choice(color_ls)
-            seed = seed + 1
-
-            kps_deform = self.trans_nonrigid.shift_kps(self.kps_group[name])
-            kps_deform.add_to_scene(scene, shift=shift, radius=radius, color=color)
-            kps_deform.add_to_scene(scene, shift=shift, radius=radius, color=color)
-
-        return scene
 
     def offset_rotate(self):
         """Offset the rotation according to the estimated rigid transformation.

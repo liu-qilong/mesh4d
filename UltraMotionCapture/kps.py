@@ -128,19 +128,24 @@ class Kps(object):
         """
         pass
 
-    def add_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0)), radius: float = 1, color: str = 'gold') -> pv.Plotter:
+    def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), radius: float = 1, **kwargs) -> pv.Plotter:
         """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
         
         Parameters
         ---
         scene
             :class:`pyvista.Plotter` scene to add the visualisation.
-        shift
-            shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
+        location
+            the displace location represented in a (3, ) :class:`numpy.array`.
         radius
-            radius of the points.
-        color
-            color of the points.
+            radius of the key points
+
+        **kwargs
+            other visualisation parameters.
+            
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
 
         Returns
         ---
@@ -148,7 +153,7 @@ class Kps(object):
             :class:`pyvista.Plotter` scene added the visualisation.
         """
         pvpcd_kps = obj3d.np2pvpcd(self.get_points_coord(), radius=radius)
-        scene.add_mesh(pvpcd_kps.translate(shift, inplace=False), color=color)
+        scene.add_mesh(pvpcd_kps.translate(location, inplace=False), **kwargs)
 
 
 class Marker(object):

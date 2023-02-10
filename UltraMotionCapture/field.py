@@ -125,7 +125,7 @@ class Trans(object):
         self.add_to_scene(scene)
         scene.show()
 
-    def add_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0))) -> pv.Plotter:
+    def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
         """Illustrate the estimated transformation.
 
         Attention
@@ -138,8 +138,14 @@ class Trans(object):
         ---
         scene
             :class:`pyvista.Plotter` scene to add the visualisation.
-        shift
-            shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
+        location
+            the displace location represented in a (3, ) :class:`numpy.array`.
+        **kwargs
+            other visualisation parameters.
+            
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
         """
         return scene
 
@@ -246,15 +252,21 @@ class Trans_Rigid(Trans):
         # return self.scale * np.matmul(points, self.rot.T) + np.expand_dims(self.t, axis=0)
         return (self.scale * np.matmul(self.rot, points.T) + np.expand_dims(self.t, axis=1)).T
 
-    def add_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0))) -> pv.Plotter:
+    def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
         """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
         
         Parameters
         ---
         scene
             :class:`pyvista.Plotter` scene to add the visualisation.
-        shift
-            shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
+        location
+            the displace location represented in a (3, ) :class:`numpy.array`.
+        **kwargs
+            other visualisation parameters.
+            
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
 
         Returns
         ---
@@ -281,9 +293,9 @@ class Trans_Rigid(Trans):
             arrow_y = pv.Arrow(direction=vectors[2] - vectors[0], **param)
             arrow_z = pv.Arrow(direction=vectors[3] - vectors[0], **param)
 
-            scene.add_mesh(arrow_x.translate(shift, inplace=True), color='gold', opacity=opacity)
-            scene.add_mesh(arrow_y.translate(shift, inplace=True), color='teal', opacity=opacity)
-            scene.add_mesh(arrow_z.translate(shift, inplace=True), color='darkolivegreen', opacity=opacity)
+            scene.add_mesh(arrow_x.translate(location, inplace=True), color='gold', opacity=opacity)
+            scene.add_mesh(arrow_y.translate(location, inplace=True), color='teal', opacity=opacity)
+            scene.add_mesh(arrow_z.translate(location, inplace=True), color='darkolivegreen', opacity=opacity)
 
         add_axes(scene, vectors, opacity=0.3)
         add_axes(scene, vectors_deform)
@@ -376,20 +388,21 @@ class Trans_Nonrigid(Trans):
         _, idx = self.search_tree.query(points)
         return self.deform_points[idx]
 
-    def add_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0)), cmap: str = "cool") -> pv.Plotter:
+    def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
         """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
         
         Parameters
         ---
         scene
             :class:`pyvista.Plotter` scene to add the visualisation.
-        shift
-            shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
-        cmap
-            the color map name. 
+        location
+            the displace location represented in a (3, ) :class:`numpy.array`.
+        **kwargs
+            other visualisation parameters.
             
             .. seealso::
-                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
 
         Returns
         ---
@@ -398,7 +411,7 @@ class Trans_Nonrigid(Trans):
         """
         pdata = pv.vector_poly_data(self.source_points, self.disp)
         glyph = pdata.glyph()
-        scene.add_mesh(glyph.translate(shift, inplace=False), lighting=False, cmap=cmap)
+        scene.add_mesh(glyph.translate(location, inplace=False), **kwargs)
         
         return scene
 
