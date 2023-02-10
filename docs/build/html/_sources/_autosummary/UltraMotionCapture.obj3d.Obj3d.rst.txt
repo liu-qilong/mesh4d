@@ -1,4 +1,4 @@
-UltraMotionCapture.obj3d.Obj3d
+﻿UltraMotionCapture.obj3d.Obj3d
 ==============================
 
 .. currentmodule:: UltraMotionCapture.obj3d
@@ -18,8 +18,10 @@ UltraMotionCapture.obj3d.Obj3d
    .. autosummary::
    
       ~Obj3d.__init__
-      ~Obj3d.add_to_scene
+      ~Obj3d.add_mesh_to_scene
+      ~Obj3d.add_pcd_to_scene
       ~Obj3d.show
+      ~Obj3d.show_diff
    
    
 

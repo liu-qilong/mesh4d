@@ -312,48 +312,42 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.__init__" title="UltraMotionCapture.obj3d.Obj3d_Deform.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(**kwargs)</p></td>
 <td><p>Initialize self.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_scene</span></code>(scene[, kps_names, shift])</p></td>
-<td><p>Add the visualisation of current object to a <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_kps_to_scene</span></code>(scene[, kps_names, …])</p></td>
+<td><p>Add the visualisation of key points to a <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.add_to_scene_deform" title="UltraMotionCapture.obj3d.Obj3d_Deform.add_to_scene_deform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_scene_deform</span></code></a>(scene[, kps_names, …])</p></td>
-<td><p>Illustrate the mesh, the sampled point cloud, and the key points after the estimated deformation.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_mesh_to_scene</span></code>(scene[, location, show_edges])</p></td>
+<td><p>Add the visualisation of the mesh to a <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.add_to_scene_diff_deform_gt" title="UltraMotionCapture.obj3d.Obj3d_Deform.add_to_scene_diff_deform_gt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_scene_diff_deform_gt</span></code></a>(scene, obj3d_gt)</p></td>
-<td><p>Illustrate the distance between the deformed 3d object under revealed deformation and the ground-truth deformed 3d object.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_pcd_to_scene</span></code>(scene[, location])</p></td>
+<td><p>Add the visualisation of the sampled key points to a <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.load_kps" title="UltraMotionCapture.obj3d.Obj3d_Deform.load_kps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_kps</span></code></a>(name, markerset[, time])</p></td>
-<td><p>Load a set of key points as into <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.kps_group</span></code> dictionary from a <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code> object with a name.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.get_deform_obj3d" title="UltraMotionCapture.obj3d.Obj3d_Deform.get_deform_obj3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_deform_obj3d</span></code></a>([mode])</p></td>
+<td><p>Get the deformed 3D object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.offset_rotate" title="UltraMotionCapture.obj3d.Obj3d_Deform.offset_rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">offset_rotate</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_kps</span></code>(name, markerset[, time])</p></td>
+<td><p>Load key points as <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.kps</span></code> from a <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code> object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.offset_rotate" title="UltraMotionCapture.obj3d.Obj3d_Deform.offset_rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">offset_rotate</span></code></a>()</p></td>
 <td><p>Offset the rotation according to the estimated rigid transformation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_nonrigid" title="UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_nonrigid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_trans_nonrigid</span></code></a>(trans_nonrigid)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_nonrigid" title="UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_nonrigid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_trans_nonrigid</span></code></a>(trans_nonrigid)</p></td>
 <td><p>Set non-rigid transformation.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_rigid" title="UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_rigid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_trans_rigid</span></code></a>(trans_rigid)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_rigid" title="UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_rigid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_trans_rigid</span></code></a>(trans_rigid)</p></td>
 <td><p>Set rigid transformation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.show" title="UltraMotionCapture.obj3d.Obj3d_Deform.show"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show</span></code></a>([kps_names, mode, obj3d_gt])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">show</span></code>([kps_names])</p></td>
 <td><p>Show the loaded mesh, the sampled point cloud, and the key points attached to it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.show_deform" title="UltraMotionCapture.obj3d.Obj3d_Deform.show_deform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_deform</span></code></a>([kps_names, mode, cmap])</p></td>
+<td><p>Illustrate the mesh, the sampled point cloud, and the key points after the estimated deformation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_diff</span></code>(obj2[, kps_names, cmap, op2])</p></td>
+<td><p>Illustrate the difference of two 3D object:</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<dl class="py method">
-<dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d_Deform.load_kps">
-<span class="sig-name descname"><span class="pre">load_kps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">markerset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><span class="pre">UltraMotionCapture.kps.MarkerSet</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d_Deform.load_kps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d_Deform.load_kps" title="Permalink to this definition">#</a></dt>
-<dd><p>Load a set of key points as into <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.kps_group</span></code> dictionary from a <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code> object with a name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – the name of the <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> objects. Noted that this name will also been used as its keyword in <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.kps_group</span></code>.</p></li>
-<li><p><strong>markerset</strong> – the <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code> object.</p></li>
-<li><p><strong>time</strong> – the time from the <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code>’s recording period to be loaded.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_rigid">
 <span class="sig-name descname"><span class="pre">set_trans_rigid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans_rigid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid" title="UltraMotionCapture.field.Trans_Rigid"><span class="pre">UltraMotionCapture.field.Trans_Rigid</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d_Deform.set_trans_rigid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d_Deform.set_trans_rigid" title="Permalink to this definition">#</a></dt>
@@ -377,92 +371,49 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d_Deform.show">
-<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kps_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span> </span><span class="pre">tuple</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'raw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj3d_gt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps" title="UltraMotionCapture.obj3d.Obj3d_Kps"><span class="pre">UltraMotionCapture.obj3d.Obj3d_Kps</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d_Deform.show"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d_Deform.show" title="Permalink to this definition">#</a></dt>
-<dd><p>Show the loaded mesh, the sampled point cloud, and the key points attached to it.</p>
+<dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d_Deform.get_deform_obj3d">
+<span class="sig-name descname"><span class="pre">get_deform_obj3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'nonrigid'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d_Deform.get_deform_obj3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d_Deform.get_deform_obj3d" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the deformed 3D object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>kps_names</strong> – a list of names of the <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> objects to be shown. Noted that a <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> object’s name is its keyword in <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.kps_group</span></code>.</p></li>
-<li><p><strong>mode</strong> – <ul>
-<li><p><code class="code docutils literal notranslate"><span class="pre">raw</span></code> calls <code class="xref py py-meth docutils literal notranslate"><span class="pre">add_to_scene()</span></code> inherited from <a class="reference internal" href="UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps" title="UltraMotionCapture.obj3d.Obj3d_Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Obj3d_Kps</span></code></a> to illustrate the mesh, sampled points, and key points.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">deform</span></code> calls <a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.add_to_scene_deform" title="UltraMotionCapture.obj3d.Obj3d_Deform.add_to_scene_deform"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_to_scene_deform()</span></code></a> to illustrate the deformed mesh, displacement field and key points.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">diff_deform_gt</span></code> calls <a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d_Deform.add_to_scene_diff_deform_gt" title="UltraMotionCapture.obj3d.Obj3d_Deform.add_to_scene_diff_deform_gt"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_to_scene_diff_deform_gt()</span></code></a> to illustrate the difference between the estimated deformed mesh and sampling points with the ground-truth.</p></li>
+<dd class="field-odd"><p><strong>mode</strong> – <ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">nonrigid</span></code>: the non-rigid transformation will be used to deform the object.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">rigid</span></code>: the rigid transformation will be used to deform the object.</p></li>
 </ul>
-</p></li>
-<li><p><strong>obj3d_gt</strong> – if set <code class="code docutils literal notranslate"><span class="pre">mode='diff_deform_gt'</span></code>, the ground-truth 3D object is needed to be provided.</p></li>
-<li><p><strong>**kwargs</strong> – parameters passed to downstream methods.</p></li>
-</ul>
+</p>
 </dd>
 </dl>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p>Before calling this method in Jupyter Notebook environment, the <a class="reference external" href="https://docs.pyvista.org/user-guide/jupyter/pythreejs.html">pythreejs</a> backend of <code class="xref py py-mod docutils literal notranslate"><span class="pre">pyvista</span></code> is needed to be selected:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
-<span class="n">pv</span><span class="o">.</span><span class="n">set_jupyter_backend</span><span class="p">(</span><span class="s1">&#39;pythreejs&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Before calling this method, please make sure that the transformation has been estimated.</p>
 </div>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d_Deform.add_to_scene_deform">
-<span class="sig-name descname"><span class="pre">add_to_scene_deform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scene</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pyvista.plotting.plotting.Plotter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kps_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span> </span><span class="pre">tuple</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.array</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">array([0,</span> <span class="pre">0,</span> <span class="pre">0])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'cool'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d_Deform.add_to_scene_deform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d_Deform.add_to_scene_deform" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d_Deform.show_deform">
+<span class="sig-name descname"><span class="pre">show_deform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kps_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span> </span><span class="pre">tuple</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'nonrigid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'cool'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d_Deform.show_deform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d_Deform.show_deform" title="Permalink to this definition">#</a></dt>
 <dd><p>Illustrate the mesh, the sampled point cloud, and the key points after the estimated deformation.</p>
 <ul class="simple">
 <li><p>The mesh will be coloured with the distance of deformation. The mapping between distance and color is controlled by <code class="xref py py-attr docutils literal notranslate"><span class="pre">cmap</span></code> argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.</p></li>
 <li><p>The sampled points will be attached with displacement vectors to illustrate the displacement field.</p></li>
+<li><p>The deformed key points will be shown attached to the mesh and point cloud.</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>scene</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene to add the visualisation.</p></li>
 <li><p><strong>kps_names</strong> – a list of names of the <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> objects to be shown. Noted that a <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> object’s name is its keyword in <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.kps_group</span></code>.</p></li>
-<li><p><strong>shift</strong> – shift the displace location by a (3, ) vector stored in <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>, or <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.array</span></code>.</p></li>
+<li><p><strong>mode</strong> – <ul>
+<li><p><code class="code docutils literal notranslate"><span class="pre">nonrigid</span></code>: the non-rigid transformation will be used to deform the object.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">rigid</span></code>: the rigid transformation will be used to deform the object.</p></li>
+</ul>
+</p></li>
 <li><p><strong>cmap</strong> – <p>the color map name.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p>For full list of supported color map, please refer to <a class="reference external" href="https://matplotlib.org/stable/tutorials/colors/colormaps.html">Choosing Colormaps in Matplotlib</a>.</p>
 </div>
 </p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p>Before calling this method in Jupyter Notebook environment, the <a class="reference external" href="https://docs.pyvista.org/user-guide/jupyter/pythreejs.html">pythreejs</a> backend of <code class="xref py py-mod docutils literal notranslate"><span class="pre">pyvista</span></code> is needed to be selected:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
-<span class="n">pv</span><span class="o">.</span><span class="n">set_jupyter_backend</span><span class="p">(</span><span class="s1">&#39;pythreejs&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d_Deform.add_to_scene_diff_deform_gt">
-<span class="sig-name descname"><span class="pre">add_to_scene_diff_deform_gt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scene</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj3d_gt</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps" title="UltraMotionCapture.obj3d.Obj3d_Kps"><span class="pre">UltraMotionCapture.obj3d.Obj3d_Kps</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kps_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span> </span><span class="pre">tuple</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.array</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">array([0,</span> <span class="pre">0,</span> <span class="pre">0])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'cool'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d_Deform.add_to_scene_diff_deform_gt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d_Deform.add_to_scene_diff_deform_gt" title="Permalink to this definition">#</a></dt>
-<dd><p>Illustrate the distance between the deformed 3d object under revealed deformation and the ground-truth deformed 3d object.</p>
-<ul class="simple">
-<li><p>The deformed mesh will be coloured with the distance of ground-truth mesh. The mapping between distance and color is controlled by <code class="xref py py-attr docutils literal notranslate"><span class="pre">cmap</span></code> argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.</p></li>
-<li><p>The deformed key points will be coloured in gold while the ground-truth key points will be coloured in green.</p></li>
-<li><p>The deformed sampled points will be illustrated to the right.</p></li>
-<li><p>The ground-truth mesh will be displayed in low opacity with the deformed mesh and sampled points.</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>scene</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene to add the visualisation.</p></li>
-<li><p><strong>obj3d_gt</strong> – the ground-truth 3D object.</p></li>
-<li><p><strong>kps_names</strong> – a list of names of the <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> objects to be shown. Noted that a <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> object’s name is its keyword in <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.kps_group</span></code>.</p></li>
-<li><p><strong>shift</strong> – shift the displace location by a (3, ) vector stored in <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>, or <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.array</span></code>.</p></li>
-<li><p><strong>obj3d_gt</strong> – </p></li>
-<li><p><strong>cmap</strong> – <p>the color map name.</p>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p>For full list of supported color map, please refer to <a class="reference external" href="https://matplotlib.org/stable/tutorials/colors/colormaps.html">Choosing Colormaps in Matplotlib</a>.</p>
-</div>
-</p></li>
-<li><p><strong>opacity</strong> – the opacity of the ground-truth 3D object.</p></li>
 </ul>
 </dd>
 </dl>

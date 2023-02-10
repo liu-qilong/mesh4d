@@ -148,7 +148,7 @@ class Trans(object):
                 `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
                 `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
         """
-        return scene
+        pass
 
 
 class Trans_Rigid(Trans):
@@ -261,7 +261,7 @@ class Trans_Rigid(Trans):
         # return self.scale * np.matmul(points, self.rot.T) + np.expand_dims(self.t, axis=0)
         return (self.scale * np.matmul(self.rot, points.T) + np.expand_dims(self.t, axis=1)).T
 
-    def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), original_length: float = 1, **kwargs) -> pv.Plotter:
+    def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), original_length: Union[None, float] = None, **kwargs) -> pv.Plotter:
         """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
         
         Parameters
@@ -271,7 +271,7 @@ class Trans_Rigid(Trans):
         location
             the displace location represented in a (3, ) :class:`numpy.array`.
         original_length
-            length of the original axes vectors.
+            length of the original axes vectors. If not set, length will be automatically selected for clear illustration.
         **kwargs
             other visualisation parameters.
             
@@ -291,7 +291,9 @@ class Trans_Rigid(Trans):
             [0, 0, 1],  # z axis
         ])
         vectors_deform = self.shift_points(vectors)
-        scale_rate = np.linalg.norm(vectors_deform[0] - vectors[0])/2
+
+        if original_length is None:
+            original_length = np.linalg.norm(vectors_deform[0] - vectors[0])/2
 
         def add_axes(scene, vectors, shaft_radius=0.02, tip_radius=0.05, opacity=1):
             param = {
@@ -310,7 +312,6 @@ class Trans_Rigid(Trans):
 
         add_axes(scene, vectors, opacity=0.3)
         add_axes(scene, vectors_deform)
-        return scene
 
 
 class Trans_Nonrigid(Trans):
@@ -423,8 +424,6 @@ class Trans_Nonrigid(Trans):
         pdata = pv.vector_poly_data(self.source_points, self.disp)
         glyph = pdata.glyph()
         scene.add_mesh(glyph.translate(location, inplace=False), **kwargs)
-        
-        return scene
 
 
 def transform_rst2sm(R: np.array, s: float, t: np.array) -> tuple[float, np.array]:

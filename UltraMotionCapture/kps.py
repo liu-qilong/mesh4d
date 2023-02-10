@@ -126,7 +126,9 @@ class Kps(object):
     def show(self):
         """Illustrate the key points object.
         """
-        pass
+        scene = pv.Plotter()
+        self.add_to_scene(scene)
+        scene.show()
 
     def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), radius: float = 1, **kwargs) -> pv.Plotter:
         """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.

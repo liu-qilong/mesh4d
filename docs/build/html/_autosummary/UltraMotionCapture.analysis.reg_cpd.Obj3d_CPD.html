@@ -315,29 +315,38 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.analysis.reg_cpd.Obj3d_CPD.__init__" title="UltraMotionCapture.analysis.reg_cpd.Obj3d_CPD.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(filedir[, scale_rate, sample_num])</p></td>
 <td><p>Initialize self.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_scene</span></code>(scene[, kps_names, shift])</p></td>
-<td><p>Add the visualisation of current object to a <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_kps_to_scene</span></code>(scene[, kps_names, …])</p></td>
+<td><p>Add the visualisation of key points to a <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_scene_deform</span></code>(scene[, kps_names, …])</p></td>
-<td><p>Illustrate the mesh, the sampled point cloud, and the key points after the estimated deformation.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_mesh_to_scene</span></code>(scene[, location, show_edges])</p></td>
+<td><p>Add the visualisation of the mesh to a <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_scene_diff_deform_gt</span></code>(scene, obj3d_gt)</p></td>
-<td><p>Illustrate the distance between the deformed 3d object under revealed deformation and the ground-truth deformed 3d object.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_pcd_to_scene</span></code>(scene[, location])</p></td>
+<td><p>Add the visualisation of the sampled key points to a <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_kps</span></code>(name, markerset[, time])</p></td>
-<td><p>Load a set of key points as into <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.kps_group</span></code> dictionary from a <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code> object with a name.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_deform_obj3d</span></code>([mode])</p></td>
+<td><p>Get the deformed 3D object.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">offset_rotate</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_kps</span></code>(name, markerset[, time])</p></td>
+<td><p>Load key points as <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.kps</span></code> from a <code class="xref py py-class docutils literal notranslate"><span class="pre">kps.MarkerSet</span></code> object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">offset_rotate</span></code>()</p></td>
 <td><p>Offset the rotation according to the estimated rigid transformation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_trans_nonrigid</span></code>(trans_nonrigid)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_trans_nonrigid</span></code>(trans_nonrigid)</p></td>
 <td><p>Set non-rigid transformation.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_trans_rigid</span></code>(trans_rigid)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_trans_rigid</span></code>(trans_rigid)</p></td>
 <td><p>Set rigid transformation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">show</span></code>([kps_names, mode, obj3d_gt])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">show</span></code>([kps_names])</p></td>
 <td><p>Show the loaded mesh, the sampled point cloud, and the key points attached to it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_deform</span></code>([kps_names, mode, cmap])</p></td>
+<td><p>Illustrate the mesh, the sampled point cloud, and the key points after the estimated deformation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_diff</span></code>(obj2[, kps_names, cmap, op2])</p></td>
+<td><p>Illustrate the difference of two 3D object:</p></td>
 </tr>
 </tbody>
 </table>

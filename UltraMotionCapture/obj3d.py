@@ -116,7 +116,37 @@ class Obj3d(object):
 
         scene.show()
 
-    def add_mesh_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
+    def show_diff(obj1: Type[Obj3d], obj2: Type[Obj3d], cmap: str = "cool", op2: float = 0.2):
+        """Illustrate the difference of two 3D object:
+
+        :attr:`obj1` mesh will be coloured according to each of its points' distance to :attr:`obj2` mesh. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
+        
+        Parameters
+        ---
+        obj1
+            the first 3D object.
+        obj2
+            the second 3D object.
+        cmap
+            the color map name. 
+            
+            .. seealso::
+                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+        op2
+            the opacity of the second 3D object.
+        """
+        scene = pv.Plotter()
+        
+        tree = KDTree(obj2.mesh.points)
+        d_kdtree, _ = tree.query(obj1.mesh.points)
+        obj1.mesh["distances"] = d_kdtree
+
+        obj1.add_mesh_to_scene(scene, show_edges=False, cmap=cmap)
+        obj2.add_mesh_to_scene(scene, show_edges=False, opacity=op2)
+
+        scene.show()
+
+    def add_mesh_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), show_edges: bool =True, **kwargs) -> pv.Plotter:
         """Add the visualisation of the mesh to a :class:`pyvista.Plotter` scene.
         
         Parameters
@@ -125,6 +155,8 @@ class Obj3d(object):
             :class:`pyvista.Plotter` scene to add the visualisation.
         location
             the displace location represented in a (3, ) :class:`numpy.array`.
+        show_edges
+            show mesh edges or not
         **kwargs
             other visualisation parameters.
 
@@ -137,8 +169,7 @@ class Obj3d(object):
         :class:`pyvista.Plotter`
             :class:`pyvista.Plotter` scene added the visualisation.
         """
-        scene.add_mesh(self.mesh.translate(location, inplace=False), show_edges=True, **kwargs)
-        return scene
+        scene.add_mesh(self.mesh.translate(location, inplace=False), show_edges=show_edges, **kwargs)
 
     def add_pcd_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
         """Add the visualisation of the sampled key points to a :class:`pyvista.Plotter` scene.
@@ -162,7 +193,6 @@ class Obj3d(object):
             :class:`pyvista.Plotter` scene added the visualisation.
         """
         scene.add_points(pcd2np(self.pcd) + location, **kwargs)
-        return scene
 
 
 class Obj3d_Kps(Obj3d):
@@ -225,7 +255,43 @@ class Obj3d_Kps(Obj3d):
 
         scene.show()
 
-    def add_kps_to_scene(self, scene: pv.Plotter, kps_names: Union[None, tuple, list] = None, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
+    def show_diff(obj1: Type[Obj3d_Kps], obj2: Type[Obj3d_Kps], kps_names: Union[None, tuple, list] = None, cmap: str = "cool", op2: float = 0.2):
+        """Illustrate the difference of two 3D object:
+
+        - :attr:`obj1` mesh will be coloured according to each of its points' distance to :attr:`obj2` mesh. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
+        - :attr:`obj1` key points will be coloured in gold while :attr:`obj1` key points will be coloured in green.
+
+        Parameters
+        ---
+        obj1
+            the first 3D object.
+        obj2
+            the second 3D object.
+        kps_names
+            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
+        cmap
+            the color map name. 
+            
+            .. seealso::
+                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+        op2
+            the opacity of the second 3D object.
+        """
+        scene = pv.Plotter()
+        
+        tree = KDTree(obj2.mesh.points)
+        d_kdtree, _ = tree.query(obj1.mesh.points)
+        obj1.mesh["distances"] = d_kdtree
+        width = pcd_get_max_bound(obj1.pcd)[0] - pcd_get_min_bound(obj1.pcd)[0]
+
+        obj1.add_mesh_to_scene(scene, show_edges=False, cmap=cmap)
+        obj2.add_mesh_to_scene(scene, show_edges=False, opacity=op2)
+        obj1.add_kps_to_scene(scene, color="gold", radius=0.02*width)
+        obj2.add_kps_to_scene(scene, color="green", radius=0.02*width)
+
+        scene.show()
+
+    def add_kps_to_scene(self, scene: pv.Plotter, kps_names: Union[None, tuple, list] = None, location: np.array = np.array((0, 0, 0)), color: Union[None, str] = None, **kwargs) -> pv.Plotter:
         """Add the visualisation of key points to a :class:`pyvista.Plotter` scene.
         
         Parameters
@@ -236,6 +302,8 @@ class Obj3d_Kps(Obj3d):
             a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
         shift
 	        shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
+        color
+            color of the key points. If not set, a unique color will be automatically assigned to each group of key points.
         **kwargs
             other visualisation parameters.
 
@@ -251,18 +319,22 @@ class Obj3d_Kps(Obj3d):
         if kps_names is None:
             kps_names = self.kps_group.keys()
 
-        seed = 26
-        color_ls = list(mcolors.CSS4_COLORS.keys())
+        if color is None:
+            # prepare random color select
+            random_color = True
+            seed = 26
+            color_ls = list(mcolors.CSS4_COLORS.keys())
+        else:
+            random_color = False
 
         for name in kps_names:
             # random color select
-            random.seed(seed)
-            color = random.choice(color_ls)
-            seed = seed + 1
+            if random_color:
+                random.seed(seed)
+                color = random.choice(color_ls)
+                seed = seed + 1
 
             self.kps_group[name].add_to_scene(scene, location=location, color=color, **kwargs)
-            
-        return scene
 
 
 class Obj3d_Deform(Obj3d_Kps):
@@ -312,7 +384,7 @@ class Obj3d_Deform(Obj3d_Kps):
         """
         self.trans_nonrigid = trans_nonrigid
 
-    def get_deform_obj3d(self, mode: str = 'nonrigid'):
+    def get_deform_obj3d(self, mode: str = "nonrigid"):
         """Get the deformed 3D object.
         
         Parameters

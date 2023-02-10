@@ -395,21 +395,28 @@
 <div class="viewcode-block" id="Kps.show"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Illustrate the key points object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="n">scene</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_scene</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Kps.add_to_scene"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.add_to_scene">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_scene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">,</span> <span class="n">shift</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;gold&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">:</span>
+<div class="viewcode-block" id="Kps.add_to_scene"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.add_to_scene">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_scene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add the visualisation of current object to a :class:`pyvista.Plotter` scene.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ---</span>
 <span class="sd">        scene</span>
 <span class="sd">            :class:`pyvista.Plotter` scene to add the visualisation.</span>
-<span class="sd">        shift</span>
-<span class="sd">            shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.</span>
+<span class="sd">        location</span>
+<span class="sd">            the displace location represented in a (3, ) :class:`numpy.array`.</span>
 <span class="sd">        radius</span>
-<span class="sd">            radius of the points.</span>
-<span class="sd">        color</span>
-<span class="sd">            color of the points.</span>
+<span class="sd">            radius of the key points</span>
+
+<span class="sd">        **kwargs</span>
+<span class="sd">            other visualisation parameters.</span>
+<span class="sd">            </span>
+<span class="sd">            .. seealso::</span>
+<span class="sd">                `pyvista.Plotter.add_mesh &lt;https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html&gt;`_</span>
+<span class="sd">                `pyvista.Plotter.add_points &lt;https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html&gt;`_</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        ---</span>
@@ -417,7 +424,7 @@
 <span class="sd">            :class:`pyvista.Plotter` scene added the visualisation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pvpcd_kps</span> <span class="o">=</span> <span class="n">obj3d</span><span class="o">.</span><span class="n">np2pvpcd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_points_coord</span><span class="p">(),</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
-        <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">pvpcd_kps</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">shift</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span></div></div>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">pvpcd_kps</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Marker"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker">[docs]</a><span class="k">class</span> <span class="nc">Marker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
