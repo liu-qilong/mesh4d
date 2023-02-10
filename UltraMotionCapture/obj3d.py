@@ -20,10 +20,12 @@ from typing import Type, Union, Iterable
 
 import os
 import copy
+import random
 import numpy as np
 import open3d as o3d
 import pyvista as pv
 from scipy.spatial import KDTree
+import matplotlib.colors as mcolors
 
 import UltraMotionCapture
 import UltraMotionCapture.config.param
@@ -46,8 +48,10 @@ class Obj3d(object):
         .. seealso::
             Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.
 
-    sample_num
-        the number of the points sampled from the mesh to construct the point cloud.
+    mode
+        
+        - :code:`load` the default mode is load from a file.
+        - :code:`empty` create a 3D object without any 3D data.
 
     Note
     ---
@@ -76,15 +80,23 @@ class Obj3d(object):
     """
     def __init__(
         self,
-        filedir: str,
+        filedir: str = '',
         scale_rate: float = 1,
+        mode: str = "load"
     ):
-        self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
-        self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
-        self.scale_rate = scale_rate
+        if mode == "load":
+            self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
+            self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
+            self.scale_rate = scale_rate
 
-        self.mesh.scale(self.scale_rate, inplace=True)
-        self.pcd = np2pcd(self.mesh.points)
+            self.mesh.scale(self.scale_rate, inplace=True)
+            self.pcd = np2pcd(self.mesh.points)
+
+        elif mode == "empty":
+            self.mesh = None
+            self.texture = None
+            self.pcd = None
+            self.scale_rate = scale_rate
 
     def show(self):
         """Show the loaded mesh and the sampled point cloud.
@@ -98,14 +110,89 @@ class Obj3d(object):
         """
         scene = pv.Plotter()
 
-        # plot mesh
-        scene.add_mesh(self.mesh, show_edges=True)
-
-        # plot sampled point cloud
         width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
-        scene.add_points(pcd2np(self.pcd) + [1.5*width, 0, 0])
+        self.add_mesh_to_scene(scene)
+        self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0])
 
         scene.show()
+
+    def show_diff(obj1: Type[Obj3d], obj2: Type[Obj3d], cmap: str = "cool", op2: float = 0.2):
+        """Illustrate the difference of two 3D object:
+
+        :attr:`obj1` mesh will be coloured according to each of its points' distance to :attr:`obj2` mesh. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
+        
+        Parameters
+        ---
+        obj1
+            the first 3D object.
+        obj2
+            the second 3D object.
+        cmap
+            the color map name. 
+            
+            .. seealso::
+                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+        op2
+            the opacity of the second 3D object.
+        """
+        scene = pv.Plotter()
+        
+        tree = KDTree(obj2.mesh.points)
+        d_kdtree, _ = tree.query(obj1.mesh.points)
+        obj1.mesh["distances"] = d_kdtree
+
+        obj1.add_mesh_to_scene(scene, show_edges=False, cmap=cmap)
+        obj2.add_mesh_to_scene(scene, show_edges=False, opacity=op2)
+
+        scene.show()
+
+    def add_mesh_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), show_edges: bool =True, **kwargs) -> pv.Plotter:
+        """Add the visualisation of the mesh to a :class:`pyvista.Plotter` scene.
+        
+        Parameters
+        ---
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        location
+            the displace location represented in a (3, ) :class:`numpy.array`.
+        show_edges
+            show mesh edges or not
+        **kwargs
+            other visualisation parameters.
+
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
+
+        Returns
+        ---
+        :class:`pyvista.Plotter`
+            :class:`pyvista.Plotter` scene added the visualisation.
+        """
+        scene.add_mesh(self.mesh.translate(location, inplace=False), show_edges=show_edges, **kwargs)
+
+    def add_pcd_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
+        """Add the visualisation of the sampled key points to a :class:`pyvista.Plotter` scene.
+        
+        Parameters
+        ---
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        location
+            the displace location represented in a (3, ) :class:`numpy.array`.
+        **kwargs
+            other visualisation parameters.
+
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
+
+        Returns
+        ---
+        :class:`pyvista.Plotter`
+            :class:`pyvista.Plotter` scene added the visualisation.
+        """
+        scene.add_points(pcd2np(self.pcd) + location, **kwargs)
 
 
 class Obj3d_Kps(Obj3d):
@@ -142,28 +229,7 @@ class Obj3d_Kps(Obj3d):
         """
         self.kps_group[name] = markerset.get_time_coord(time, kps_class=kps.Kps)
 
-    def get_kps_coord(self, kps_names: Union[None, tuple, list] = None) -> np.array:
-        """Get key points coordinates concatenated as a (N, 3) :class:`numpy.array`.
-        
-        Parameters
-        ---
-        kps_names
-            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
-
-        Returns
-        ---
-        :class:`numpy.array`
-            key points coordinates concatenated as a (N, 3) array.
-        """
-        if self.kps_group != {}:
-            if kps_names is None:
-                    kps_points_ls = [kps.get_points_coord() for kps in self.kps_group.values()]
-            else:
-                kps_points_ls = [self.kps_group[name].get_points_coord() for name in kps_names]
-            
-            return np.concatenate(kps_points_ls)
-
-    def show(self, kps_names: Union[None, tuple, list] = None):
+    def show(self, kps_names: Union[None, list, tuple] = None):
         """Show the loaded mesh, the sampled point cloud, and the key points attached to it.
 
         Parameters
@@ -179,23 +245,96 @@ class Obj3d_Kps(Obj3d):
             pv.set_jupyter_backend('pythreejs')
         """
         scene = pv.Plotter()
-        
-        # plot mesh
-        scene.add_mesh(self.mesh, show_edges=True)
 
-        # plot sampled point cloud
         width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
-        lateral_move = [1.5 * width, 0, 0]
-        scene.add_points(pcd2np(self.pcd) + lateral_move, point_size=0.001*width)
 
-        # plot key points
-        if self.kps_group != {}:
-            kps_group_points = self.get_kps_coord(kps_names)
-            pvpcd_kps = np2pvpcd(kps_group_points, radius=0.02*width)
-            scene.add_mesh(pvpcd_kps, color='gold')
-            scene.add_mesh(pvpcd_kps.translate(lateral_move, inplace=False), color='gold')
+        self.add_mesh_to_scene(scene)
+        self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0])
+        self.add_kps_to_scene(scene, kps_names, radius=0.02*width)
+        self.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
 
         scene.show()
+
+    def show_diff(obj1: Type[Obj3d_Kps], obj2: Type[Obj3d_Kps], kps_names: Union[None, tuple, list] = None, cmap: str = "cool", op2: float = 0.2):
+        """Illustrate the difference of two 3D object:
+
+        - :attr:`obj1` mesh will be coloured according to each of its points' distance to :attr:`obj2` mesh. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
+        - :attr:`obj1` key points will be coloured in gold while :attr:`obj1` key points will be coloured in green.
+
+        Parameters
+        ---
+        obj1
+            the first 3D object.
+        obj2
+            the second 3D object.
+        kps_names
+            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
+        cmap
+            the color map name. 
+            
+            .. seealso::
+                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+        op2
+            the opacity of the second 3D object.
+        """
+        scene = pv.Plotter()
+        
+        tree = KDTree(obj2.mesh.points)
+        d_kdtree, _ = tree.query(obj1.mesh.points)
+        obj1.mesh["distances"] = d_kdtree
+        width = pcd_get_max_bound(obj1.pcd)[0] - pcd_get_min_bound(obj1.pcd)[0]
+
+        obj1.add_mesh_to_scene(scene, show_edges=False, cmap=cmap)
+        obj2.add_mesh_to_scene(scene, show_edges=False, opacity=op2)
+        obj1.add_kps_to_scene(scene, color="gold", radius=0.02*width)
+        obj2.add_kps_to_scene(scene, color="green", radius=0.02*width)
+
+        scene.show()
+
+    def add_kps_to_scene(self, scene: pv.Plotter, kps_names: Union[None, tuple, list] = None, location: np.array = np.array((0, 0, 0)), color: Union[None, str] = None, **kwargs) -> pv.Plotter:
+        """Add the visualisation of key points to a :class:`pyvista.Plotter` scene.
+        
+        Parameters
+        ---
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        kps_names
+            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
+        shift
+	        shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
+        color
+            color of the key points. If not set, a unique color will be automatically assigned to each group of key points.
+        **kwargs
+            other visualisation parameters.
+
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
+
+        Returns
+        ---
+        :class:`pyvista.Plotter`
+            :class:`pyvista.Plotter` scene added the visualisation.
+        """
+        if kps_names is None:
+            kps_names = self.kps_group.keys()
+
+        if color is None:
+            # prepare random color select
+            random_color = True
+            seed = 26
+            color_ls = list(mcolors.CSS4_COLORS.keys())
+        else:
+            random_color = False
+
+        for name in kps_names:
+            # random color select
+            if random_color:
+                random.seed(seed)
+                color = random.choice(color_ls)
+                seed = seed + 1
+
+            self.kps_group[name].add_to_scene(scene, location=location, color=color, **kwargs)
 
 
 class Obj3d_Deform(Obj3d_Kps):
@@ -225,47 +364,6 @@ class Obj3d_Deform(Obj3d_Kps):
         self.trans_rigid = None
         self.trans_nonrigid = None
 
-    def load_kps(self, name: str, markerset: Type[kps.MarkerSet], time: float = 0.0):
-        """Load a set of key points as into :attr:`self.kps_group` dictionary from a :class:`kps.MarkerSet` object with a name.
-        
-        Parameters
-        ---
-        name
-            the name of the :class:`~UltraMotionCapture.kps.Kps` objects. Noted that this name will also been used as its keyword in :attr:`self.kps_group`.
-        markerset
-            the :class:`kps.MarkerSet` object.
-        time
-            the time from the :class:`kps.MarkerSet`'s recording period to be loaded.
-        """
-        self.kps_group[name] = markerset.get_time_coord(time, kps_class=kps.Kps_Deform)
-
-    def get_deform_kps_coord(self, kps_names: Union[None, tuple, list] = None) -> np.array:
-        """Get key points coordinates after non-rigid transformation concatenated as a (N, 3) :class:`numpy.array`.
-        
-        Parameters
-        ---
-        kps_names
-            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
-
-        Returns
-        ---
-        :class:`numpy.array`
-            key points coordinates concatenated as a (N, 3) array.
-        """
-        if self.kps_group != {} and self.trans_nonrigid is not None:
-            if kps_names is None:
-                kps_deform_points_ls = [
-                    self.trans_nonrigid.shift_points(kps.get_points_coord())
-                    for kps in self.kps_group.values()
-                    ]
-            else:
-                kps_deform_points_ls = [
-                    self.trans_nonrigid.shift_points(self.kps_group[name].get_points_coord())
-                    for name in kps_names
-                    ]
-            
-            return np.concatenate(kps_deform_points_ls)
-
     def set_trans_rigid(self, trans_rigid: field.Trans_Rigid):
         """Set rigid transformation.
 
@@ -285,6 +383,99 @@ class Obj3d_Deform(Obj3d_Kps):
             the non-rigid transformation (:class:`UltraMotionCapture.field.Trans_Nonrigid`).
         """
         self.trans_nonrigid = trans_nonrigid
+
+    def get_deform_obj3d(self, mode: str = "nonrigid"):
+        """Get the deformed 3D object.
+        
+        Parameters
+        ---
+        mode
+            
+            - :code:`nonrigid`: the non-rigid transformation will be used to deform the object.
+            - :code:`rigid`: the rigid transformation will be used to deform the object.
+
+        Warning
+        ---
+        Before calling this method, please make sure that the transformation has been estimated.
+        """
+        if mode == 'nonrigid' and self.trans_nonrigid is not None:
+            trans = self.trans_nonrigid
+        elif mode == 'rigid' and self.trans_rigid is not None:
+            trans = self.trans_rigid
+        else:
+            if UltraMotionCapture.output_msg:
+                print("fail to provide deformed object")
+            
+            return
+
+        deform_obj = type(self)(mode='empty', scale_rate = self.scale_rate)
+        deform_obj.mesh = trans.shift_mesh(self.mesh)
+        deform_obj.pcd = trans.shift_pcd(self.pcd)
+        
+        for name in self.kps_group.keys():
+            deform_obj.kps_group[name] = trans.shift_kps(self.kps_group[name])
+
+        return deform_obj
+
+    def show_deform(self, kps_names: Union[None, list, tuple] = None, mode: str = 'nonrigid', cmap: str = "cool"):
+        """Illustrate the mesh, the sampled point cloud, and the key points after the estimated deformation.
+        
+        - The mesh will be coloured with the distance of deformation. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
+        - The sampled points will be attached with displacement vectors to illustrate the displacement field.
+        - The deformed key points will be shown attached to the mesh and point cloud.
+
+        Parameters
+        ---
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        kps_names
+            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
+        mode
+            
+            - :code:`nonrigid`: the non-rigid transformation will be used to deform the object.
+            - :code:`rigid`: the rigid transformation will be used to deform the object.
+
+        cmap
+            the color map name. 
+            
+            .. seealso::
+                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+
+        Attention
+        ---
+        Before calling this method in Jupyter Notebook environment, the `pythreejs <https://docs.pyvista.org/user-guide/jupyter/pythreejs.html>`_ backend of :mod:`pyvista` is needed to be selected: ::
+
+            import pyvista as pv
+            pv.set_jupyter_backend('pythreejs')
+        """
+        if mode == 'nonrigid' and self.trans_nonrigid is not None:
+            trans = self.trans_nonrigid
+        elif mode == 'rigid' and self.trans_rigid is not None:
+            trans = self.trans_rigid
+        else:
+            if UltraMotionCapture.output_msg:
+                print("fail to provide deformed object")
+
+            return
+
+        scene = pv.Plotter()
+
+        deform_obj = self.get_deform_obj3d(mode=mode)
+        dist = np.linalg.norm(self.mesh.points - deform_obj.mesh.points, axis = 1)
+        width = pcd_get_max_bound(deform_obj.pcd)[0] - pcd_get_min_bound(deform_obj.pcd)[0]
+
+        deform_obj.mesh["distances"] = dist
+        deform_obj.add_mesh_to_scene(scene, cmap=cmap)
+
+        if mode == 'nonrigid' and self.trans_nonrigid is not None:
+            trans.add_to_scene(scene, location=[1.5*width, 0, 0], cmap=cmap)
+        elif mode == 'rigid' and self.trans_rigid is not None:
+            trans.add_to_scene(scene, location=[1.5*width, 0, 0], cmap=cmap, original_length=width)
+        
+        deform_obj.add_kps_to_scene(scene, kps_names, radius=0.02*width)
+        deform_obj.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
+        
+        scene.show()
 
     def offset_rotate(self):
         """Offset the rotation according to the estimated rigid transformation.
@@ -307,126 +498,6 @@ class Obj3d_Deform(Obj3d_Kps):
         
         if UltraMotionCapture.output_msg:
             print("reorientated 1 3d object")
-
-    def show_with_deform(self, kps_names: Union[None, tuple, list] = None, cmap: str = "cool"):
-        """Illustrate the revealed deformation of the loaded mesh, the sampled point cloud, and the key points attached to it.
-        
-        - The mesh will be coloured with the distance of deformation. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
-        - The sampled points will be attached with displacement vectors to illustrate the displacement field.
-
-        Parameters
-        ---
-        kps_names
-            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
-        cmap
-            the color map name. 
-            
-            .. seealso::
-                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
-
-        Attention
-        ---
-        Before calling this method in Jupyter Notebook environment, the `pythreejs <https://docs.pyvista.org/user-guide/jupyter/pythreejs.html>`_ backend of :mod:`pyvista` is needed to be selected: ::
-
-            import pyvista as pv
-            pv.set_jupyter_backend('pythreejs')
-        """
-        scene = pv.Plotter()
-        
-        # plot mesh with displacement distance
-        _, dist = self.trans_nonrigid.shift_disp_dist(self.mesh.points)
-        mesh = copy.deepcopy(self.mesh)
-        mesh["distances"] = dist
-        scene.add_mesh(mesh, scalars="distances", cmap=cmap)
-
-        if UltraMotionCapture.output_msg:
-            print("average displacemnt: {:.3} (mm)".format(np.average(dist)/self.scale_rate))
-
-        # plot displacement of the sampled point cloud
-        width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
-        lateral_move = [1.5 * width, 0, 0]
-        pcd_points = pcd2np(self.pcd)
-        disp, _ = self.trans_nonrigid.shift_disp_dist(pcd_points)
-
-        pdata = pv.vector_poly_data(pcd_points + lateral_move, disp)
-        glyph = pdata.glyph()
-        # pdata = pv.vector_poly_data(pcd_points + disp/2 + lateral_move, disp)
-        # glyph = pdata.glyph(geom=pv.Line())
-        
-        scene.add_mesh(glyph, lighting=False)
-
-        # plot key points
-        if self.kps_group != {}:
-            kps_group_points = self.get_kps_coord(kps_names)
-            pvpcd_kps = np2pvpcd(kps_group_points, radius=0.02*width)
-            scene.add_mesh(pvpcd_kps, color='gold')
-            scene.add_mesh(pvpcd_kps.translate(lateral_move, inplace=False), color='gold')
-
-        scene.show()
-
-    def show_diff_deform_gt(self, obj3d_gt: Type[Obj3d_Kps], kps_names: Union[None, tuple, list] = None, cmap: str = "cool", opacity: float = 0.2):
-        """Illustrate the distance between the deformed 3d object under revealed deformation and the ground-truth deformed 3d object.
-        
-        - The deformed mesh will be coloured with the distance of ground-truth mesh. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
-        - The deformed key points will be coloured in gold while the ground-truth key points will be coloured in green.
-        - The deformed sampled points will be illustrated to the right.
-        - The ground-truth mesh will be displayed in low opacity with the deformed mesh and sampled points.
-
-        Parameters
-        ---
-        kps_names
-            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
-        cmap
-            the color map name. 
-            
-            .. seealso::
-                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
-        opacity
-            the opacity of the ground-truth 3D object.
-
-        Attention
-        ---
-        Before calling this method in Jupyter Notebook environment, the `pythreejs <https://docs.pyvista.org/user-guide/jupyter/pythreejs.html>`_ backend of :mod:`pyvista` is needed to be selected: ::
-
-            import pyvista as pv
-            pv.set_jupyter_backend('pythreejs')"""
-        scene = pv.Plotter()
-
-        # plot the distance between the deformed mesh and the ground truth
-        mesh_gt = obj3d_gt.mesh
-        mesh_deform = copy.deepcopy(self.mesh)
-        mesh_deform.points = self.trans_nonrigid.shift_points(mesh_deform.points)
-        
-        tree = KDTree(mesh_gt.points)
-        d_kdtree, _ = tree.query(mesh_deform.points)
-        mesh_deform["distances"] = d_kdtree
-        
-        scene.add_mesh(mesh_deform, scalars="distances", cmap=cmap)
-        scene.add_mesh(mesh_gt, opacity=opacity)
-
-        if UltraMotionCapture.output_msg:
-            print("average distance between the deformed mesh and the ground truth: {:.3} (mm)".format(np.mean(d_kdtree)/self.scale_rate))
-
-        # plot the deformed sampled point cloud
-        width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
-        lateral_move = [1.5 * width, 0, 0]
-
-        pcd_points = pcd2np(self.pcd)
-        pcd_deform_points = self.trans_nonrigid.shift_points(pcd_points)
-        scene.add_points(pcd_deform_points + lateral_move, point_size=0.001*width, color='Gold')
-        scene.add_mesh(mesh_gt.translate(lateral_move, inplace=False), opacity=opacity)
-
-        # plot the difference between key points
-        if self.kps_group != {}:
-            kps_deform_group_points = self.get_deform_kps_coord(kps_names)
-            kps_gt_group_points = obj3d_gt.get_kps_coord(kps_names)
-            pvpcd_deform_kps = np2pvpcd(kps_deform_group_points, radius=0.02*width)
-            pvpcd_gt_kps = np2pvpcd(kps_gt_group_points, radius=0.02*width)
-
-            scene.add_mesh(pvpcd_deform_kps, color='gold')
-            scene.add_mesh(pvpcd_gt_kps, color='green')
-
-        scene.show()
 
 
 # utils for data & object transform
@@ -458,6 +529,10 @@ def mesh2pcd(mesh: o3d.geometry.TriangleMesh, sample_num: int) -> o3d.geometry.P
 def pcd2np(pcd: o3d.geometry.PointCloud) -> np.array:
     """Extracted the points coordinates data from a :mod:`open3d` point cloud (:class:`open3d.geometry.PointCloud`).
 
+    Attention
+    ---
+    The changing of the extracted data won't affect the original one.
+
     Parameters
     ---
     pcd
@@ -468,7 +543,8 @@ def pcd2np(pcd: o3d.geometry.PointCloud) -> np.array:
     :class:`numpy.array`
         the points coordinates data stored in a (N, 3) :class:`numpy.array`.
     """
-    return np.asarray(pcd.points)
+    pcd_copy = copy.deepcopy(pcd)
+    return np.asarray(pcd_copy.points)
 
 
 def np2pcd(points: np.array) -> o3d.cpu.pybind.geometry.PointCloud:

@@ -2,22 +2,22 @@
 
 There are two different perspectives to arrange key points data: *time-wise* and *point-wise*. Reflecting these two ways of arrangement:
 
-- The :class:`Kps` and `Kps_Deform` contain all key points' data at a specific moment;
+- The :class:`Kps` contain all key points' data at a specific moment;
 - While the :class:`Marker` contains a specific key point's data within a time period. To aggregate all key points' data, :class:`MarkerSet` is provided.
 """
-
 from __future__ import annotations
 from typing import Type, Union, Iterable
 
 import os
 import numpy as np
 import pandas as pd
+import pyvista as pv
 import matplotlib.pyplot as plt
 from scipy import interpolate
 
 import UltraMotionCapture
 import UltraMotionCapture.config.param
-from UltraMotionCapture import field, utils
+from UltraMotionCapture import field, obj3d, utils
 
 class Kps(object):
     """A collection of the key points that can be attached to a 3D object, i.e. a frame of the 4D object.
@@ -123,50 +123,39 @@ class Kps(object):
         }
         return diff_dict
 
+    def show(self):
+        """Illustrate the key points object.
+        """
+        scene = pv.Plotter()
+        self.add_to_scene(scene)
+        scene.show()
 
-class Kps_Deform(Kps):
-    """Adding deformation feature to the :class:`Kps` class.
-
-    Note
-    ---
-    `Class Attributes`
-
-    self.trans
-        an :class:`UltraMotionCapture.field.Trans_Nonrigid` object that stores the deformation information.
-    self.deform_kps
-        the deformed key points object.
-    """
-    def __init__(self):
-        Kps.__init__(self)
-        self.trans = None
-
-    def set_trans(self, trans: field.Trans_Nonrigid, kps_class: Type[Kps_Deform]) -> Type[Kps_Deform]:
-        """ Setting the transformation of the deformable key points object.
-
+    def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), radius: float = 1, **kwargs) -> pv.Plotter:
+        """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
+        
         Parameters
         ---
-        trans
-            an :meth:`UltraMotionCapture.field.Trans_Nonrigid` object that represents the transformation.
-        kps_class
-            the key point object class to loaded the deformed key points.
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        location
+            the displace location represented in a (3, ) :class:`numpy.array`.
+        radius
+            radius of the key points
+
+        **kwargs
+            other visualisation parameters.
+            
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
 
         Returns
         ---
-        the deformed key points object.
+        :class:`pyvista.Plotter`
+            :class:`pyvista.Plotter` scene added the visualisation.
         """
-        self.trans = trans
-        self.deform_kps = kps_class()
-        
-        for name, coord in self.points.items():
-            coord_deform = self.trans.shift_points((coord, ))
-            self.deform_kps.add_point(name, coord_deform)
-        
-        return self.deform_kps
-
-    def get_deform_points_coord(self) -> np.array:
-        """ Get the key points coordinates after transformation.
-        """
-        return self.deform_kps.get_points_coord()
+        pvpcd_kps = obj3d.np2pvpcd(self.get_points_coord(), radius=radius)
+        scene.add_mesh(pvpcd_kps.translate(location, inplace=False), **kwargs)
 
 
 class Marker(object):
@@ -280,7 +269,7 @@ class Marker(object):
         ---
         Called by the :class:`MarkerSet` object when parsing the Vicon motion capture data (:meth:`MarkerSet.load_from_vicon`). Usually the end user don't need to call this method manually.
         """
-        data_input = self.scale_rate * self.trans_cab.shift_points(data_input.T)
+        data_input = self.scale_rate * self.trans_cab.shift_points(data_input.T).T
 
         if self.coord is None:
             self.coord = data_input

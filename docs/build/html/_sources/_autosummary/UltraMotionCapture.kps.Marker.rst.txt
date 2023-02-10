@@ -35,8 +35,6 @@ UltraMotionCapture.kps.Marker
 
    .. autosummary::
    
-      ~Marker.cab_r
-      ~Marker.cab_s
-      ~Marker.cab_t
+      ~Marker.trans_cab
    
    

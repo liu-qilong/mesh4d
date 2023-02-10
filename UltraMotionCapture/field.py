@@ -10,13 +10,16 @@ The :mod:`UltraMotionCapture.field` aims at revealing the so-called inner-relati
 from __future__ import annotations
 from typing import Type, Union, Iterable
 
+import copy
 import numpy as np
+import pyvista as pv
+import open3d as o3d
 from probreg import cpd
 from scipy.spatial import KDTree
 
 import UltraMotionCapture
 import UltraMotionCapture.config.param
-from UltraMotionCapture import obj3d
+from UltraMotionCapture import obj3d, kps
 
 class Trans(object):
     """The base class of transformation. Different types of transformation, such as rigid and non-rigid transformation, are further defined in the children classes like :class:`Trans_Rigid` and :class:`Trans_Nonrigid`.
@@ -40,6 +43,112 @@ class Trans(object):
     def __init__(self, source_obj: Type[obj3d.Obj3d], target_obj: Type[obj3d.Obj3d], **kwargs):
         self.source = source_obj
         self.target = target_obj
+
+    def shift_points(self, points: np.array) -> np.array:
+        """Implement the transformation to set of points.
+
+        Parameters
+        ---
+        points
+            :math:`N` points in 3D space that we want to implement the transformation on. Stored in a (N, 3) :class:`numpy.array`.
+
+        Return
+        ---
+        :class:`numpy.array`
+            (N, 3) :class:`numpy.array` stores the points after transformation.
+
+        Warning
+        ---
+        This method will be realised in future development.
+        """
+        return points
+
+    def shift_kps(self, kps: Type[kps.Kps]) -> Type[kps.Kps]:
+        """Implement the transformation to the key points object.
+
+        Parameters
+        ---
+        kps
+            :class:`~UltraMotionCapture.kps.Kps` key points object.
+
+        Returns
+        ---
+        the deformed key points object.
+        """
+        deform_kps = type(kps)()
+        
+        for name, coord in kps.points.items():
+            point = np.array((coord, ))
+            coord_deform = self.shift_points(point)
+            deform_kps.add_point(name, coord_deform[0])
+        
+        return deform_kps
+
+    def shift_mesh(self, mesh: pv.core.pointset.PolyData) -> pv.core.pointset.PolyData:
+        """Implement the transformation to the mesh object.
+
+        Parameters
+        ---
+        kps
+            the mesh object.
+
+        Returns
+        ---
+        the deformed mesh object.
+        """
+        mesh_deform = copy.deepcopy(mesh)
+        mesh_deform.points = self.shift_points(mesh_deform.points)
+        return mesh_deform
+
+    def shift_pcd(self, pcd: o3d.cpu.pybind.geometry.PointCloud) -> o3d.cpu.pybind.geometry.PointCloud:
+        """Implement the transformation to the point cloud object.
+
+        Parameters
+        ---
+        kps
+            the point cloud object.
+
+        Returns
+        ---
+        the deformed point cloud object."""
+        points = obj3d.pcd2np(pcd)
+        points_deform = self.shift_points(points)
+        return obj3d.np2pcd(points_deform)
+
+    def show(self):
+        """Illustrate the estimated transformation.
+
+        Attention
+        ---
+        This method is leave blank intentionally.
+        """
+        scene = pv.Plotter()
+        self.add_to_scene(scene)
+        scene.show()
+
+    def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
+        """Illustrate the estimated transformation.
+
+        Attention
+        ---
+        This method is leave blank intentionally.
+
+        Parameters
+        ---
+        Parameters
+        ---
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        location
+            the displace location represented in a (3, ) :class:`numpy.array`.
+        **kwargs
+            other visualisation parameters.
+            
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
+        """
+        pass
 
 
 class Trans_Rigid(Trans):
@@ -77,13 +186,18 @@ class Trans_Rigid(Trans):
         trans.regist()
         print(trans.scale, trans.rot, trans.t)
     """
-    def regist(self, method=cpd.registration_cpd, **kwargs):
+    def regist(self, point_num: int = 1000, **kwargs):
         """The registration method.
 
         Parameters
         ---
-        method
-            At current stage, only methods from :mod:`probreg` package are supported. Default as :func:`probreg.cpd.registration_cpd`.
+        point_num
+            number of sample points to be used for rigid registration.
+
+            Attention
+            ---
+            Since the CPD registration is relatively slow, the meshes of source and target object are re-sampled for registration.
+
         **kwargs
             Configurations parameters of the registration.
             
@@ -91,8 +205,11 @@ class Trans_Rigid(Trans):
             --------
             `probreg.cpd.registration_cpd <https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd>`_
         """
-        tf_param, _, _ = method(
-            self.source.pcd, self.target.pcd, 'rigid', **kwargs
+        source_pcd = obj3d.pvmesh2pcd_pro(self.source.mesh)
+        target_pcd = obj3d.pvmesh2pcd_pro(self.target.mesh)
+
+        tf_param, _, _ = cpd.registration_cpd(
+            source_pcd, target_pcd, 'rigid', **kwargs
         )
         self.parse(tf_param)
         self.fix()
@@ -142,16 +259,59 @@ class Trans_Rigid(Trans):
         This method will be realised in future development.
         """
         # return self.scale * np.matmul(points, self.rot.T) + np.expand_dims(self.t, axis=0)
-        return self.scale * np.matmul(self.rot, points.T) + np.expand_dims(self.t, axis=1)
+        return (self.scale * np.matmul(self.rot, points.T) + np.expand_dims(self.t, axis=1)).T
 
-    def show(self):
-        """Illustrate the estimated transformation.
-
-        Warning
+    def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), original_length: Union[None, float] = None, **kwargs) -> pv.Plotter:
+        """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
+        
+        Parameters
         ---
-        This method will be realised in future development.
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        location
+            the displace location represented in a (3, ) :class:`numpy.array`.
+        original_length
+            length of the original axes vectors. If not set, length will be automatically selected for clear illustration.
+        **kwargs
+            other visualisation parameters.
+            
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
+
+        Returns
+        ---
+        :class:`pyvista.Plotter`
+            :class:`pyvista.Plotter` scene added the visualisation.
         """
-        pass
+        vectors = np.array([
+            [0, 0, 0],  # origin
+            [1, 0, 0],  # x axis
+            [0, 1, 0],  # y axis
+            [0, 0, 1],  # z axis
+        ])
+        vectors_deform = self.shift_points(vectors)
+
+        if original_length is None:
+            original_length = np.linalg.norm(vectors_deform[0] - vectors[0])/2
+
+        def add_axes(scene, vectors, shaft_radius=0.02, tip_radius=0.05, opacity=1):
+            param = {
+                'start': vectors[0],
+                'scale': np.linalg.norm(vectors[1] - vectors[0]) * original_length,
+                'shaft_radius': shaft_radius,
+                'tip_radius': tip_radius,   
+            }
+            arrow_x = pv.Arrow(direction=vectors[1] - vectors[0], **param)
+            arrow_y = pv.Arrow(direction=vectors[2] - vectors[0], **param)
+            arrow_z = pv.Arrow(direction=vectors[3] - vectors[0], **param)
+
+            scene.add_mesh(arrow_x.translate(location, inplace=True), color='gold', opacity=opacity)
+            scene.add_mesh(arrow_y.translate(location, inplace=True), color='teal', opacity=opacity)
+            scene.add_mesh(arrow_z.translate(location, inplace=True), color='darkolivegreen', opacity=opacity)
+
+        add_axes(scene, vectors, opacity=0.3)
+        add_axes(scene, vectors_deform)
 
 
 class Trans_Nonrigid(Trans):
@@ -240,25 +400,31 @@ class Trans_Nonrigid(Trans):
         _, idx = self.search_tree.query(points)
         return self.deform_points[idx]
 
-    def shift_disp_dist(self, points: np.array) -> Iterable[np.array, np.array]:
-        """Evaluate the displacement and distance of the transformation implemented to a set of points.
-
+    def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
+        """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
+        
         Parameters
         ---
-        points
-            :math:`N` points in 3D space that we want to implement the transformation on. Stored in a (N, 3) :class:`numpy.array`.
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        location
+            the displace location represented in a (3, ) :class:`numpy.array`.
+        **kwargs
+            other visualisation parameters.
+            
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
 
-        Return
+        Returns
         ---
-        :class:`numpy.array`
-            the displacement vectors stored in (N, 3) array.
-        :class:`numpy.array`
-            the displacement distances stored in (N, ) array.
+        :class:`pyvista.Plotter`
+            :class:`pyvista.Plotter` scene added the visualisation.
         """
-        points_deform = self.shift_points(points)
-        disp = points_deform - points
-        dist = np.linalg.norm(disp, axis=1)
-        return disp, dist
+        pdata = pv.vector_poly_data(self.source_points, self.disp)
+        glyph = pdata.glyph()
+        scene.add_mesh(glyph.translate(location, inplace=False), **kwargs)
+
 
 def transform_rst2sm(R: np.array, s: float, t: np.array) -> tuple[float, np.array]:
     """Transform rigid transformation representation from

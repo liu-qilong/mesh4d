@@ -191,7 +191,6 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.kps.html">UltraMotionCapture.kps</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.kps.Kps.html">UltraMotionCapture.kps.Kps</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.kps.Kps_Deform.html">UltraMotionCapture.kps.Kps_Deform</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.kps.Marker.html">UltraMotionCapture.kps.Marker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.kps.MarkerSet.html">UltraMotionCapture.kps.MarkerSet</a></li>
 </ul>
@@ -272,23 +271,22 @@
 
 <span class="sd">There are two different perspectives to arrange key points data: *time-wise* and *point-wise*. Reflecting these two ways of arrangement:</span>
 
-<span class="sd">- The :class:`Kps` and `Kps_Deform` contain all key points&#39; data at a specific moment;</span>
+<span class="sd">- The :class:`Kps` contain all key points&#39; data at a specific moment;</span>
 <span class="sd">- While the :class:`Marker` contains a specific key point&#39;s data within a time period. To aggregate all key points&#39; data, :class:`MarkerSet` is provided.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
+<span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">interpolate</span>
 
 <span class="kn">import</span> <span class="nn">UltraMotionCapture</span>
 <span class="kn">import</span> <span class="nn">UltraMotionCapture.config.param</span>
-<span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">field</span><span class="p">,</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">field</span><span class="p">,</span> <span class="n">obj3d</span><span class="p">,</span> <span class="n">utils</span>
 
 <div class="viewcode-block" id="Kps"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps">[docs]</a><span class="k">class</span> <span class="nc">Kps</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A collection of the key points that can be attached to a 3D object, i.e. a frame of the 4D object.</span>
@@ -392,52 +390,41 @@
             <span class="s1">&#39;dist_std&#39;</span><span class="p">:</span> <span class="n">dist_std</span><span class="p">,</span>
             <span class="s1">&#39;diff_str&#39;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{:.3}</span><span class="s2"> ± </span><span class="si">{:.3}</span><span class="s2"> (mm)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dist_mean</span><span class="p">,</span> <span class="n">dist_std</span><span class="p">)</span>
         <span class="p">}</span>
-        <span class="k">return</span> <span class="n">diff_dict</span></div></div>
+        <span class="k">return</span> <span class="n">diff_dict</span></div>
 
+<div class="viewcode-block" id="Kps.show"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Illustrate the key points object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_scene</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Kps_Deform"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps_Deform.html#UltraMotionCapture.kps.Kps_Deform">[docs]</a><span class="k">class</span> <span class="nc">Kps_Deform</span><span class="p">(</span><span class="n">Kps</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Adding deformation feature to the :class:`Kps` class.</span>
-
-<span class="sd">    Note</span>
-<span class="sd">    ---</span>
-<span class="sd">    `Class Attributes`</span>
-
-<span class="sd">    self.trans</span>
-<span class="sd">        an :class:`UltraMotionCapture.field.Trans_Nonrigid` object that stores the deformation information.</span>
-<span class="sd">    self.deform_kps</span>
-<span class="sd">        the deformed key points object.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Kps_Deform.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps_Deform.html#UltraMotionCapture.kps.Kps_Deform.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">Kps</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">trans</span> <span class="o">=</span> <span class="kc">None</span></div>
-
-<div class="viewcode-block" id="Kps_Deform.set_trans"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps_Deform.html#UltraMotionCapture.kps.Kps_Deform.set_trans">[docs]</a>    <span class="k">def</span> <span class="nf">set_trans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trans</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">Trans_Nonrigid</span><span class="p">,</span> <span class="n">kps_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Kps_Deform</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">Kps_Deform</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot; Setting the transformation of the deformable key points object.</span>
-
+<div class="viewcode-block" id="Kps.add_to_scene"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps.add_to_scene">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_scene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add the visualisation of current object to a :class:`pyvista.Plotter` scene.</span>
+<span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ---</span>
-<span class="sd">        trans</span>
-<span class="sd">            an :meth:`UltraMotionCapture.field.Trans_Nonrigid` object that represents the transformation.</span>
-<span class="sd">        kps_class</span>
-<span class="sd">            the key point object class to loaded the deformed key points.</span>
+<span class="sd">        scene</span>
+<span class="sd">            :class:`pyvista.Plotter` scene to add the visualisation.</span>
+<span class="sd">        location</span>
+<span class="sd">            the displace location represented in a (3, ) :class:`numpy.array`.</span>
+<span class="sd">        radius</span>
+<span class="sd">            radius of the key points</span>
+
+<span class="sd">        **kwargs</span>
+<span class="sd">            other visualisation parameters.</span>
+<span class="sd">            </span>
+<span class="sd">            .. seealso::</span>
+<span class="sd">                `pyvista.Plotter.add_mesh &lt;https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html&gt;`_</span>
+<span class="sd">                `pyvista.Plotter.add_points &lt;https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html&gt;`_</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        ---</span>
-<span class="sd">        the deformed key points object.</span>
+<span class="sd">        :class:`pyvista.Plotter`</span>
+<span class="sd">            :class:`pyvista.Plotter` scene added the visualisation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">trans</span> <span class="o">=</span> <span class="n">trans</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">deform_kps</span> <span class="o">=</span> <span class="n">kps_class</span><span class="p">()</span>
-        
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">coord_deform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans</span><span class="o">.</span><span class="n">shift_points</span><span class="p">((</span><span class="n">coord</span><span class="p">,</span> <span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">deform_kps</span><span class="o">.</span><span class="n">add_point</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">coord_deform</span><span class="p">)</span>
-        
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deform_kps</span></div>
-
-<div class="viewcode-block" id="Kps_Deform.get_deform_points_coord"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Kps_Deform.html#UltraMotionCapture.kps.Kps_Deform.get_deform_points_coord">[docs]</a>    <span class="k">def</span> <span class="nf">get_deform_points_coord</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot; Get the key points coordinates after transformation.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deform_kps</span><span class="o">.</span><span class="n">get_points_coord</span><span class="p">()</span></div></div>
+        <span class="n">pvpcd_kps</span> <span class="o">=</span> <span class="n">obj3d</span><span class="o">.</span><span class="n">np2pvpcd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_points_coord</span><span class="p">(),</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">pvpcd_kps</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Marker"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker">[docs]</a><span class="k">class</span> <span class="nc">Marker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -504,12 +491,10 @@
 <span class="sd">    ---</span>
 <span class="sd">    In other parts of the package, points coordinates storing in :class:`numpy.array` are usually in the shape of (N, 3), while here we adopt (3, N), for the convenience of data interpolation :meth:`interp_field`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">cab_s</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">cab_r</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">cab_t</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">trans_cab</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Marker.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">scale_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cab_s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans_cab</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">load_cab_rst</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">UltraMotionCapture</span><span class="o">.</span><span class="n">output_msg</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;calibration parameters loaded&#39;</span><span class="p">)</span>
@@ -535,9 +520,11 @@
         <span class="sd">&quot;&quot;&quot;Load the calibration parameters from Vicon to 3dMD coordination system.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mod_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">UltraMotionCapture</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">cab_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/r.npy&#39;</span><span class="p">))</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">cab_s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/s.npy&#39;</span><span class="p">))</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">cab_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/t.npy&#39;</span><span class="p">))</span></div>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">trans_cab</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Trans_Rigid</span><span class="p">(</span><span class="n">source_obj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target_obj</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        
+        <span class="bp">cls</span><span class="o">.</span><span class="n">trans_cab</span><span class="o">.</span><span class="n">rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/r.npy&#39;</span><span class="p">))</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">trans_cab</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/s.npy&#39;</span><span class="p">))</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">trans_cab</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mod_path</span><span class="p">,</span> <span class="s1">&#39;config/calibrate/t.npy&#39;</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Marker.fill_data"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.kps.Marker.html#UltraMotionCapture.kps.Marker.fill_data">[docs]</a>    <span class="k">def</span> <span class="nf">fill_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_input</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Filling coordinates, speed, and acceleration data after converting to 3dMD coordinates, one by one, into the :class:`Marker` object.</span>
@@ -551,9 +538,7 @@
 <span class="sd">        ---</span>
 <span class="sd">        Called by the :class:`MarkerSet` object when parsing the Vicon motion capture data (:meth:`MarkerSet.load_from_vicon`). Usually the end user don&#39;t need to call this method manually.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span> <span class="o">*</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cab_s</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cab_r</span><span class="p">,</span> <span class="n">data_input</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cab_t</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="n">data_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_rate</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans_cab</span><span class="o">.</span><span class="n">shift_points</span><span class="p">(</span><span class="n">data_input</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="o">=</span> <span class="n">data_input</span>

@@ -37,7 +37,7 @@ class Obj4d_VKps(obj4d.Obj4d_Deform):
         :class:`dict`
             A dictionary that contains the comparison result:
 
-            - :code:`'diff_ls'`: a list of the original frame-wise estimation result from :meth:`UltraMotionCapture.kps.Kps_Deform.compare_with_groundtruth`.
+            - :code:`'diff_ls'`: a list of the original frame-wise estimation result from :meth:`UltraMotionCapture.kps.Kps.compare_with_groundtruth`.
             - :code:`'dist_mean'`: the mean error of the whole trail error.
             - :code:`'dist_std'`: the standard deviation of the whole trail error.
             - :code:`'diff_str'`: a string in form of :code:`'dist_mean ± dist_std (mm)`.
