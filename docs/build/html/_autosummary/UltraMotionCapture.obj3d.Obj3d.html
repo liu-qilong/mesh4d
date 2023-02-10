@@ -192,7 +192,6 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="UltraMotionCapture.kps.html">UltraMotionCapture.kps</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Kps.html">UltraMotionCapture.kps.Kps</a></li>
-<li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Kps_Deform.html">UltraMotionCapture.kps.Kps_Deform</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Marker.html">UltraMotionCapture.kps.Marker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html">UltraMotionCapture.kps.MarkerSet</a></li>
 </ul>
@@ -273,7 +272,7 @@
 <h1>UltraMotionCapture.obj3d.Obj3d<a class="headerlink" href="#ultramotioncapture-obj3d-obj3d" title="Permalink to this headline">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">UltraMotionCapture.obj3d.</span></span><span class="sig-name descname"><span class="pre">Obj3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filedir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_rate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">UltraMotionCapture.obj3d.</span></span><span class="sig-name descname"><span class="pre">Obj3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filedir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_rate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'load'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>The basic 3D object class. Loads <code class="code docutils literal notranslate"><span class="pre">.obj</span></code> 3D mesh image and sampled it as the point cloud.</p>
 <dl class="field-list simple">
@@ -290,7 +289,11 @@
 <p>Reason for providing <code class="code docutils literal notranslate"><span class="pre">scale_rate</span></code> parameter is explained in <a class="reference internal" href="UltraMotionCapture.obj3d.Obj3d_Deform.html#UltraMotionCapture.obj3d.Obj3d_Deform" title="UltraMotionCapture.obj3d.Obj3d_Deform"><code class="xref py py-class docutils literal notranslate"><span class="pre">Obj3d_Deform</span></code></a>.</p>
 </div>
 </p></li>
-<li><p><strong>sample_num</strong> – the number of the points sampled from the mesh to construct the point cloud.</p></li>
+<li><p><strong>mode</strong> – <ul>
+<li><p><code class="code docutils literal notranslate"><span class="pre">load</span></code> the default mode is load from a file.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">empty</span></code> create a 3D object without any 3D data.</p></li>
+</ul>
+</p></li>
 </ul>
 </dd>
 </dl>
@@ -320,7 +323,7 @@
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filedir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_rate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d.__init__" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filedir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_rate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'load'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d.__init__" title="Permalink to this definition">#</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -332,11 +335,20 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d.__init__" title="UltraMotionCapture.obj3d.Obj3d.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(filedir[, scale_rate])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d.__init__" title="UltraMotionCapture.obj3d.Obj3d.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([filedir, scale_rate, mode])</p></td>
 <td><p>Initialize self.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d.add_mesh_to_scene" title="UltraMotionCapture.obj3d.Obj3d.add_mesh_to_scene"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_mesh_to_scene</span></code></a>(scene[, location, show_edges])</p></td>
+<td><p>Add the visualisation of the mesh to a <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d.add_pcd_to_scene" title="UltraMotionCapture.obj3d.Obj3d.add_pcd_to_scene"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_pcd_to_scene</span></code></a>(scene[, location])</p></td>
+<td><p>Add the visualisation of the sampled key points to a <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d.show" title="UltraMotionCapture.obj3d.Obj3d.show"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show</span></code></a>()</p></td>
 <td><p>Show the loaded mesh and the sampled point cloud.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d.show_diff" title="UltraMotionCapture.obj3d.Obj3d.show_diff"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_diff</span></code></a>(obj2[, cmap, op2])</p></td>
+<td><p>Illustrate the difference of two 3D object:</p></td>
 </tr>
 </tbody>
 </table>
@@ -353,6 +365,83 @@
 </pre></div>
 </div>
 </div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d.show_diff">
+<span class="sig-name descname"><span class="pre">show_diff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj2</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#UltraMotionCapture.obj3d.Obj3d" title="UltraMotionCapture.obj3d.Obj3d"><span class="pre">UltraMotionCapture.obj3d.Obj3d</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'cool'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op2</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d.show_diff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d.show_diff" title="Permalink to this definition">#</a></dt>
+<dd><p>Illustrate the difference of two 3D object:</p>
+<p><code class="xref py py-attr docutils literal notranslate"><span class="pre">obj1</span></code> mesh will be coloured according to each of its points’ distance to <code class="xref py py-attr docutils literal notranslate"><span class="pre">obj2</span></code> mesh. The mapping between distance and color is controlled by <code class="xref py py-attr docutils literal notranslate"><span class="pre">cmap</span></code> argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj1</strong> – the first 3D object.</p></li>
+<li><p><strong>obj2</strong> – the second 3D object.</p></li>
+<li><p><strong>cmap</strong> – <p>the color map name.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>For full list of supported color map, please refer to <a class="reference external" href="https://matplotlib.org/stable/tutorials/colors/colormaps.html">Choosing Colormaps in Matplotlib</a>.</p>
+</div>
+</p></li>
+<li><p><strong>op2</strong> – the opacity of the second 3D object.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d.add_mesh_to_scene">
+<span class="sig-name descname"><span class="pre">add_mesh_to_scene</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scene</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pyvista.plotting.plotting.Plotter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.array</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">array([0,</span> <span class="pre">0,</span> <span class="pre">0])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_edges</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">pyvista.plotting.plotting.Plotter</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d.add_mesh_to_scene"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d.add_mesh_to_scene" title="Permalink to this definition">#</a></dt>
+<dd><p>Add the visualisation of the mesh to a <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scene</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene to add the visualisation.</p></li>
+<li><p><strong>location</strong> – the displace location represented in a (3, ) <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.array</span></code>.</p></li>
+<li><p><strong>show_edges</strong> – show mesh edges or not</p></li>
+<li><p><strong>**kwargs</strong> – <p>other visualisation parameters.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html">pyvista.Plotter.add_mesh</a>
+<a class="reference external" href="https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html">pyvista.Plotter.add_points</a></p>
+</div>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene added the visualisation.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="UltraMotionCapture.obj3d.Obj3d.add_pcd_to_scene">
+<span class="sig-name descname"><span class="pre">add_pcd_to_scene</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scene</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pyvista.plotting.plotting.Plotter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.array</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">array([0,</span> <span class="pre">0,</span> <span class="pre">0])</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">pyvista.plotting.plotting.Plotter</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj3d.html#Obj3d.add_pcd_to_scene"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj3d.Obj3d.add_pcd_to_scene" title="Permalink to this definition">#</a></dt>
+<dd><p>Add the visualisation of the sampled key points to a <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scene</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene to add the visualisation.</p></li>
+<li><p><strong>location</strong> – the displace location represented in a (3, ) <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.array</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – <p>other visualisation parameters.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html">pyvista.Plotter.add_mesh</a>
+<a class="reference external" href="https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html">pyvista.Plotter.add_points</a></p>
+</div>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene added the visualisation.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

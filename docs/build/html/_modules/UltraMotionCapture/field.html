@@ -191,7 +191,6 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.kps.html">UltraMotionCapture.kps</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.kps.Kps.html">UltraMotionCapture.kps.Kps</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.kps.Kps_Deform.html">UltraMotionCapture.kps.Kps_Deform</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.kps.Marker.html">UltraMotionCapture.kps.Marker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../_autosummary/UltraMotionCapture.kps.MarkerSet.html">UltraMotionCapture.kps.MarkerSet</a></li>
 </ul>
@@ -280,13 +279,16 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span>
 
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pyvista</span> <span class="k">as</span> <span class="nn">pv</span>
+<span class="kn">import</span> <span class="nn">open3d</span> <span class="k">as</span> <span class="nn">o3d</span>
 <span class="kn">from</span> <span class="nn">probreg</span> <span class="kn">import</span> <span class="n">cpd</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">KDTree</span>
 
 <span class="kn">import</span> <span class="nn">UltraMotionCapture</span>
 <span class="kn">import</span> <span class="nn">UltraMotionCapture.config.param</span>
-<span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">obj3d</span>
+<span class="kn">from</span> <span class="nn">UltraMotionCapture</span> <span class="kn">import</span> <span class="n">obj3d</span><span class="p">,</span> <span class="n">kps</span>
 
 <div class="viewcode-block" id="Trans"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans.html#UltraMotionCapture.field.Trans">[docs]</a><span class="k">class</span> <span class="nc">Trans</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The base class of transformation. Different types of transformation, such as rigid and non-rigid transformation, are further defined in the children classes like :class:`Trans_Rigid` and :class:`Trans_Nonrigid`.</span>
@@ -303,13 +305,119 @@
 <span class="sd">    `Class Attributes`</span>
 
 <span class="sd">    self.source</span>
-<span class="sd">        The source point cloud (:class:`open3d.geometry.PointCloud`) of the transformation.</span>
+<span class="sd">        The source object of the transformation.</span>
 <span class="sd">    self.target</span>
-<span class="sd">        The target point cloud (:class:`open3d.geometry.PointCloud`) of the transformation.</span>
+<span class="sd">        The target object of the transformation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Trans.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans.html#UltraMotionCapture.field.Trans.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_obj</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">obj3d</span><span class="o">.</span><span class="n">Obj3d</span><span class="p">],</span> <span class="n">target_obj</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">obj3d</span><span class="o">.</span><span class="n">Obj3d</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source_obj</span><span class="o">.</span><span class="n">pcd</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target_obj</span><span class="o">.</span><span class="n">pcd</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source_obj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target_obj</span></div>
+
+<div class="viewcode-block" id="Trans.shift_points"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans.html#UltraMotionCapture.field.Trans.shift_points">[docs]</a>    <span class="k">def</span> <span class="nf">shift_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Implement the transformation to set of points.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ---</span>
+<span class="sd">        points</span>
+<span class="sd">            :math:`N` points in 3D space that we want to implement the transformation on. Stored in a (N, 3) :class:`numpy.array`.</span>
+
+<span class="sd">        Return</span>
+<span class="sd">        ---</span>
+<span class="sd">        :class:`numpy.array`</span>
+<span class="sd">            (N, 3) :class:`numpy.array` stores the points after transformation.</span>
+
+<span class="sd">        Warning</span>
+<span class="sd">        ---</span>
+<span class="sd">        This method will be realised in future development.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">points</span></div>
+
+<div class="viewcode-block" id="Trans.shift_kps"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans.html#UltraMotionCapture.field.Trans.shift_kps">[docs]</a>    <span class="k">def</span> <span class="nf">shift_kps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kps</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">kps</span><span class="o">.</span><span class="n">Kps</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">kps</span><span class="o">.</span><span class="n">Kps</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Implement the transformation to the key points object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ---</span>
+<span class="sd">        kps</span>
+<span class="sd">            :class:`~UltraMotionCapture.kps.Kps` key points object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ---</span>
+<span class="sd">        the deformed key points object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">deform_kps</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">kps</span><span class="p">)()</span>
+        
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">kps</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">coord</span><span class="p">,</span> <span class="p">))</span>
+            <span class="n">coord_deform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift_points</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+            <span class="n">deform_kps</span><span class="o">.</span><span class="n">add_point</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">coord_deform</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        
+        <span class="k">return</span> <span class="n">deform_kps</span></div>
+
+<div class="viewcode-block" id="Trans.shift_mesh"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans.html#UltraMotionCapture.field.Trans.shift_mesh">[docs]</a>    <span class="k">def</span> <span class="nf">shift_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">pointset</span><span class="o">.</span><span class="n">PolyData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">pointset</span><span class="o">.</span><span class="n">PolyData</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Implement the transformation to the mesh object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ---</span>
+<span class="sd">        kps</span>
+<span class="sd">            the mesh object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ---</span>
+<span class="sd">        the deformed mesh object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mesh_deform</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="n">mesh_deform</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift_points</span><span class="p">(</span><span class="n">mesh_deform</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mesh_deform</span></div>
+
+<div class="viewcode-block" id="Trans.shift_pcd"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans.html#UltraMotionCapture.field.Trans.shift_pcd">[docs]</a>    <span class="k">def</span> <span class="nf">shift_pcd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pcd</span><span class="p">:</span> <span class="n">o3d</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">pybind</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">PointCloud</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">o3d</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">pybind</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">PointCloud</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Implement the transformation to the point cloud object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ---</span>
+<span class="sd">        kps</span>
+<span class="sd">            the point cloud object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ---</span>
+<span class="sd">        the deformed point cloud object.&quot;&quot;&quot;</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">obj3d</span><span class="o">.</span><span class="n">pcd2np</span><span class="p">(</span><span class="n">pcd</span><span class="p">)</span>
+        <span class="n">points_deform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj3d</span><span class="o">.</span><span class="n">np2pcd</span><span class="p">(</span><span class="n">points_deform</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Trans.show"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans.html#UltraMotionCapture.field.Trans.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Illustrate the estimated transformation.</span>
+
+<span class="sd">        Attention</span>
+<span class="sd">        ---</span>
+<span class="sd">        This method is leave blank intentionally.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_to_scene</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Trans.add_to_scene"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans.html#UltraMotionCapture.field.Trans.add_to_scene">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_scene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Illustrate the estimated transformation.</span>
+
+<span class="sd">        Attention</span>
+<span class="sd">        ---</span>
+<span class="sd">        This method is leave blank intentionally.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ---</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ---</span>
+<span class="sd">        scene</span>
+<span class="sd">            :class:`pyvista.Plotter` scene to add the visualisation.</span>
+<span class="sd">        location</span>
+<span class="sd">            the displace location represented in a (3, ) :class:`numpy.array`.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            other visualisation parameters.</span>
+<span class="sd">            </span>
+<span class="sd">            .. seealso::</span>
+<span class="sd">                `pyvista.Plotter.add_mesh &lt;https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html&gt;`_</span>
+<span class="sd">                `pyvista.Plotter.add_points &lt;https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div></div>
 
 
 <div class="viewcode-block" id="Trans_Rigid"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid">[docs]</a><span class="k">class</span> <span class="nc">Trans_Rigid</span><span class="p">(</span><span class="n">Trans</span><span class="p">):</span>
@@ -347,13 +455,18 @@
 <span class="sd">        trans.regist()</span>
 <span class="sd">        print(trans.scale, trans.rot, trans.t)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Trans_Rigid.regist"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid.regist">[docs]</a>    <span class="k">def</span> <span class="nf">regist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">cpd</span><span class="o">.</span><span class="n">registration_cpd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Trans_Rigid.regist"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid.regist">[docs]</a>    <span class="k">def</span> <span class="nf">regist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The registration method.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ---</span>
-<span class="sd">        method</span>
-<span class="sd">            At current stage, only methods from :mod:`probreg` package are supported. Default as :func:`probreg.cpd.registration_cpd`.</span>
+<span class="sd">        point_num</span>
+<span class="sd">            number of sample points to be used for rigid registration.</span>
+
+<span class="sd">            Attention</span>
+<span class="sd">            ---</span>
+<span class="sd">            Since the CPD registration is relatively slow, the meshes of source and target object are re-sampled for registration.</span>
+
 <span class="sd">        **kwargs</span>
 <span class="sd">            Configurations parameters of the registration.</span>
 <span class="sd">            </span>
@@ -361,8 +474,11 @@
 <span class="sd">            --------</span>
 <span class="sd">            `probreg.cpd.registration_cpd &lt;https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">tf_param</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="s1">&#39;rigid&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="n">source_pcd</span> <span class="o">=</span> <span class="n">obj3d</span><span class="o">.</span><span class="n">pvmesh2pcd_pro</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="n">target_pcd</span> <span class="o">=</span> <span class="n">obj3d</span><span class="o">.</span><span class="n">pvmesh2pcd_pro</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
+
+        <span class="n">tf_param</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cpd</span><span class="o">.</span><span class="n">registration_cpd</span><span class="p">(</span>
+            <span class="n">source_pcd</span><span class="p">,</span> <span class="n">target_pcd</span><span class="p">,</span> <span class="s1">&#39;rigid&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">tf_param</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fix</span><span class="p">()</span>
@@ -411,16 +527,60 @@
 <span class="sd">        ---</span>
 <span class="sd">        This method will be realised in future development.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="c1"># return self.scale * np.matmul(points, self.rot.T) + np.expand_dims(self.t, axis=0)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rot</span><span class="p">,</span> <span class="n">points</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span></div>
 
-<div class="viewcode-block" id="Trans_Rigid.show"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Illustrate the estimated transformation.</span>
-
-<span class="sd">        Warning</span>
+<div class="viewcode-block" id="Trans_Rigid.add_to_scene"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid.add_to_scene">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_scene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="n">original_length</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add the visualisation of current object to a :class:`pyvista.Plotter` scene.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
 <span class="sd">        ---</span>
-<span class="sd">        This method will be realised in future development.</span>
+<span class="sd">        scene</span>
+<span class="sd">            :class:`pyvista.Plotter` scene to add the visualisation.</span>
+<span class="sd">        location</span>
+<span class="sd">            the displace location represented in a (3, ) :class:`numpy.array`.</span>
+<span class="sd">        original_length</span>
+<span class="sd">            length of the original axes vectors. If not set, length will be automatically selected for clear illustration.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            other visualisation parameters.</span>
+<span class="sd">            </span>
+<span class="sd">            .. seealso::</span>
+<span class="sd">                `pyvista.Plotter.add_mesh &lt;https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html&gt;`_</span>
+<span class="sd">                `pyvista.Plotter.add_points &lt;https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html&gt;`_</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ---</span>
+<span class="sd">        :class:`pyvista.Plotter`</span>
+<span class="sd">            :class:`pyvista.Plotter` scene added the visualisation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div></div>
+        <span class="n">vectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># origin</span>
+            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># x axis</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># y axis</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>  <span class="c1"># z axis</span>
+        <span class="p">])</span>
+        <span class="n">vectors_deform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift_points</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">original_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">original_length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vectors_deform</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span>
+
+        <span class="k">def</span> <span class="nf">add_axes</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">vectors</span><span class="p">,</span> <span class="n">shaft_radius</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">tip_radius</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="n">vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s1">&#39;scale&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vectors</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">original_length</span><span class="p">,</span>
+                <span class="s1">&#39;shaft_radius&#39;</span><span class="p">:</span> <span class="n">shaft_radius</span><span class="p">,</span>
+                <span class="s1">&#39;tip_radius&#39;</span><span class="p">:</span> <span class="n">tip_radius</span><span class="p">,</span>   
+            <span class="p">}</span>
+            <span class="n">arrow_x</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Arrow</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="n">vectors</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="n">param</span><span class="p">)</span>
+            <span class="n">arrow_y</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Arrow</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="n">vectors</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="n">param</span><span class="p">)</span>
+            <span class="n">arrow_z</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Arrow</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="n">vectors</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="n">param</span><span class="p">)</span>
+
+            <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">arrow_x</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gold&#39;</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="n">opacity</span><span class="p">)</span>
+            <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">arrow_y</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;teal&#39;</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="n">opacity</span><span class="p">)</span>
+            <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">arrow_z</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;darkolivegreen&#39;</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="n">opacity</span><span class="p">)</span>
+
+        <span class="n">add_axes</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">vectors</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">add_axes</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">vectors_deform</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Trans_Nonrigid"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html#UltraMotionCapture.field.Trans_Nonrigid">[docs]</a><span class="k">class</span> <span class="nc">Trans_Nonrigid</span><span class="p">(</span><span class="n">Trans</span><span class="p">):</span>
@@ -468,8 +628,8 @@
 <div class="viewcode-block" id="Trans_Nonrigid.regist"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html#UltraMotionCapture.field.Trans_Nonrigid.regist">[docs]</a>    <span class="k">def</span> <span class="nf">regist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Align every point from the source object to the nearest point in the target object and use it a this point&#39;s displacement.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">source_points</span> <span class="o">=</span> <span class="n">obj3d</span><span class="o">.</span><span class="n">pcd2np</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
-        <span class="n">target_points</span> <span class="o">=</span> <span class="n">obj3d</span><span class="o">.</span><span class="n">pcd2np</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source_points</span> <span class="o">=</span> <span class="n">obj3d</span><span class="o">.</span><span class="n">pcd2np</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">pcd</span><span class="p">)</span>
+        <span class="n">target_points</span> <span class="o">=</span> <span class="n">obj3d</span><span class="o">.</span><span class="n">pcd2np</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">pcd</span><span class="p">)</span>
 
         <span class="n">tree</span> <span class="o">=</span> <span class="n">KDTree</span><span class="p">(</span><span class="n">target_points</span><span class="p">)</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_points</span><span class="p">)</span>
@@ -509,25 +669,31 @@
         <span class="n">_</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deform_points</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Trans_Nonrigid.shift_disp_dist"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html#UltraMotionCapture.field.Trans_Nonrigid.shift_disp_dist">[docs]</a>    <span class="k">def</span> <span class="nf">shift_disp_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Evaluate the displacement and distance of the transformation implemented to a set of points.</span>
-
+<div class="viewcode-block" id="Trans_Nonrigid.add_to_scene"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html#UltraMotionCapture.field.Trans_Nonrigid.add_to_scene">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_scene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="p">:</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add the visualisation of current object to a :class:`pyvista.Plotter` scene.</span>
+<span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ---</span>
-<span class="sd">        points</span>
-<span class="sd">            :math:`N` points in 3D space that we want to implement the transformation on. Stored in a (N, 3) :class:`numpy.array`.</span>
+<span class="sd">        scene</span>
+<span class="sd">            :class:`pyvista.Plotter` scene to add the visualisation.</span>
+<span class="sd">        location</span>
+<span class="sd">            the displace location represented in a (3, ) :class:`numpy.array`.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            other visualisation parameters.</span>
+<span class="sd">            </span>
+<span class="sd">            .. seealso::</span>
+<span class="sd">                `pyvista.Plotter.add_mesh &lt;https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html&gt;`_</span>
+<span class="sd">                `pyvista.Plotter.add_points &lt;https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html&gt;`_</span>
 
-<span class="sd">        Return</span>
+<span class="sd">        Returns</span>
 <span class="sd">        ---</span>
-<span class="sd">        :class:`numpy.array`</span>
-<span class="sd">            the displacement vectors stored in (N, 3) array.</span>
-<span class="sd">        :class:`numpy.array`</span>
-<span class="sd">            the displacement distances stored in (N, ) array.</span>
+<span class="sd">        :class:`pyvista.Plotter`</span>
+<span class="sd">            :class:`pyvista.Plotter` scene added the visualisation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">points_deform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift_points</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
-        <span class="n">disp</span> <span class="o">=</span> <span class="n">points_deform</span> <span class="o">-</span> <span class="n">points</span>
-        <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">disp</span><span class="p">,</span> <span class="n">dist</span></div></div>
+        <span class="n">pdata</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">vector_poly_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">disp</span><span class="p">)</span>
+        <span class="n">glyph</span> <span class="o">=</span> <span class="n">pdata</span><span class="o">.</span><span class="n">glyph</span><span class="p">()</span>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">glyph</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
 
 <div class="viewcode-block" id="transform_rst2sm"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.transform_rst2sm.html#UltraMotionCapture.field.transform_rst2sm">[docs]</a><span class="k">def</span> <span class="nf">transform_rst2sm</span><span class="p">(</span><span class="n">R</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Transform rigid transformation representation from</span>

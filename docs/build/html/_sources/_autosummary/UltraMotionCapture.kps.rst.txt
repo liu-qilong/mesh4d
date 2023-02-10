@@ -16,7 +16,6 @@ UltraMotionCapture.kps
       :template: custom-class-template.rst
    
       Kps
-      Kps_Deform
       Marker
       MarkerSet
    

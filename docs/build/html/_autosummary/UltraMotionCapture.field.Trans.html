@@ -192,7 +192,6 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="UltraMotionCapture.kps.html">UltraMotionCapture.kps</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Kps.html">UltraMotionCapture.kps.Kps</a></li>
-<li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Kps_Deform.html">UltraMotionCapture.kps.Kps_Deform</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.Marker.html">UltraMotionCapture.kps.Marker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html">UltraMotionCapture.kps.MarkerSet</a></li>
 </ul>
@@ -288,9 +287,9 @@
 <p class="admonition-title">Note</p>
 <p><cite>Class Attributes</cite></p>
 <dl class="simple">
-<dt>self.source</dt><dd><p>The source point cloud (<code class="xref py py-class docutils literal notranslate"><span class="pre">open3d.geometry.PointCloud</span></code>) of the transformation.</p>
+<dt>self.source</dt><dd><p>The source object of the transformation.</p>
 </dd>
-<dt>self.target</dt><dd><p>The target point cloud (<code class="xref py py-class docutils literal notranslate"><span class="pre">open3d.geometry.PointCloud</span></code>) of the transformation.</p>
+<dt>self.target</dt><dd><p>The target object of the transformation.</p>
 </dd>
 </dl>
 </div>
@@ -311,9 +310,134 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.field.Trans.__init__" title="UltraMotionCapture.field.Trans.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(source_obj, target_obj, **kwargs)</p></td>
 <td><p>Initialize self.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.field.Trans.add_to_scene" title="UltraMotionCapture.field.Trans.add_to_scene"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_scene</span></code></a>(scene[, location])</p></td>
+<td><p>Illustrate the estimated transformation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.field.Trans.shift_kps" title="UltraMotionCapture.field.Trans.shift_kps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_kps</span></code></a>(kps)</p></td>
+<td><p>Implement the transformation to the key points object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.field.Trans.shift_mesh" title="UltraMotionCapture.field.Trans.shift_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_mesh</span></code></a>(mesh)</p></td>
+<td><p>Implement the transformation to the mesh object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.field.Trans.shift_pcd" title="UltraMotionCapture.field.Trans.shift_pcd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_pcd</span></code></a>(pcd)</p></td>
+<td><p>Implement the transformation to the point cloud object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.field.Trans.shift_points" title="UltraMotionCapture.field.Trans.shift_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift_points</span></code></a>(points)</p></td>
+<td><p>Implement the transformation to set of points.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.field.Trans.show" title="UltraMotionCapture.field.Trans.show"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show</span></code></a>()</p></td>
+<td><p>Illustrate the estimated transformation.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
+<dl class="py method">
+<dt class="sig sig-object py" id="UltraMotionCapture.field.Trans.shift_points">
+<span class="sig-name descname"><span class="pre">shift_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.array</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.array</span><a class="reference internal" href="../_modules/UltraMotionCapture/field.html#Trans.shift_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.field.Trans.shift_points" title="Permalink to this definition">#</a></dt>
+<dd><p>Implement the transformation to set of points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>points</strong> – <span class="math notranslate nohighlight">\(N\)</span> points in 3D space that we want to implement the transformation on. Stored in a (N, 3) <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.array</span></code>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(N, 3) <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.array</span></code> stores the points after transformation.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.array</span></code></p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This method will be realised in future development.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="UltraMotionCapture.field.Trans.shift_kps">
+<span class="sig-name descname"><span class="pre">shift_kps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kps</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><span class="pre">UltraMotionCapture.kps.Kps</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><span class="pre">UltraMotionCapture.kps.Kps</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="../_modules/UltraMotionCapture/field.html#Trans.shift_kps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.field.Trans.shift_kps" title="Permalink to this definition">#</a></dt>
+<dd><p>Implement the transformation to the key points object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kps</strong> – <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> key points object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>the deformed key points object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="UltraMotionCapture.field.Trans.shift_mesh">
+<span class="sig-name descname"><span class="pre">shift_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pyvista.core.pointset.PolyData</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">pyvista.core.pointset.PolyData</span><a class="reference internal" href="../_modules/UltraMotionCapture/field.html#Trans.shift_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.field.Trans.shift_mesh" title="Permalink to this definition">#</a></dt>
+<dd><p>Implement the transformation to the mesh object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kps</strong> – the mesh object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>the deformed mesh object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="UltraMotionCapture.field.Trans.shift_pcd">
+<span class="sig-name descname"><span class="pre">shift_pcd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pcd</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">open3d.cpu.pybind.geometry.PointCloud</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">open3d.cpu.pybind.geometry.PointCloud</span><a class="reference internal" href="../_modules/UltraMotionCapture/field.html#Trans.shift_pcd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.field.Trans.shift_pcd" title="Permalink to this definition">#</a></dt>
+<dd><p>Implement the transformation to the point cloud object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kps</strong> – the point cloud object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>the deformed point cloud object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="UltraMotionCapture.field.Trans.show">
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/field.html#Trans.show"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.field.Trans.show" title="Permalink to this definition">#</a></dt>
+<dd><p>Illustrate the estimated transformation.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>This method is leave blank intentionally.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="UltraMotionCapture.field.Trans.add_to_scene">
+<span class="sig-name descname"><span class="pre">add_to_scene</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scene</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pyvista.plotting.plotting.Plotter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.array</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">array([0,</span> <span class="pre">0,</span> <span class="pre">0])</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">pyvista.plotting.plotting.Plotter</span><a class="reference internal" href="../_modules/UltraMotionCapture/field.html#Trans.add_to_scene"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.field.Trans.add_to_scene" title="Permalink to this definition">#</a></dt>
+<dd><p>Illustrate the estimated transformation.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>This method is leave blank intentionally.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scene</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">pyvista.Plotter</span></code> scene to add the visualisation.</p></li>
+<li><p><strong>location</strong> – the displace location represented in a (3, ) <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.array</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – <p>other visualisation parameters.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html">pyvista.Plotter.add_mesh</a>
+<a class="reference external" href="https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html">pyvista.Plotter.add_points</a></p>
+</div>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -376,5 +500,6 @@
     <script src="../_static/scripts/furo.js"></script>
     <script src="../_static/clipboard.min.js"></script>
     <script src="../_static/copybutton.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>
