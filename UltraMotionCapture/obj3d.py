@@ -88,15 +88,8 @@ class Obj3d(object):
         self.mesh.scale(self.scale_rate, inplace=True)
         self.pcd = np2pcd(self.mesh.points)
 
-    def show(self, scene: Union[None, pv.Plotter] = None, show_mesh: bool= True, show_pcd: bool = True):
+    def show(self):
         """Show the loaded mesh and the sampled point cloud.
-        
-        Parameters
-        ---
-        show_mesh
-            show mesh or not.
-        show_pcd
-            show sampled point cloud or not.
 
         Attention
         ---
@@ -106,11 +99,15 @@ class Obj3d(object):
             pv.set_jupyter_backend('pythreejs')
         """
         scene = pv.Plotter()
-        self.add_to_scene(scene, show_mesh=show_mesh, show_pcd=show_pcd)
+
+        width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
+        self.add_mesh_to_scene(scene)
+        self.add_pcd_to_scene(scene, shift=[1.5*width, 0, 0])
+
         scene.show()
 
-    def add_to_scene(self, scene: pv.Plotter, show_mesh: bool= True, show_pcd: bool = True, shift: np.array = np.array((0, 0, 0))) -> pv.Plotter:
-        """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
+    def add_mesh_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0))) -> pv.Plotter:
+        """Add the visualisation of the mesh to a :class:`pyvista.Plotter` scene.
         
         Parameters
         ---
@@ -118,25 +115,31 @@ class Obj3d(object):
             :class:`pyvista.Plotter` scene to add the visualisation.
         shift
             shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
-        show_mesh
-            show mesh or not.
-        show_pcd
-            show sampled point cloud or not.
 
         Returns
         ---
         :class:`pyvista.Plotter`
             :class:`pyvista.Plotter` scene added the visualisation.
         """
-        # plot mesh
-        if show_mesh:
-            scene.add_mesh(self.mesh.translate(shift, inplace=False), show_edges=True)
+        scene.add_mesh(self.mesh.translate(shift, inplace=False), show_edges=True)
+        return scene
 
-        # plot sampled point cloud
-        if show_pcd:
-            width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
-            scene.add_points(pcd2np(self.pcd) + [1.5*width, 0, 0] + shift)
+    def add_pcd_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0))) -> pv.Plotter:
+        """Add the visualisation of the sampled key points to a :class:`pyvista.Plotter` scene.
+        
+        Parameters
+        ---
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        shift
+            shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
 
+        Returns
+        ---
+        :class:`pyvista.Plotter`
+            :class:`pyvista.Plotter` scene added the visualisation.
+        """
+        scene.add_points(pcd2np(self.pcd) + shift)
         return scene
 
 
@@ -174,19 +177,13 @@ class Obj3d_Kps(Obj3d):
         """
         self.kps_group[name] = markerset.get_time_coord(time, kps_class=kps.Kps)
 
-    def show(self, kps_names: Union[None, list, tuple] = None, show_mesh: bool= True, show_pcd: bool = True, show_kps: bool = True):
+    def show(self, kps_names: Union[None, list, tuple] = None):
         """Show the loaded mesh, the sampled point cloud, and the key points attached to it.
 
         Parameters
         ---
         kps_names
             a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
-        show_mesh
-            show mesh or not.
-        show_pcd
-            show sampled point cloud or not.
-        show_kps
-            show key point or not.
 
         Attention
         ---
@@ -196,11 +193,18 @@ class Obj3d_Kps(Obj3d):
             pv.set_jupyter_backend('pythreejs')
         """
         scene = pv.Plotter()
-        self.add_to_scene(scene, kps_names, show_mesh=show_mesh, show_pcd=show_pcd)
+
+        width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
+
+        self.add_mesh_to_scene(scene)
+        self.add_pcd_to_scene(scene, shift=[1.5*width, 0, 0])
+        self.add_kps_to_scene(scene, kps_names, radius=0.02*width)
+        self.add_kps_to_scene(scene, kps_names, radius=0.02*width, shift=[1.5*width, 0, 0])
+
         scene.show()
 
-    def add_to_scene(self, scene: pv.Plotter, kps_names: Union[None, tuple, list] = None, shift: np.array = np.array((0, 0, 0)), show_mesh: bool= True, show_pcd: bool = True, show_kps: bool = True) -> pv.Plotter:
-        """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
+    def add_kps_to_scene(self, scene: pv.Plotter, kps_names: Union[None, tuple, list] = None, shift: np.array = np.array((0, 0, 0)), radius: float = 1) -> pv.Plotter:
+        """Add the visualisation of key points to a :class:`pyvista.Plotter` scene.
         
         Parameters
         ---
@@ -210,44 +214,27 @@ class Obj3d_Kps(Obj3d):
             a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
         shift
 	        shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
-        show_mesh
-            show mesh or not.
-        show_pcd
-            show sampled point cloud or not.
-        show_kps
-	        show key point or not.
+        radius
+            radius of the points.
 
         Returns
         ---
         :class:`pyvista.Plotter`
             :class:`pyvista.Plotter` scene added the visualisation.
-        """        
-        # plot mesh
-        if show_mesh:
-            scene.add_mesh(self.mesh.translate(shift, inplace=False), show_edges=True)
+        """
+        if kps_names is None:
+            kps_names = self.kps_group.keys()
 
-        # plot sampled point cloud
-        if show_pcd:
-            width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
-            lateral_move = [1.5 * width, 0, 0]
-            scene.add_points(pcd2np(self.pcd) + lateral_move + shift, point_size=0.001*width)
+        seed = 26
+        color_ls = list(mcolors.CSS4_COLORS.keys())
 
-        # plot key points
-        if show_kps:
-            if kps_names is None:
-                kps_names = self.kps_group.keys()
+        for name in kps_names:
+            # random color select
+            random.seed(seed)
+            color = random.choice(color_ls)
+            seed = seed + 1
 
-            seed = 26
-            color_ls = list(mcolors.CSS4_COLORS.keys())
-
-            for name in kps_names:
-                # random color select
-                random.seed(seed)
-                color = random.choice(color_ls)
-                seed = seed + 1
-
-                self.kps_group[name].add_to_scene(scene, shift=shift, radius=0.02*width, color=color)
-                self.kps_group[name].add_to_scene(scene, shift=lateral_move + shift, radius=0.02*width, color=color)
+            self.kps_group[name].add_to_scene(scene, shift=shift, radius=radius, color=color)
             
         return scene
 
@@ -313,29 +300,28 @@ class Obj3d_Deform(Obj3d_Kps):
         """
         self.trans_nonrigid = trans_nonrigid
 
-    def show(self, kps_names: Union[None, list, tuple] = None, mode: str = 'raw', obj3d_gt: Union[None, Type[Obj3d_Kps]] = None, show_mesh: bool= True, show_pcd: bool = True, show_kps: bool = True, **kwargs):
-        """Show the loaded mesh, the sampled point cloud, and the key points attached to it.
+    def get_deform_obj3d(self):
+        """tbf"""
+        pass
+
+    def show_deform(self, kps_names: Union[None, list, tuple] = None, cmap: str = "cool"):
+        """Illustrate the mesh, the sampled point cloud, and the key points after the estimated deformation.
+        
+        - The mesh will be coloured with the distance of deformation. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
+        - The sampled points will be attached with displacement vectors to illustrate the displacement field.
+        - The deformed key points will be shown attached to the mesh and point cloud.
 
         Parameters
         ---
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
         kps_names
             a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
-        mode
-
-            - :code:`raw` calls :meth:`add_to_scene` inherited from :class:`Obj3d_Kps` to illustrate the mesh, sampled points, and key points.
-            - :code:`deform` calls :meth:`add_to_scene_deform` to illustrate the deformed mesh, displacement field and key points.
-            - :code:`diff_deform_gt` calls :meth:`add_to_scene_diff_deform_gt` to illustrate the difference between the estimated deformed mesh and sampling points with the ground-truth.
-
-        obj3d_gt
-            if set :code:`mode='diff_deform_gt'`, the ground-truth 3D object is needed to be provided.
-        show_mesh
-            show mesh or not.
-        show_pcd
-            show sampled point cloud or not.
-        show_kps
-            show key point or not.
-        **kwargs
-            parameters passed to downstream methods.
+        cmap
+            the color map name. 
+            
+            .. seealso::
+                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
 
         Attention
         ---
@@ -346,35 +332,26 @@ class Obj3d_Deform(Obj3d_Kps):
         """
         scene = pv.Plotter()
 
-        if mode == 'raw':
-            self.add_to_scene(scene, kps_names, show_mesh=show_mesh, show_pcd=show_pcd, show_kps=show_kps, **kwargs)
-        elif mode == 'deform':
-            self.add_to_scene_deform(scene, kps_names, show_mesh=show_mesh, show_pcd=show_pcd, show_kps=show_kps, **kwargs)
-        elif mode == 'diff_deform_gt':
-            self.add_to_scene_diff_deform_gt(scene, obj3d_gt, kps_names, show_mesh=show_mesh, show_pcd=show_pcd, show_kps=show_kps, **kwargs)
+        width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
+
+        self.add_deform_mesh_to_scene(scene)
+        self.add_deform_pcd_to_scene(scene, shift=[1.5*width, 0, 0])
+        self.add_deform_kps_to_scene(scene, kps_names, radius=0.02*width)
+        self.add_deform_kps_to_scene(scene, kps_names, radius=0.02*width, shift=[1.5*width, 0, 0])
         
         scene.show()
 
-    def add_to_scene_deform(self, scene: pv.Plotter, kps_names: Union[None, tuple, list] = None, shift: np.array = np.array((0, 0, 0)), show_mesh: bool= True, show_pcd: bool = True, show_kps: bool = True, cmap: str = "cool"):
-        """Illustrate the mesh, the sampled point cloud, and the key points after the estimated deformation.
+    def add_deform_mesh_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0)), cmap: str = "cool"):
+        """Add the visualisation of deformed mesh to a :class:`pyvista.Plotter` scene.
         
-        - The mesh will be coloured with the distance of deformation. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
-        - The sampled points will be attached with displacement vectors to illustrate the displacement field.
+        The mesh will be coloured with the distance of deformation. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
 
         Parameters
         ---
         scene
             :class:`pyvista.Plotter` scene to add the visualisation.
-        kps_names
-            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
         shift
 			shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
-        show_mesh
-            show mesh or not.
-        show_pcd
-            show sampled point cloud or not.
-        show_kps
-            show key point or not.
         cmap
             the color map name. 
             
@@ -388,117 +365,83 @@ class Obj3d_Deform(Obj3d_Kps):
             import pyvista as pv
             pv.set_jupyter_backend('pythreejs')
         """
-        # plot mesh with displacement distance
-        if show_mesh:
-            mesh_deform = self.trans_nonrigid.shift_mesh(self.mesh)
-            dist = np.linalg.norm(self.mesh.points - mesh_deform.points, axis = 1)
-            mesh_deform["distances"] = dist
-            scene.add_mesh(mesh_deform.translate(shift, inplace=False), scalars="distances", cmap=cmap)
+        mesh_deform = self.trans_nonrigid.shift_mesh(self.mesh)
+        dist = np.linalg.norm(self.mesh.points - mesh_deform.points, axis = 1)
+        mesh_deform["distances"] = dist
+        scene.add_mesh(mesh_deform.translate(shift, inplace=False), scalars="distances", cmap=cmap)
 
-            if UltraMotionCapture.output_msg:
-                print("average displacemnt: {:.3} (mm)".format(np.average(dist)/self.scale_rate))
-
-        # plot displacement of the sampled point cloud
-        if show_pcd:
-            width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
-            lateral_move = [1.5 * width, 0, 0]
-            self.trans_nonrigid.add_to_scene(scene, shift=lateral_move + shift)
-
-        # plot key points
-        if show_kps:
-            if kps_names is None:
-                kps_names = self.kps_group.keys()
-
-            seed = 26
-            color_ls = list(mcolors.CSS4_COLORS.keys())
-
-            for name in kps_names:
-                # random color select
-                random.seed(seed)
-                color = random.choice(color_ls)
-                seed = seed + 1
-
-                kps_deform = self.trans_nonrigid.shift_kps(self.kps_group[name])
-                kps_deform.add_to_scene(scene, shift=shift, radius=0.02*width, color=color)
-                kps_deform.add_to_scene(scene, shift=lateral_move + shift, radius=0.02*width, color=color)
+        if UltraMotionCapture.output_msg:
+            print("average displacemnt: {:.3} (mm)".format(np.average(dist)/self.scale_rate))
 
         return scene
 
-    def add_to_scene_diff_deform_gt(self, scene, obj3d_gt: Type[Obj3d_Kps], kps_names: Union[None, tuple, list] = None, shift: np.array = np.array((0, 0, 0)), show_mesh: bool= True, show_pcd: bool = True, show_kps: bool = True, cmap: str = "cool", opacity: float = 0.2):
-        """Illustrate the distance between the deformed 3d object under revealed deformation and the ground-truth deformed 3d object.
+    def add_deform_pcd_to_scene(self, scene: pv.Plotter, shift: np.array = np.array((0, 0, 0)), cmap: str = "cool"):
+        """Add the visualisation of deformed sampled point cloud to a :class:`pyvista.Plotter` scene.
         
-        - The deformed mesh will be coloured with the distance of ground-truth mesh. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
-        - The deformed key points will be coloured in gold while the ground-truth key points will be coloured in green.
-        - The deformed sampled points will be illustrated to the right.
-        - The ground-truth mesh will be displayed in low opacity with the deformed mesh and sampled points.
+        The sampled points will be attached with displacement vectors to illustrate the displacement field.
 
         Parameters
         ---
         scene
             :class:`pyvista.Plotter` scene to add the visualisation.
-        obj3d_gt
-            the ground-truth 3D object.
-        kps_names
-            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
         shift
-            shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
-        show_mesh
-            show mesh or not.
-        show_pcd
-            show sampled point cloud or not.
-        show_kps
-            show key point or not.
-
+			shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
         cmap
             the color map name. 
             
             .. seealso::
                 For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
-        opacity
-            the opacity of the ground-truth 3D object.
 
         Attention
         ---
         Before calling this method in Jupyter Notebook environment, the `pythreejs <https://docs.pyvista.org/user-guide/jupyter/pythreejs.html>`_ backend of :mod:`pyvista` is needed to be selected: ::
 
             import pyvista as pv
-            pv.set_jupyter_backend('pythreejs')"""
-        # plot the distance between the deformed mesh and the ground truth
-        if show_mesh:
-            mesh_gt = obj3d_gt.mesh
-            mesh_deform = self.trans_nonrigid.shift_mesh(self.mesh)
-            
-            tree = KDTree(mesh_gt.points)
-            d_kdtree, _ = tree.query(mesh_deform.points)
-            mesh_deform["distances"] = d_kdtree
-            
-            scene.add_mesh(mesh_deform.translate(shift, inplace=False), scalars="distances", cmap=cmap)
-            scene.add_mesh(mesh_gt.translate(shift, inplace=False), opacity=opacity)
-            scene.add_mesh(mesh_gt.translate(lateral_move + shift, inplace=False), opacity=opacity)
+            pv.set_jupyter_backend('pythreejs')
+        """
+        source_points = pcd2np(self.pcd)
+        deform_points = self.trans_nonrigid.shift_points(source_points)
+        dist = np.linalg.norm(deform_points - source_points, axis=1)
+        scene.add_points(deform_points + shift, scalars=dist, point_size=0.01, cmap=cmap)
 
-            if UltraMotionCapture.output_msg:
-                print("average distance between the deformed mesh and the ground truth: {:.3} (mm)".format(np.mean(d_kdtree)/self.scale_rate))
+        return scene
 
-        # plot the deformed sampled point cloud
-        if show_pcd:
-            width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
-            lateral_move = [1.5 * width, 0, 0]
+    def add_deform_kps_to_scene(self, scene: pv.Plotter, kps_names: Union[None, tuple, list] = None, shift: np.array = np.array((0, 0, 0)), radius: float = 1):
+        """Add the visualisation of deformed key points to a :class:`pyvista.Plotter` scene.
 
-            pcd_points = pcd2np(self.pcd)
-            pcd_deform_points = self.trans_nonrigid.shift_points(pcd_points)
-            scene.add_points(pcd_deform_points + lateral_move + shift, point_size=0.001*width, color='Gold')
+        Parameters
+        ---
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        kps_names
+            a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
+        shift
+			shift the displace location by a (3, ) vector stored in :class:`list`, :class:`tuple`, or :class:`numpy.array`.
+        radius
+            the radius of the key points.
 
-        # plot the difference between key points
-        if show_kps:
-            if kps_names is None:
-                kps_names = self.kps_group.keys()
+        Attention
+        ---
+        Before calling this method in Jupyter Notebook environment, the `pythreejs <https://docs.pyvista.org/user-guide/jupyter/pythreejs.html>`_ backend of :mod:`pyvista` is needed to be selected: ::
 
-            for name in kps_names:
-                kps_deform = self.trans_nonrigid.shift_kps(self.kps_group[name])
-                kps_deform.add_to_scene(scene, shift=shift, radius=0.02*width, color='gold')
+            import pyvista as pv
+            pv.set_jupyter_backend('pythreejs')
+        """
+        if kps_names is None:
+            kps_names = self.kps_group.keys()
 
-                kps_gt = obj3d_gt.kps_group[name]
-                kps_gt.add_to_scene(scene, shift=shift, radius=0.02*width, color='green')
+        seed = 26
+        color_ls = list(mcolors.CSS4_COLORS.keys())
+
+        for name in kps_names:
+            # random color select
+            random.seed(seed)
+            color = random.choice(color_ls)
+            seed = seed + 1
+
+            kps_deform = self.trans_nonrigid.shift_kps(self.kps_group[name])
+            kps_deform.add_to_scene(scene, shift=shift, radius=radius, color=color)
+            kps_deform.add_to_scene(scene, shift=shift, radius=radius, color=color)
 
         return scene
 
