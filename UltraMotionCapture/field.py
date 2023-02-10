@@ -78,7 +78,8 @@ class Trans(object):
         deform_kps = type(kps)()
         
         for name, coord in kps.points.items():
-            coord_deform = self.shift_points((coord, ))
+            point = np.array((coord, ))
+            coord_deform = self.shift_points(point)
             deform_kps.add_point(name, coord_deform[0])
         
         return deform_kps
@@ -185,13 +186,18 @@ class Trans_Rigid(Trans):
         trans.regist()
         print(trans.scale, trans.rot, trans.t)
     """
-    def regist(self, method=cpd.registration_cpd, **kwargs):
+    def regist(self, point_num: int = 1000, **kwargs):
         """The registration method.
 
         Parameters
         ---
-        method
-            At current stage, only methods from :mod:`probreg` package are supported. Default as :func:`probreg.cpd.registration_cpd`.
+        point_num
+            number of sample points to be used for rigid registration.
+
+            Attention
+            ---
+            Since the CPD registration is relatively slow, the meshes of source and target object are re-sampled for registration.
+
         **kwargs
             Configurations parameters of the registration.
             
@@ -199,8 +205,11 @@ class Trans_Rigid(Trans):
             --------
             `probreg.cpd.registration_cpd <https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd>`_
         """
-        tf_param, _, _ = method(
-            self.source.pcd, self.target.pcd, 'rigid', **kwargs
+        source_pcd = obj3d.pvmesh2pcd_pro(self.source.mesh)
+        target_pcd = obj3d.pvmesh2pcd_pro(self.target.mesh)
+
+        tf_param, _, _ = cpd.registration_cpd(
+            source_pcd, target_pcd, 'rigid', **kwargs
         )
         self.parse(tf_param)
         self.fix()
@@ -252,7 +261,7 @@ class Trans_Rigid(Trans):
         # return self.scale * np.matmul(points, self.rot.T) + np.expand_dims(self.t, axis=0)
         return (self.scale * np.matmul(self.rot, points.T) + np.expand_dims(self.t, axis=1)).T
 
-    def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
+    def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), original_length: float = 1, **kwargs) -> pv.Plotter:
         """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
         
         Parameters
@@ -261,6 +270,8 @@ class Trans_Rigid(Trans):
             :class:`pyvista.Plotter` scene to add the visualisation.
         location
             the displace location represented in a (3, ) :class:`numpy.array`.
+        original_length
+            length of the original axes vectors.
         **kwargs
             other visualisation parameters.
             
@@ -285,7 +296,7 @@ class Trans_Rigid(Trans):
         def add_axes(scene, vectors, shaft_radius=0.02, tip_radius=0.05, opacity=1):
             param = {
                 'start': vectors[0],
-                'scale': np.linalg.norm(vectors[1] - vectors[0]) * scale_rate,
+                'scale': np.linalg.norm(vectors[1] - vectors[0]) * original_length,
                 'shaft_radius': shaft_radius,
                 'tip_radius': tip_radius,   
             }

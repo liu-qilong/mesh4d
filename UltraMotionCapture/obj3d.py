@@ -334,7 +334,7 @@ class Obj3d_Deform(Obj3d_Kps):
             if UltraMotionCapture.output_msg:
                 print("fail to provide deformed object")
             
-            return 
+            return
 
         deform_obj = type(self)(mode='empty', scale_rate = self.scale_rate)
         deform_obj.mesh = trans.shift_mesh(self.mesh)
@@ -345,7 +345,7 @@ class Obj3d_Deform(Obj3d_Kps):
 
         return deform_obj
 
-    def show_deform(self, kps_names: Union[None, list, tuple] = None, cmap: str = "cool"):
+    def show_deform(self, kps_names: Union[None, list, tuple] = None, mode: str = 'nonrigid', cmap: str = "cool"):
         """Illustrate the mesh, the sampled point cloud, and the key points after the estimated deformation.
         
         - The mesh will be coloured with the distance of deformation. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
@@ -358,6 +358,11 @@ class Obj3d_Deform(Obj3d_Kps):
             :class:`pyvista.Plotter` scene to add the visualisation.
         kps_names
             a list of names of the :class:`~UltraMotionCapture.kps.Kps` objects to be shown. Noted that a :class:`~UltraMotionCapture.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
+        mode
+            
+            - :code:`nonrigid`: the non-rigid transformation will be used to deform the object.
+            - :code:`rigid`: the rigid transformation will be used to deform the object.
+
         cmap
             the color map name. 
             
@@ -371,15 +376,30 @@ class Obj3d_Deform(Obj3d_Kps):
             import pyvista as pv
             pv.set_jupyter_backend('pythreejs')
         """
+        if mode == 'nonrigid' and self.trans_nonrigid is not None:
+            trans = self.trans_nonrigid
+        elif mode == 'rigid' and self.trans_rigid is not None:
+            trans = self.trans_rigid
+        else:
+            if UltraMotionCapture.output_msg:
+                print("fail to provide deformed object")
+
+            return
+
         scene = pv.Plotter()
 
-        deform_obj = self.get_deform_obj3d()
+        deform_obj = self.get_deform_obj3d(mode=mode)
         dist = np.linalg.norm(self.mesh.points - deform_obj.mesh.points, axis = 1)
-        deform_obj.mesh["distances"] = dist
-
         width = pcd_get_max_bound(deform_obj.pcd)[0] - pcd_get_min_bound(deform_obj.pcd)[0]
+
+        deform_obj.mesh["distances"] = dist
         deform_obj.add_mesh_to_scene(scene, cmap=cmap)
-        self.trans_nonrigid.add_to_scene(scene, location=[1.5*width, 0, 0], cmap=cmap)
+
+        if mode == 'nonrigid' and self.trans_nonrigid is not None:
+            trans.add_to_scene(scene, location=[1.5*width, 0, 0], cmap=cmap)
+        elif mode == 'rigid' and self.trans_rigid is not None:
+            trans.add_to_scene(scene, location=[1.5*width, 0, 0], cmap=cmap, original_length=width)
+        
         deform_obj.add_kps_to_scene(scene, kps_names, radius=0.02*width)
         deform_obj.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
         
