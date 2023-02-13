@@ -128,6 +128,8 @@ class Kps(object):
         """
         scene = pv.Plotter()
         self.add_to_scene(scene)
+
+        scene.camera_position = 'xy'
         scene.show()
 
     def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), radius: float = 1, **kwargs) -> pv.Plotter:

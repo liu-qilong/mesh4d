@@ -114,6 +114,8 @@ class Obj3d(object):
         self.add_mesh_to_scene(scene)
         self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0])
 
+
+        scene.camera_position = 'xy'
         scene.show()
 
     def show_diff(obj1: Type[Obj3d], obj2: Type[Obj3d], cmap: str = "cool", op2: float = 0.2):
@@ -144,6 +146,7 @@ class Obj3d(object):
         obj1.add_mesh_to_scene(scene, show_edges=False, cmap=cmap)
         obj2.add_mesh_to_scene(scene, show_edges=False, opacity=op2)
 
+        scene.camera_position = 'xy'
         scene.show()
 
     def add_mesh_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), show_edges: bool =True, **kwargs) -> pv.Plotter:
@@ -253,9 +256,10 @@ class Obj3d_Kps(Obj3d):
         self.add_kps_to_scene(scene, kps_names, radius=0.02*width)
         self.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
 
+        scene.camera_position = 'xy'
         scene.show()
 
-    def show_diff(obj1: Type[Obj3d_Kps], obj2: Type[Obj3d_Kps], kps_names: Union[None, tuple, list] = None, cmap: str = "cool", op2: float = 0.2):
+    def show_diff(obj1: Type[Obj3d_Kps], obj2: Type[Obj3d_Kps], kps_names: Union[None, tuple, list] = None, cmap: str = "cool", op1: float = 0.8, op2: float = 0.2):
         """Illustrate the difference of two 3D object:
 
         - :attr:`obj1` mesh will be coloured according to each of its points' distance to :attr:`obj2` mesh. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
@@ -274,6 +278,8 @@ class Obj3d_Kps(Obj3d):
             
             .. seealso::
                 For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+        op1
+            the opacity of the first 3D object.
         op2
             the opacity of the second 3D object.
         """
@@ -284,11 +290,12 @@ class Obj3d_Kps(Obj3d):
         obj1.mesh["distances"] = d_kdtree
         width = pcd_get_max_bound(obj1.pcd)[0] - pcd_get_min_bound(obj1.pcd)[0]
 
-        obj1.add_mesh_to_scene(scene, show_edges=False, cmap=cmap)
+        obj1.add_mesh_to_scene(scene, show_edges=False, opacity=op1, cmap=cmap)
         obj2.add_mesh_to_scene(scene, show_edges=False, opacity=op2)
-        obj1.add_kps_to_scene(scene, color="gold", radius=0.02*width)
-        obj2.add_kps_to_scene(scene, color="green", radius=0.02*width)
+        obj1.add_kps_to_scene(scene, kps_names, color="gold", radius=0.02*width)
+        obj2.add_kps_to_scene(scene, kps_names, color="green", radius=0.02*width)
 
+        scene.camera_position = 'xy'
         scene.show()
 
     def add_kps_to_scene(self, scene: pv.Plotter, kps_names: Union[None, tuple, list] = None, location: np.array = np.array((0, 0, 0)), color: Union[None, str] = None, **kwargs) -> pv.Plotter:
@@ -475,6 +482,7 @@ class Obj3d_Deform(Obj3d_Kps):
         deform_obj.add_kps_to_scene(scene, kps_names, radius=0.02*width)
         deform_obj.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
         
+        scene.camera_position = 'xy'
         scene.show()
 
     def offset_rotate(self):
