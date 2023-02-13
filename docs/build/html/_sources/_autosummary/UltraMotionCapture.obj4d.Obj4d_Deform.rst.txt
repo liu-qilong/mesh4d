@@ -1,4 +1,4 @@
-UltraMotionCapture.obj4d.Obj4d\_Deform
+﻿UltraMotionCapture.obj4d.Obj4d\_Deform
 ======================================
 
 .. currentmodule:: UltraMotionCapture.obj4d
@@ -24,6 +24,8 @@ UltraMotionCapture.obj4d.Obj4d\_Deform
       ~Obj4d_Deform.process_first_obj
       ~Obj4d_Deform.process_nonrigid_dynamic
       ~Obj4d_Deform.process_rigid_dynamic
+      ~Obj4d_Deform.show_deform_gif
+      ~Obj4d_Deform.show_gif
       ~Obj4d_Deform.vkps_track
    
    

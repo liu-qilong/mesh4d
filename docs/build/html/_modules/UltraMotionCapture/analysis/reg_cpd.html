@@ -191,7 +191,6 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../_autosummary/UltraMotionCapture.kps.html">UltraMotionCapture.kps</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/UltraMotionCapture.kps.Kps.html">UltraMotionCapture.kps.Kps</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/UltraMotionCapture.kps.Kps_Deform.html">UltraMotionCapture.kps.Kps_Deform</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/UltraMotionCapture.kps.Marker.html">UltraMotionCapture.kps.Marker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../_autosummary/UltraMotionCapture.kps.MarkerSet.html">UltraMotionCapture.kps.MarkerSet</a></li>
 </ul>
@@ -327,13 +326,11 @@
 <div class="viewcode-block" id="Trans_Nonrigid_CPD"><a class="viewcode-back" href="../../../_autosummary/UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.html#UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD">[docs]</a><span class="k">class</span> <span class="nc">Trans_Nonrigid_CPD</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">Trans_Nonrigid</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Derived from :class:`UltraMotionCapture.field.Trans_Nonrigid` and replace the displacement field estimation as Coherent Point Drift (CPD) based approach.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Trans_Nonrigid_CPD.regist"><a class="viewcode-back" href="../../../_autosummary/UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.html#UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.regist">[docs]</a>    <span class="k">def</span> <span class="nf">regist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">cpd</span><span class="o">.</span><span class="n">registration_cpd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Trans_Nonrigid_CPD.regist"><a class="viewcode-back" href="../../../_autosummary/UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.html#UltraMotionCapture.analysis.reg_cpd.Trans_Nonrigid_CPD.regist">[docs]</a>    <span class="k">def</span> <span class="nf">regist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The registration method.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ---</span>
-<span class="sd">        method</span>
-<span class="sd">            At current stage, only methods from :mod:`probreg` package are supported. Default as :func:`probreg.cpd.registration_cpd`.</span>
 <span class="sd">        **kwargs</span>
 <span class="sd">            Configurations parameters of the registration.</span>
 <span class="sd">            </span>
@@ -341,8 +338,8 @@
 <span class="sd">            --------</span>
 <span class="sd">            `probreg.cpd.registration_cpd &lt;https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">tf_param</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="s1">&#39;nonrigid&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="n">tf_param</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cpd</span><span class="o">.</span><span class="n">registration_cpd</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">pcd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">pcd</span><span class="p">,</span> <span class="s1">&#39;nonrigid&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">tf_param</span><span class="p">)</span>
         
@@ -359,11 +356,11 @@
 <span class="sd">            ---</span>
 <span class="sd">            At current stage, the default registration method is Coherent Point Drift (CPD) method realised by :mod:`probreg` package. Therefore the accepted transformation object to be parse is derived from :class:`cpd.CoherentPointDrift`. Transformation object provided by other registration method shall be tested in future development.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">deform</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+        <span class="n">deform</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">pcd</span><span class="p">)</span>
         <span class="n">deform</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">tf_param</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">deform</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">deform_points</span> <span class="o">=</span> <span class="n">obj3d</span><span class="o">.</span><span class="n">pcd2np</span><span class="p">(</span><span class="n">deform</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">source_points</span> <span class="o">=</span> <span class="n">obj3d</span><span class="o">.</span><span class="n">pcd2np</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source_points</span> <span class="o">=</span> <span class="n">obj3d</span><span class="o">.</span><span class="n">pcd2np</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">pcd</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">disp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deform_points</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_points</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">search_tree</span> <span class="o">=</span> <span class="n">KDTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_points</span><span class="p">)</span></div></div>
 
