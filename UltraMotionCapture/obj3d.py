@@ -901,7 +901,7 @@ def load_obj_series(
         o4.add_obj(*o3_ls)
     """
     files = os.listdir(folder)
-    files = [folder + f for f in files if '.obj' in f]
+    files = [os.path.join(folder, f) for f in files if '.obj' in f]
     files.sort()
 
     o3_ls = []
