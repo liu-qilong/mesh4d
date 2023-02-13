@@ -1,4 +1,4 @@
-UltraMotionCapture.obj4d.Obj4d
+﻿UltraMotionCapture.obj4d.Obj4d
 ==============================
 
 .. currentmodule:: UltraMotionCapture.obj4d
@@ -19,6 +19,7 @@ UltraMotionCapture.obj4d.Obj4d
    
       ~Obj4d.__init__
       ~Obj4d.add_obj
+      ~Obj4d.show_gif
    
    
 

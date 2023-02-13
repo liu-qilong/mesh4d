@@ -1,4 +1,4 @@
-UltraMotionCapture.analysis.virtual\_kps.Obj4d\_VKps
+﻿UltraMotionCapture.analysis.virtual\_kps.Obj4d\_VKps
 ====================================================
 
 .. currentmodule:: UltraMotionCapture.analysis.virtual_kps
@@ -25,6 +25,8 @@ UltraMotionCapture.analysis.virtual\_kps.Obj4d\_VKps
       ~Obj4d_VKps.process_nonrigid_dynamic
       ~Obj4d_VKps.process_rigid_dynamic
       ~Obj4d_VKps.regist_verify
+      ~Obj4d_VKps.show_deform_gif
+      ~Obj4d_VKps.show_gif
       ~Obj4d_VKps.vkps_track
    
    

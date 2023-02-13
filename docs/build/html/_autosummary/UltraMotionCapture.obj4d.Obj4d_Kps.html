@@ -327,6 +327,9 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#UltraMotionCapture.obj4d.Obj4d_Kps.load_markerset" title="UltraMotionCapture.obj4d.Obj4d_Kps.load_markerset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_markerset</span></code></a>(name[, markerset])</p></td>
 <td><p>Slice the <a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarkerSet</span></code></a> object into <code class="xref py py-class docutils literal notranslate"><span class="pre">kps</span></code> objects and attached them to the corresponding frames.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#UltraMotionCapture.obj4d.Obj4d_Kps.show_gif" title="UltraMotionCapture.obj4d.Obj4d_Kps.show_gif"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_gif</span></code></a>([output_folder, filename, kps_names])</p></td>
+<td><p>Illustrate the 4D object.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -372,6 +375,21 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> – the name of the <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> objects. Noted that this name will also been used as its keyword in <a class="reference internal" href="UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps" title="UltraMotionCapture.obj3d.Obj3d_Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Obj3d_Kps</span></code></a> object’s <code class="xref py py-attr docutils literal notranslate"><span class="pre">kps_group</span></code> attribute.</p></li>
 <li><p><strong>markerset</strong> – Vicon motion capture data (<a class="reference internal" href="UltraMotionCapture.kps.MarkerSet.html#UltraMotionCapture.kps.MarkerSet" title="UltraMotionCapture.kps.MarkerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">UltraMotionCapture.kps.MarkerSet</span></code></a>).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="UltraMotionCapture.obj4d.Obj4d_Kps.show_gif">
+<span class="sig-name descname"><span class="pre">show_gif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_folder</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'output/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'obj4d'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kps_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">,</span> </span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/UltraMotionCapture/obj4d.html#Obj4d_Kps.show_gif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#UltraMotionCapture.obj4d.Obj4d_Kps.show_gif" title="Permalink to this definition">#</a></dt>
+<dd><p>Illustrate the 4D object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_folder</strong> – the output folder of the generated <code class="code docutils literal notranslate"><span class="pre">.gif</span></code> file.</p></li>
+<li><p><strong>filename</strong> – the output filename of the generated <code class="code docutils literal notranslate"><span class="pre">.gif</span></code> file.</p></li>
+<li><p><strong>kps_names</strong> – a list of names of the <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> objects to be shown. Noted that a <a class="reference internal" href="UltraMotionCapture.kps.Kps.html#UltraMotionCapture.kps.Kps" title="UltraMotionCapture.kps.Kps"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kps</span></code></a> object’s name is its keyword in <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.kps_group</span></code>.</p></li>
 </ul>
 </dd>
 </dl>

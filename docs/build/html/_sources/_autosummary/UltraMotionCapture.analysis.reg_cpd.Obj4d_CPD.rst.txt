@@ -1,4 +1,4 @@
-UltraMotionCapture.analysis.reg\_cpd.Obj4d\_CPD
+﻿UltraMotionCapture.analysis.reg\_cpd.Obj4d\_CPD
 ===============================================
 
 .. currentmodule:: UltraMotionCapture.analysis.reg_cpd
@@ -24,6 +24,8 @@ UltraMotionCapture.analysis.reg\_cpd.Obj4d\_CPD
       ~Obj4d_CPD.process_first_obj
       ~Obj4d_CPD.process_nonrigid_dynamic
       ~Obj4d_CPD.process_rigid_dynamic
+      ~Obj4d_CPD.show_deform_gif
+      ~Obj4d_CPD.show_gif
       ~Obj4d_CPD.vkps_track
    
    
