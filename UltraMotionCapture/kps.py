@@ -601,7 +601,7 @@ class MarkerSet(object):
 
         return kps
 
-    def get_time_coord(self, time: float, kps_class: Type[Kps] = Kps) -> np.array:
+    def get_time_coord(self, time: float) -> np.array:
         """Get coordinates data according to time stamp.
 
         Parameters
@@ -622,7 +622,7 @@ class MarkerSet(object):
         ---
         The returned value will be transferred to :class:`Kps` in future development.
         """
-        kps = kps_class()
+        kps = Kps()
         kps.scale_rate = self.scale_rate
 
         for name, marker in self.markers.items():

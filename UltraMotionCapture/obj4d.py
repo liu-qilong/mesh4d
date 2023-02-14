@@ -196,7 +196,7 @@ class Obj4d_Kps(Obj4d):
         """
         for idx in range(len(self.obj_ls)):
             obj = self.obj_ls[idx]
-            obj.load_kps(name, markerset, self.start_time + idx / self.fps)
+            obj.load_kps_from_markerset(name, markerset, self.start_time + idx / self.fps)
 
     def show_gif(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None):
         """Illustrate the 4D object.
@@ -481,6 +481,17 @@ class Obj4d_Deform(Obj4d_Kps):
         if UltraMotionCapture.output_msg:
             print("4d object reorientated")
 
-    def vkps_track(self, kps: Type[kps.Kps], start_frame: int = 0, end_frame: int = -1):
+    def vkps_track(self, kps: Type[kps.Kps], name: str = 'vkps', frame_id: int = 0):
         """tbf"""
-        pass
+        self.obj_ls[frame_id].attach_kps(name, kps)
+
+        # track forward
+        for idx in range(frame_id + 1, len(self.obj_ls)):
+            previous_obj = self.obj_ls[idx - 1]
+            previous_kps = previous_obj.kps_group[name]
+            current_kps = previous_obj.trans_nonrigid.shift_kps(previous_kps)
+
+            current_obj = self.obj_ls[idx]
+            current_obj.attach_kps(name, current_kps)
+
+        # track backward
