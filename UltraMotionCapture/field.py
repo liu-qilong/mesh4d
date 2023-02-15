@@ -464,6 +464,7 @@ class Trans_Nonrigid(Trans):
         trans_invert.source_points = self.deform_points
         trans_invert.deform_points = self.source_points
         trans_invert.disp = -self.disp
+        trans_invert.search_tree = KDTree(trans_invert.source_points)
 
         return trans_invert
 
