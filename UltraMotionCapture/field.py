@@ -40,7 +40,7 @@ class Trans(object):
     self.target
         The target object of the transformation.
     """
-    def __init__(self, source_obj: Type[obj3d.Obj3d], target_obj: Type[obj3d.Obj3d], **kwargs):
+    def __init__(self, source_obj: Union[None, Type[obj3d.Obj3d]] = None, target_obj: Union[None, Type[obj3d.Obj3d]] = None, **kwargs):
         self.source = source_obj
         self.target = target_obj
 
@@ -314,6 +314,27 @@ class Trans_Rigid(Trans):
         add_axes(scene, vectors, opacity=0.3)
         add_axes(scene, vectors_deform)
 
+    def invert(self):
+        """Return the inverted rigid transformation.
+        
+        Note
+        ---
+        The rigid transformation is formulated as:
+
+        .. math:: \\boldsymbol y = s \\boldsymbol R \\boldsymbol x + \\boldsymbol t
+
+        Therefore, the inverted transformation should be:
+
+        .. math:: \\boldsymbol x = \\frac{1}{s} \\boldsymbol R^T \mathcal{T}(\\boldsymbol x) - \\frac{1}{s} \\boldsymbol R^T \\boldsymbol t
+        """
+        trans_invert = type(self)(source_obj=self.target, target_obj=self.source)
+        trans_invert.scale = 1/self.scale
+        trans_invert.rot = self.rot.T
+        trans_invert.t = -1/self.scale * np.matmul(self.t, self.rot)
+        # the last operation seems to be different from the formula, this is because the default vector in linear algebra is column vector, while in numpy is line vector
+
+        return trans_invert
+
 
 class Trans_Nonrigid(Trans):
     """The non-rigid transformation, under which points in different locations may be transformed in different directions and distances. Such an idea can be expressed in the form of :math:`\mathcal{T}`:
@@ -425,6 +446,26 @@ class Trans_Nonrigid(Trans):
         pdata = pv.vector_poly_data(self.source_points, self.disp)
         glyph = pdata.glyph()
         scene.add_mesh(glyph.translate(location, inplace=False), **kwargs)
+
+    def invert(self):
+        """Return the inverted non-rigid transformation.
+
+        Note
+        ---
+        The non-rigid transformation is formulated as:
+
+        .. math:: \\boldsymbol Y = \\boldsymbol S + \\boldsymbol T
+
+        Therefore, the inverted transformation should be:
+
+        .. math:: \\boldsymbol S = \\boldsymbol Y - \\boldsymbol T
+        """
+        trans_invert = type(self)(source_obj=self.target, target_obj=self.source)
+        trans_invert.source_points = self.deform_points
+        trans_invert.deform_points = self.source_points
+        trans_invert.disp = -self.disp
+
+        return trans_invert
 
 
 def transform_rst2sm(R: np.array, s: float, t: np.array) -> tuple[float, np.array]:
