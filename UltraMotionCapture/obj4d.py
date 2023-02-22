@@ -198,6 +198,24 @@ class Obj4d_Kps(Obj4d):
             obj = self.obj_ls[idx]
             obj.load_kps_from_markerset(name, markerset, self.start_time + idx / self.fps)
 
+    def assemble_markerset(self, name: str) -> kps.MarkerSet:
+        """tbf"""
+        markerset = kps.MarkerSet()
+        markerset.fps = self.fps
+        markerset.scale_rate = self.obj_ls[0].scale_rate
+        markerset.markers = {}
+
+        for obj in self.obj_ls:
+            points_dict = obj.kps_group[name].points
+
+            for point_name in points_dict.keys():
+                if point_name not in markerset.markers.keys():
+                    markerset.markers[point_name] = kps.Marker(name=point_name, fps=self.fps, scale_rate=obj.scale_rate)
+                
+                markerset.markers[point_name].append_data(coord=points_dict[point_name])
+
+        return markerset
+
     def show_gif(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None):
         """Illustrate the 4D object.
         

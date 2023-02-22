@@ -204,8 +204,10 @@ class Marker(object):
     self.coord
         (3, N) :class:`numpy.array` storing the coordinates data, with :math:`x, y, z` as rows and frame ids as the columns.
     self.speed
+        tbf
         (3, N) :class:`numpy.array` storing the speed data, with :math:`x, y, z` as rows and frame ids as the columns.
     self.accel
+        tbf
         (3, N) :class:`numpy.array` storing the acceleration data, with :math:`x, y, z` as rows and frame ids as the columns.
     self.frame_num
         The number of total frames.
@@ -259,8 +261,36 @@ class Marker(object):
         cls.trans_cab.scale = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
         cls.trans_cab.t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
 
+    def append_data(self, coord: np.array, speed: float = 0, accel: float = 0):
+        """tbf
+        """
+        # transform to 3dMD coordinates
+        coord = np.expand_dims(coord, axis=0)
+        coord = self.scale_rate * self.trans_cab.shift_points(coord).T
+        speed = self.scale_rate * self.trans_cab.scale * np.expand_dims(speed, axis=0)
+        accel = self.scale_rate * self.trans_cab.scale * np.expand_dims(accel, axis=0)
+
+        # if self.coord, self.speed, and self.accel haven't been initialised, initialise them
+        # otherwise, append the newly arrived data to its end
+        if self.coord is None:
+            self.coord = coord
+        else:
+            self.coord = np.concatenate((self.coord, coord), axis=1)
+
+        if self.speed is None:
+            self.speed = speed
+        else:
+            self.speed = np.concatenate((self.speed, speed), axis=0)
+        
+        if self.accel is None:
+            self.accel = accel
+        else:
+            self.accel = np.concatenate((self.accel, accel), axis=0)
+
+        self.frame_num = self.coord.shape[1]
+
     def fill_data(self, data_input: np.array):
-        """Filling coordinates, speed, and acceleration data after converting to 3dMD coordinates, one by one, into the :class:`Marker` object.
+        """Filling coordinates, speed, and acceleration data of all frames after transforming to 3dMD coordinates. Noted that the first calling fills the coordinates data, the second calling fills the speed data, and the third calling fills the acceleration data, respectively.
 
         Parameters
         ---
