@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.obj4d.Obj4d
+UltraMotionCapture.obj4d.Obj4d
 ==============================
 
 .. currentmodule:: UltraMotionCapture.obj4d

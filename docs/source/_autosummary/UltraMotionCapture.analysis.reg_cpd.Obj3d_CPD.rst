@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.analysis.reg\_cpd.Obj3d\_CPD
+UltraMotionCapture.analysis.reg\_cpd.Obj3d\_CPD
 ===============================================
 
 .. currentmodule:: UltraMotionCapture.analysis.reg_cpd
@@ -21,8 +21,9 @@
       ~Obj3d_CPD.add_kps_to_scene
       ~Obj3d_CPD.add_mesh_to_scene
       ~Obj3d_CPD.add_pcd_to_scene
+      ~Obj3d_CPD.attach_kps
       ~Obj3d_CPD.get_deform_obj3d
-      ~Obj3d_CPD.load_kps
+      ~Obj3d_CPD.load_kps_from_markerset
       ~Obj3d_CPD.offset_rotate
       ~Obj3d_CPD.set_trans_nonrigid
       ~Obj3d_CPD.set_trans_rigid

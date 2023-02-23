@@ -19,6 +19,7 @@ UltraMotionCapture.field.Trans\_Nonrigid
    
       ~Trans_Nonrigid.__init__
       ~Trans_Nonrigid.add_to_scene
+      ~Trans_Nonrigid.invert
       ~Trans_Nonrigid.regist
       ~Trans_Nonrigid.shift_kps
       ~Trans_Nonrigid.shift_mesh

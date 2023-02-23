@@ -33,5 +33,4 @@ UltraMotionCapture.analysis
    :recursive:
 
    UltraMotionCapture.analysis.reg_cpd
-   UltraMotionCapture.analysis.virtual_kps
 

@@ -18,6 +18,8 @@ UltraMotionCapture.kps.Marker
    .. autosummary::
    
       ~Marker.__init__
+      ~Marker.append_data
+      ~Marker.diff
       ~Marker.fill_data
       ~Marker.get_frame_coord
       ~Marker.get_time_coord

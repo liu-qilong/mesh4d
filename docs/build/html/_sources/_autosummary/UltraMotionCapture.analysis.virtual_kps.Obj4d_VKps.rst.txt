@@ -19,6 +19,7 @@
    
       ~Obj4d_VKps.__init__
       ~Obj4d_VKps.add_obj
+      ~Obj4d_VKps.assemble_markerset
       ~Obj4d_VKps.load_markerset
       ~Obj4d_VKps.offset_rotate
       ~Obj4d_VKps.process_first_obj

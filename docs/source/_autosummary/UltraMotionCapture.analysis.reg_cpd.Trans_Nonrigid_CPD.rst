@@ -19,6 +19,7 @@ UltraMotionCapture.analysis.reg\_cpd.Trans\_Nonrigid\_CPD
    
       ~Trans_Nonrigid_CPD.__init__
       ~Trans_Nonrigid_CPD.add_to_scene
+      ~Trans_Nonrigid_CPD.invert
       ~Trans_Nonrigid_CPD.parse
       ~Trans_Nonrigid_CPD.regist
       ~Trans_Nonrigid_CPD.shift_kps

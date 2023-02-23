@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.obj3d.Obj3d\_Kps
+UltraMotionCapture.obj3d.Obj3d\_Kps
 ===================================
 
 .. currentmodule:: UltraMotionCapture.obj3d
@@ -21,7 +21,8 @@
       ~Obj3d_Kps.add_kps_to_scene
       ~Obj3d_Kps.add_mesh_to_scene
       ~Obj3d_Kps.add_pcd_to_scene
-      ~Obj3d_Kps.load_kps
+      ~Obj3d_Kps.attach_kps
+      ~Obj3d_Kps.load_kps_from_markerset
       ~Obj3d_Kps.show
       ~Obj3d_Kps.show_diff
    

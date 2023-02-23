@@ -309,7 +309,7 @@
 <span class="sd">    self.target</span>
 <span class="sd">        The target object of the transformation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Trans.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans.html#UltraMotionCapture.field.Trans.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_obj</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">obj3d</span><span class="o">.</span><span class="n">Obj3d</span><span class="p">],</span> <span class="n">target_obj</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">obj3d</span><span class="o">.</span><span class="n">Obj3d</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Trans.__init__"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans.html#UltraMotionCapture.field.Trans.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">obj3d</span><span class="o">.</span><span class="n">Obj3d</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">target_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">obj3d</span><span class="o">.</span><span class="n">Obj3d</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source_obj</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target_obj</span></div>
 
@@ -581,7 +581,28 @@
             <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">arrow_z</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;darkolivegreen&#39;</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="n">opacity</span><span class="p">)</span>
 
         <span class="n">add_axes</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">vectors</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
-        <span class="n">add_axes</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">vectors_deform</span><span class="p">)</span></div></div>
+        <span class="n">add_axes</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">vectors_deform</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Trans_Rigid.invert"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans_Rigid.html#UltraMotionCapture.field.Trans_Rigid.invert">[docs]</a>    <span class="k">def</span> <span class="nf">invert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the inverted rigid transformation.</span>
+<span class="sd">        </span>
+<span class="sd">        Note</span>
+<span class="sd">        ---</span>
+<span class="sd">        The rigid transformation is formulated as:</span>
+
+<span class="sd">        .. math:: \\boldsymbol y = s \\boldsymbol R \\boldsymbol x + \\boldsymbol t</span>
+
+<span class="sd">        Therefore, the inverted transformation should be:</span>
+
+<span class="sd">        .. math:: \\boldsymbol x = \\frac{1}{s} \\boldsymbol R^T \mathcal{T}(\\boldsymbol x) - \\frac{1}{s} \\boldsymbol R^T \\boldsymbol t</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">trans_invert</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">source_obj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">target_obj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+        <span class="n">trans_invert</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span>
+        <span class="n">trans_invert</span><span class="o">.</span><span class="n">rot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rot</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">trans_invert</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rot</span><span class="p">)</span>
+        <span class="c1"># the last operation seems to be different from the formula, this is because the default vector in linear algebra is column vector, while in numpy is line vector</span>
+
+        <span class="k">return</span> <span class="n">trans_invert</span></div></div>
 
 
 <div class="viewcode-block" id="Trans_Nonrigid"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html#UltraMotionCapture.field.Trans_Nonrigid">[docs]</a><span class="k">class</span> <span class="nc">Trans_Nonrigid</span><span class="p">(</span><span class="n">Trans</span><span class="p">):</span>
@@ -693,7 +714,28 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pdata</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">vector_poly_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">disp</span><span class="p">)</span>
         <span class="n">glyph</span> <span class="o">=</span> <span class="n">pdata</span><span class="o">.</span><span class="n">glyph</span><span class="p">()</span>
-        <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">glyph</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+        <span class="n">scene</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">glyph</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Trans_Nonrigid.invert"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.Trans_Nonrigid.html#UltraMotionCapture.field.Trans_Nonrigid.invert">[docs]</a>    <span class="k">def</span> <span class="nf">invert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the inverted non-rigid transformation.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ---</span>
+<span class="sd">        The non-rigid transformation is formulated as:</span>
+
+<span class="sd">        .. math:: \\boldsymbol Y = \\boldsymbol S + \\boldsymbol T</span>
+
+<span class="sd">        Therefore, the inverted transformation should be:</span>
+
+<span class="sd">        .. math:: \\boldsymbol S = \\boldsymbol Y - \\boldsymbol T</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">trans_invert</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">source_obj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">target_obj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+        <span class="n">trans_invert</span><span class="o">.</span><span class="n">source_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deform_points</span>
+        <span class="n">trans_invert</span><span class="o">.</span><span class="n">deform_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_points</span>
+        <span class="n">trans_invert</span><span class="o">.</span><span class="n">disp</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">disp</span>
+        <span class="n">trans_invert</span><span class="o">.</span><span class="n">search_tree</span> <span class="o">=</span> <span class="n">KDTree</span><span class="p">(</span><span class="n">trans_invert</span><span class="o">.</span><span class="n">source_points</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">trans_invert</span></div></div>
 
 
 <div class="viewcode-block" id="transform_rst2sm"><a class="viewcode-back" href="../../_autosummary/UltraMotionCapture.field.transform_rst2sm.html#UltraMotionCapture.field.transform_rst2sm">[docs]</a><span class="k">def</span> <span class="nf">transform_rst2sm</span><span class="p">(</span><span class="n">R</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]:</span>

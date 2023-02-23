@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.analysis.reg\_cpd.Obj4d\_CPD
+UltraMotionCapture.analysis.reg\_cpd.Obj4d\_CPD
 ===============================================
 
 .. currentmodule:: UltraMotionCapture.analysis.reg_cpd
@@ -19,6 +19,7 @@
    
       ~Obj4d_CPD.__init__
       ~Obj4d_CPD.add_obj
+      ~Obj4d_CPD.assemble_markerset
       ~Obj4d_CPD.load_markerset
       ~Obj4d_CPD.offset_rotate
       ~Obj4d_CPD.process_first_obj

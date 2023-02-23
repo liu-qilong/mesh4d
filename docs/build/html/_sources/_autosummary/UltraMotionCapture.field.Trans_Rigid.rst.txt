@@ -20,6 +20,7 @@ UltraMotionCapture.field.Trans\_Rigid
       ~Trans_Rigid.__init__
       ~Trans_Rigid.add_to_scene
       ~Trans_Rigid.fix
+      ~Trans_Rigid.invert
       ~Trans_Rigid.parse
       ~Trans_Rigid.regist
       ~Trans_Rigid.shift_kps

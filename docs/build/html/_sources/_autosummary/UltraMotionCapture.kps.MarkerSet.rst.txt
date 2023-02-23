@@ -18,6 +18,7 @@ UltraMotionCapture.kps.MarkerSet
    .. autosummary::
    
       ~MarkerSet.__init__
+      ~MarkerSet.diff
       ~MarkerSet.get_frame_coord
       ~MarkerSet.get_time_coord
       ~MarkerSet.interp_field

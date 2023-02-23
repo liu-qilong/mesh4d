@@ -1,4 +1,4 @@
-﻿UltraMotionCapture.obj3d.Obj3d\_Deform
+UltraMotionCapture.obj3d.Obj3d\_Deform
 ======================================
 
 .. currentmodule:: UltraMotionCapture.obj3d
@@ -21,8 +21,9 @@
       ~Obj3d_Deform.add_kps_to_scene
       ~Obj3d_Deform.add_mesh_to_scene
       ~Obj3d_Deform.add_pcd_to_scene
+      ~Obj3d_Deform.attach_kps
       ~Obj3d_Deform.get_deform_obj3d
-      ~Obj3d_Deform.load_kps
+      ~Obj3d_Deform.load_kps_from_markerset
       ~Obj3d_Deform.offset_rotate
       ~Obj3d_Deform.set_trans_nonrigid
       ~Obj3d_Deform.set_trans_rigid
