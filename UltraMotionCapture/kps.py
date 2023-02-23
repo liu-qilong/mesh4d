@@ -100,9 +100,9 @@ class Kps(object):
             A dictionary that contains the comparison result:
 
             - :code:`'disp'`: the displacement vectors from the predicted key points to the ground truth key points stored in a (N, 3) :class:`numpy.array`.
-            - :code:`'dist'`: the distances from the predicted key points to the ground truth key points stored in a (N, ) :class:`numpy.array`.
-            - :code:`'dist_mean'`: the mean distances from the predicted key points to the ground truth key points.
-            - :code:`'dist_std'`: the standard deviation of distances from the predicted key points to the ground truth key points.
+            - :code:`'dist'`: the distances from the first key points to the second key points stored in a (N, ) :class:`numpy.array`.
+            - :code:`'dist_mean'`: the mean distances from the first key points to the second key points.
+            - :code:`'dist_std'`: the standard deviation of distances.
             - :code:`'diff_str'`: a string in form of :code:`'dist_mean ± dist_std (mm)`.
         """
         names = kps1.points.keys()
@@ -226,9 +226,10 @@ class Marker(object):
     """
     trans_cab = None
 
-    def __init__(self, name: str, start_time: float = 0.0, fps: int = 100, scale_rate: float = 1):
+    def __init__(self, name: str, start_time: float = 0, fps: int = 100, scale_rate: float = 1):
         if self.trans_cab is None:
             self.load_cab_rst()
+            
             if UltraMotionCapture.output_msg:
                 print('calibration parameters loaded')
 
@@ -259,8 +260,8 @@ class Marker(object):
         cls.trans_cab.scale = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
         cls.trans_cab.t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
 
-    def append_data(self, coord: np.array, speed: float = 0, accel: float = 0):
-        """Append a frame of coordinates, speed, and acceleration data after transforming to 3dMD coordinates.
+    def append_data(self, coord: np.array, speed: float = 0, accel: float = 0, convert: bool = True):
+        """Append a frame of coordinates, speed, and acceleration data. after transforming to 3dMD coordinates.
 
         Parameters
         ---
@@ -270,12 +271,19 @@ class Marker(object):
             the speed storing in a :class:`float`. Default as :code:`0`.
         accel
             the acceleration storing in a :class:`float`. Default as :code:`0`.
+        convert
+            implement coordinates conversion or not. Default as :code:`True`. Noted that conversion include transformation from Vicon to 3dMD coordinates and the scaling effect controlled by :attr:`self.scale_rate`.
         """
+        # adjust array layout
+        coord = np.expand_dims(coord, axis=0).T
+        speed = np.expand_dims(speed, axis=0)
+        accel = np.expand_dims(accel, axis=0)
+
         # transform to 3dMD coordinates
-        coord = np.expand_dims(coord, axis=0)
-        coord = self.scale_rate * self.trans_cab.shift_points(coord).T
-        speed = self.scale_rate * self.trans_cab.scale * np.expand_dims(speed, axis=0)
-        accel = self.scale_rate * self.trans_cab.scale * np.expand_dims(accel, axis=0)
+        if convert:
+            coord = self.scale_rate * self.trans_cab.shift_points(coord).T
+            speed = self.scale_rate * self.trans_cab.scale * speed
+            accel = self.scale_rate * self.trans_cab.scale * accel
 
         # if self.coord, self.speed, and self.accel haven't been initialised, initialise them
         # otherwise, append the newly arrived data to its end
@@ -296,7 +304,7 @@ class Marker(object):
 
         self.frame_num = self.coord.shape[1]
 
-    def fill_data(self, data_input: np.array):
+    def fill_data(self, data_input: np.array, convert: bool = True):
         """Fill coordinates, speed, and acceleration data of all frames after transforming to 3dMD coordinates. Noted that the first calling fills the coordinates data, the second calling fills the speed data, and the third calling fills the acceleration data, respectively.
 
         Parameters
@@ -306,11 +314,15 @@ class Marker(object):
             - (3, N) :class:`numpy.array` when loading coordinates data.
             - Or (N, ) :class:`numpy.array` for loading speed data or acceleration data.
 
+        convert
+            implement coordinates conversion or not. Default as :code:`True`. Noted that conversion include transformation from Vicon to 3dMD coordinates and the scaling effect controlled by :attr:`self.scale_rate`.
+
         Attention
         ---
         Other than appending data frame by frame, as :meth:`append_data` does, it's more convenient to load the data at one go when data loading data from a parsed Vicon motion capture data (:meth:`MarkerSet.load_from_vicon`). This method is designed for this purpose. Usually the end user don't need to call this method manually.
         """
-        data_input = self.scale_rate * self.trans_cab.shift_points(data_input.T).T
+        if convert:
+            data_input = self.scale_rate * self.trans_cab.shift_points(data_input.T).T
 
         if self.coord is None:
             self.coord = data_input
@@ -383,19 +395,41 @@ class Marker(object):
              self.y_field(frame_id),
              self.z_field(frame_id)]
         )
+
         return coord_interp
 
     @staticmethod
     def diff(marker1: Marker, marker2: Marker) -> dict:
-        """
-        tbf
+        """Compute the difference of one marker object with another.
+
+        Warning
+        ---
+        For a frame from the first marker, its difference with the second marker is computed referencing with the corresponding time slice of the second marker. Therefore, the second marker must contain the time period of the first object.
+
+        Parameters
+        ---
+        marker1
+            a marker object.
+        marker2
+            another marker object.
+
+        Returns
+        ---
+        :class:`dict`
+            A dictionary that contains the comparison result:
+
+            - :code:`'disp'`: the displacement vectors from the predicted key points to the ground truth key points stored in a (N, 3) :class:`numpy.array`.
+            - :code:`'dist'`: the distances from the first marker to the second marker stored in a (N, ) :class:`numpy.array`.
+            - :code:`'dist_mean'`: the mean distances from the first marker to the second marker.
+            - :code:`'dist_std'`: the standard deviation of distances.
+            - :code:`'diff_str'`: a string in form of :code:`'dist_mean ± dist_std (mm)`.
         """
         disp = []
 
         for frame in range(marker1.frame_num):
             time = marker1.start_time + frame / marker1.fps
             coord1 = marker1.get_frame_coord(frame) / marker1.scale_rate
-            coord2 = marker2.get_time_coord(time) / marker1.scale_rate
+            coord2 = marker2.get_time_coord(time) / marker2.scale_rate
             disp.append(coord1 - coord2)
             
         dist = np.linalg.norm(disp, axis=1)
@@ -669,8 +703,28 @@ class MarkerSet(object):
 
     @staticmethod
     def diff(markerset1: MarkerSet, markerset2: MarkerSet) -> dict:
-        """
-        tbf
+        """Compute the difference of one marker set object with another.
+
+        Warning
+        ---
+        The same as :meth:`Marker.diff`, the second marker set must contain the time period of the first marker set.
+
+        Parameters
+        ---
+        marker1
+            a marker set object.
+        marker2
+            another marker set object.
+
+        Returns
+        ---
+        :class:`dict`
+            A dictionary that contains the comparison result:
+
+            - :code:`diff_dict`: a dictionary that stores the original comparison results between each pair of key points.
+            - :code:`'dist_mean'`: the mean distances from the first marker set to the second marker set.
+            - :code:`'dist_std'`: the standard deviation of distances.
+            - :code:`'diff_str'`: a string in form of :code:`'dist_mean ± dist_std (mm)`.
         """
         # estimate the difference of each key point
         diff_dict = {}
