@@ -302,7 +302,7 @@ class Marker(object):
         Parameters
         ---
         data_input
-        
+
             - (3, N) :class:`numpy.array` when loading coordinates data.
             - Or (N, ) :class:`numpy.array` for loading speed data or acceleration data.
 
@@ -384,6 +384,33 @@ class Marker(object):
              self.z_field(frame_id)]
         )
         return coord_interp
+
+    @staticmethod
+    def diff(marker1: Marker, marker2: Marker) -> dict:
+        """
+        tbf
+        """
+        disp = []
+
+        for frame in range(marker1.frame_num):
+            time = marker1.start_time + frame / marker1.fps
+            coord1 = marker1.get_frame_coord(frame) / marker1.scale_rate
+            coord2 = marker2.get_time_coord(time) / marker1.scale_rate
+            disp.append(coord1 - coord2)
+            
+        dist = np.linalg.norm(disp, axis=1)
+        dist_mean = np.mean(dist)
+        dist_std = np.std(dist)
+
+        diff_dict = {
+            'disp': disp,
+            'dist': dist,
+            'dist_mean': dist_mean,
+            'dist_std': dist_std,
+            'diff_str': "{:.3} ± {:.3} (mm)".format(dist_mean, dist_std)
+        }
+
+        return diff_dict
 
     def plot_track(
         self,
@@ -640,6 +667,41 @@ class MarkerSet(object):
 
         return kps
 
+    @staticmethod
+    def diff(markerset1: MarkerSet, markerset2: MarkerSet) -> dict:
+        """
+        tbf
+        """
+        # estimate the difference of each key point
+        diff_dict = {}
+        dist_ls = []
+
+        for name in markerset1.markers.keys():
+            diff = Marker.diff(markerset1.markers[name], markerset2.markers[name])
+            diff_dict[name] = diff
+            dist_ls = diff['dist']
+
+            if UltraMotionCapture.output_msg:
+                print("estimated error of frame {}: {}".format(name, diff['diff_str']))
+
+        # estimate the overall difference
+        dist_array = np.array(dist_ls)
+        dist_mean = np.mean(dist_array)
+        dist_std = np.std(dist_array)
+
+        # combine the estimation result and print the overall difference
+        overall_diff_dict = {
+            'diff_dict': diff_dict,
+            'dist_mean': dist_mean,
+            'dist_std': dist_std,
+            'diff_str': "diff = {:.3} ± {:.3} (mm)".format(dist_mean, dist_std),
+        }
+
+        if UltraMotionCapture.output_msg:
+            print("whole duration error: {}".format(overall_diff_dict['diff_str']))
+
+        return overall_diff_dict
+
     def get_time_coord(self, time: float) -> np.array:
         """Get coordinates data according to time stamp.
 
@@ -746,6 +808,7 @@ class MarkerSet(object):
         ax.tick_params(labelsize=7)
 
         plt.savefig('output/gif-{:0>4d}'.format(frame_id))
+
         if is_show:
             plt.show()
 
