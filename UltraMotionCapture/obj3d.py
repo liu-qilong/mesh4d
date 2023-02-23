@@ -218,7 +218,19 @@ class Obj3d_Kps(Obj3d):
         Obj3d.__init__(self, **kwargs)
         self.kps_group = {}
 
-    def load_kps(self, name: str, markerset: Type[kps.MarkerSet], time: float = 0.0):
+    def attach_kps(self, name: str, kps: Type[kps.Kps]):
+        """attach key points.
+        
+        Parameters
+        ---
+        name
+            name of the key points as its keyword in :attr:`self.kps_group`.
+        kps
+            the key points stored in a :class:`UltraMotionCapture.kps.Kps` object.
+        """
+        self.kps_group[name] = kps
+    
+    def load_kps_from_markerset(self, name: str, markerset: Type[kps.MarkerSet], time: float = 0.0):
         """Load key points as :attr:`self.kps` from a :class:`kps.MarkerSet` object.
         
         Parameters
@@ -230,7 +242,8 @@ class Obj3d_Kps(Obj3d):
         time
             the time from the :class:`kps.MarkerSet`'s recording period to be loaded.
         """
-        self.kps_group[name] = markerset.get_time_coord(time, kps_class=kps.Kps)
+        kps = markerset.get_time_coord(time)
+        self.attach_kps(name, kps)
 
     def show(self, kps_names: Union[None, list, tuple] = None):
         """Show the loaded mesh, the sampled point cloud, and the key points attached to it.

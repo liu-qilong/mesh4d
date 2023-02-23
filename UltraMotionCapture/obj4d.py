@@ -146,7 +146,6 @@ class Obj4d_Kps(Obj4d):
         vicon.interp_field()
 
         o4 = obj4d.Obj4d_Kps(
-            markerset=vicon,
             fps=120,
         )
 
@@ -196,7 +195,31 @@ class Obj4d_Kps(Obj4d):
         """
         for idx in range(len(self.obj_ls)):
             obj = self.obj_ls[idx]
-            obj.load_kps(name, markerset, self.start_time + idx / self.fps)
+            obj.load_kps_from_markerset(name, markerset, self.start_time + idx / self.fps)
+
+    def assemble_markerset(self, name: str) -> kps.MarkerSet:
+        """Assemble key points object in different frames into a marker set object (:class:`UltraMotionCapture.kps.MarkerSet`).
+        
+        Parameters
+        ---
+        name
+            the name of the key points object, i.e. its keyword in the 3D object's :attr:`kps_group` dictionary.
+        """
+        markerset = kps.MarkerSet()
+        markerset.fps = self.fps
+        markerset.scale_rate = self.obj_ls[0].scale_rate
+        markerset.markers = {}
+
+        for obj in self.obj_ls:
+            points_dict = obj.kps_group[name].points
+
+            for point_name in points_dict.keys():
+                if point_name not in markerset.markers.keys():
+                    markerset.markers[point_name] = kps.Marker(name=point_name, fps=self.fps, scale_rate=obj.scale_rate)
+                
+                markerset.markers[point_name].append_data(coord=points_dict[point_name], convert=False)
+
+        return markerset
 
     def show_gif(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None):
         """Illustrate the 4D object.
@@ -268,7 +291,6 @@ class Obj4d_Deform(Obj4d_Kps):
         vicon.interp_field()
 
         o4 = obj4d.Obj4d_Deform(
-            markerset=vicon,
             fps=120,
             enable_rigid=True,
             enable_nonrigid=True,
@@ -481,6 +503,47 @@ class Obj4d_Deform(Obj4d_Kps):
         if UltraMotionCapture.output_msg:
             print("4d object reorientated")
 
-    def vkps_track(self, kps: Type[kps.Kps], start_frame: int = 0, end_frame: int = -1):
-        """tbf"""
-        pass
+    def vkps_track(self, kps: Type[kps.Kps], frame_id: int = 0, name: str = 'vkps'):
+        """Virtual key points tracking.
+
+        - Firstly, attach a set of key points (:class:`~UltraMotionCapture.kps.Kps`) to a frame of 3D object.
+        - Then the algorithm will estimated its location in the proceeding and following frames, according to the revealed deformation between frames.
+
+        Note
+        ---
+        Since the virtual tracking is based on the revealed deformation between frames, for using virtual key points tracking feature, the :attr:`enable_nonrigid` attributes in the initialisation of the 4D object must be set as :code:`True`. ::
+
+            o4 = obj4d.Obj4d_Deform(
+                fps=120,
+                enable_nonrigid=True,
+            )
+
+        Parameters
+        ---
+        kps
+            key points object (:class:`~UltraMotionCapture.kps.Kps`).
+        frame_id
+            the frame number to which the key points object attach.
+        name
+            name of the virtual key points as its keyword when attached to a 3D object.
+        """
+        self.obj_ls[frame_id].attach_kps(name, kps)
+
+        # track forward
+        for idx in range(frame_id + 1, len(self.obj_ls)):
+            previous_obj = self.obj_ls[idx - 1]
+            previous_kps = previous_obj.kps_group[name]
+            current_kps = previous_obj.trans_nonrigid.shift_kps(previous_kps)
+
+            current_obj = self.obj_ls[idx]
+            current_obj.attach_kps(name, current_kps)
+
+        # track backward
+        for idx in range(frame_id - 1, -1, -1):
+            later_obj = self.obj_ls[idx + 1]
+            later_kps = later_obj.kps_group[name]
+            later_trans_invert = later_obj.trans_nonrigid.invert()
+            current_kps = later_trans_invert.shift_kps(later_kps)
+
+            current_obj = self.obj_ls[idx]
+            current_obj.attach_kps(name, current_kps)
