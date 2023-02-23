@@ -202,13 +202,11 @@ class Marker(object):
     self.scale_rate
         the scaling rate of the Vicon key points.
     self.coord
-        (3, N) :class:`numpy.array` storing the coordinates data, with :math:`x, y, z` as rows and frame ids as the columns.
+        (3, N) :class:`numpy.array` storing the :code:`N` frames of coordinates data.
     self.speed
-        tbf
-        (3, N) :class:`numpy.array` storing the speed data, with :math:`x, y, z` as rows and frame ids as the columns.
+        (N, ) :class:`numpy.array` storing :code:`N` frames of speed data.
     self.accel
-        tbf
-        (3, N) :class:`numpy.array` storing the acceleration data, with :math:`x, y, z` as rows and frame ids as the columns.
+        (N, ) :class:`numpy.array` storing :code:`N` frames of acceleration data.
     self.frame_num
         The number of total frames.
     self.x_field
@@ -262,7 +260,16 @@ class Marker(object):
         cls.trans_cab.t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
 
     def append_data(self, coord: np.array, speed: float = 0, accel: float = 0):
-        """tbf
+        """Append a frame of coordinates, speed, and acceleration data after transforming to 3dMD coordinates.
+
+        Parameters
+        ---
+        coord
+            (3, ) :class:`numpy.array` storing the coordinates data.
+        speed
+            the speed storing in a :class:`float`. Default as :code:`0`.
+        accel
+            the acceleration storing in a :class:`float`. Default as :code:`0`.
         """
         # transform to 3dMD coordinates
         coord = np.expand_dims(coord, axis=0)
@@ -290,16 +297,18 @@ class Marker(object):
         self.frame_num = self.coord.shape[1]
 
     def fill_data(self, data_input: np.array):
-        """Filling coordinates, speed, and acceleration data of all frames after transforming to 3dMD coordinates. Noted that the first calling fills the coordinates data, the second calling fills the speed data, and the third calling fills the acceleration data, respectively.
+        """Fill coordinates, speed, and acceleration data of all frames after transforming to 3dMD coordinates. Noted that the first calling fills the coordinates data, the second calling fills the speed data, and the third calling fills the acceleration data, respectively.
 
         Parameters
         ---
         data_input
-            (3, N) :class:`numpy.array`.
+        
+            - (3, N) :class:`numpy.array` when loading coordinates data.
+            - Or (N, ) :class:`numpy.array` for loading speed data or acceleration data.
 
         Attention
         ---
-        Called by the :class:`MarkerSet` object when parsing the Vicon motion capture data (:meth:`MarkerSet.load_from_vicon`). Usually the end user don't need to call this method manually.
+        Other than appending data frame by frame, as :meth:`append_data` does, it's more convenient to load the data at one go when data loading data from a parsed Vicon motion capture data (:meth:`MarkerSet.load_from_vicon`). This method is designed for this purpose. Usually the end user don't need to call this method manually.
         """
         data_input = self.scale_rate * self.trans_cab.shift_points(data_input.T).T
 

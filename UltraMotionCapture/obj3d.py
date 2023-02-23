@@ -224,7 +224,7 @@ class Obj3d_Kps(Obj3d):
         Parameters
         ---
         name
-            name of the kps as its key in :attr:`self.kps_group`.
+            name of the key points as its keyword in :attr:`self.kps_group`.
         kps
             the key points stored in a :class:`UltraMotionCapture.kps.Kps` object.
         """
