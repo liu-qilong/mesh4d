@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'Ultra Motion Capture'
+project = 'mesh4d'
 copyright = "2022, Dr. Kit-lun Yick's Research Team"
 author = "Dr. Kit-lun Yick's Research Team"
 

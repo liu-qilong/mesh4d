@@ -11,11 +11,11 @@ The documentation is generated with [Sphinx](https://www.sphinx-doc.org/en/maste
 
 ## Project Code
 
-The project code is stored in `UltraMotionCapture/` folder. Under it is a `data/` folder, a default output folder `output/`, a `config/` folder storing configuration variables.
+The project code is stored in `mesh4d/` folder. Under it is a `data/` folder, a default output folder `output/`, a `config/` folder storing configuration variables.
 
 Except for these folders, you must have noticed that there are also some `.py` files, including `utils.py`, `field.py`, `kps.py`, `obj3d.py`, and `obj4d.py`. These are **core modules** for this package. They provide a skeleton for building any downstream analysis task and shall not be modified unless there are very strong reasons to do so.
 
-Other than these, there is an `analysis/` folder haven't been discussed. It's the `UltraMotionCapture.analysis` sub-package storing all downstream analysis modules. At current stage, it's not completed and is still under active development.
+Other than these, there is an `analysis/` folder haven't been discussed. It's the `mesh4d.analysis` sub-package storing all downstream analysis modules. At current stage, it's not completed and is still under active development.
 
 ## Version Control
 

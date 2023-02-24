@@ -6,4 +6,4 @@ API References
    :template: custom-module-template.rst
    :recursive:
 
-   UltraMotionCapture
+   mesh4d
