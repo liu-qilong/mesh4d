@@ -33,26 +33,42 @@ class Obj3d_CPD(obj3d.Obj3d_Deform):
         Attention
         ---
         Since the Coherent Point Drift (CPD) is not very efficient, the number of the sampling points used to estimate the displacement field should relatively small. The default value is :code:`3000`.
+    mode
+        
+        - :code:`load` the default mode is load from a file.
+        - :code:`empty` create a 3D object without any 3D data.
     """
     def __init__(
         self,
-        filedir: str,
+        filedir: str = '',
         scale_rate: float = 1,
         sample_num: int = 3000,
+        mode: str = "load"
     ):
-        # revise Obj3d __init__()
-        self.mesh = obj3d.pvmesh_fix_disconnect(pv.read(filedir))
-        self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
-        self.scale_rate = scale_rate
-        self.mesh.scale(self.scale_rate, inplace=True)
+        if mode == "load":
+            # revise Obj3d __init__()
+            self.mesh = obj3d.pvmesh_fix_disconnect(pv.read(filedir))
+            self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
+            self.scale_rate = scale_rate
+            self.mesh.scale(self.scale_rate, inplace=True)
 
-        self.pcd = obj3d.pvmesh2pcd_pro(self.mesh, sample_num)
-        # self.pcd = pvmesh2pcd(self.mesh, sample_num)
+            self.pcd = obj3d.pvmesh2pcd_pro(self.mesh, sample_num)
+            # self.pcd = pvmesh2pcd(self.mesh, sample_num)
 
-        # follows Obj3d_Kps, Obj3d_Deform __init__()
-        self.kps_group = {}
-        self.trans_rigid = None
-        self.trans_nonrigid = None
+            # follows Obj3d_Kps, Obj3d_Deform __init__()
+            self.kps_group = {}
+            self.trans_rigid = None
+            self.trans_nonrigid = None
+        
+        elif mode == "empty":
+            self.mesh = None
+            self.texture = None
+            self.pcd = None
+            self.scale_rate = scale_rate
+
+            self.kps_group = {}
+            self.trans_rigid = None
+            self.trans_nonrigid = None
 
 class Trans_Nonrigid_CPD(field.Trans_Nonrigid):
     """Derived from :class:`UltraMotionCapture.field.Trans_Nonrigid` and replace the displacement field estimation as Coherent Point Drift (CPD) based approach.
