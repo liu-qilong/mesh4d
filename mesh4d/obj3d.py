@@ -112,7 +112,7 @@ class Obj3d(object):
 
         width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
         self.add_mesh_to_scene(scene)
-        self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0])
+        self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-6*width)
 
 
         scene.camera_position = 'xy'
@@ -265,7 +265,7 @@ class Obj3d_Kps(Obj3d):
         width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
 
         self.add_mesh_to_scene(scene)
-        self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0])
+        self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-6*width)
         self.add_kps_to_scene(scene, kps_names, radius=0.02*width)
         self.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
 

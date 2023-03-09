@@ -226,12 +226,9 @@ class Marker(object):
     """
     trans_cab = None
 
-    def __init__(self, name: str, start_time: float = 0, fps: int = 100, scale_rate: float = 1):
+    def __init__(self, name: str, start_time: float = 0, fps: int = 100, scale_rate: float = 1, is_cab: bool = True):
         if self.trans_cab is None:
             self.load_cab_rst()
-            
-            if mesh4d.output_msg:
-                print('calibration parameters loaded')
 
         self.name = name
         self.start_time = start_time
@@ -248,17 +245,25 @@ class Marker(object):
         self.x_field = None
         self.y_field = None
         self.z_field = None
-
+    
     @classmethod
     def load_cab_rst(cls):
         """Load the calibration parameters from Vicon to 3dMD coordination system.
         """
-        mod_path = os.path.dirname(mesh4d.__file__)
-        cls.trans_cab = field.Trans_Rigid(source_obj=None, target_obj=None)
-        
-        cls.trans_cab.rot = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
-        cls.trans_cab.scale = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
-        cls.trans_cab.t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
+        try:
+            mod_path = os.path.dirname(mesh4d.__file__)
+            cls.trans_cab = field.Trans_Rigid(source_obj=None, target_obj=None)
+            
+            cls.trans_cab.rot = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
+            cls.trans_cab.scale = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
+            cls.trans_cab.t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
+
+            if mesh4d.output_msg:
+                print('calibration parameters loaded')
+
+        except:
+            if mesh4d.output_msg:
+                print('marker calibration parameters not found\nwhen filling data, please use convert=False mode')
 
     def append_data(self, coord: np.array, speed: float = 0, accel: float = 0, convert: bool = True):
         """Append a frame of coordinates, speed, and acceleration data. after transforming to 3dMD coordinates.
@@ -617,7 +622,7 @@ class MarkerSet(object):
         vicon.plot_track(step=3, end_frame=100)
     
     """
-    def load_from_vicon(self, filedir: str, scale_rate: float = 1):
+    def load_from_vicon(self, filedir: str, scale_rate: float = 1, convert: bool = True):
         """Load and parse data from :code:`.csv` file exported from the Vicon motion capture system.
 
         Parameters
@@ -632,6 +637,9 @@ class MarkerSet(object):
 
             .. seealso::
                 Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.
+        
+        convert
+            implement the coordinates conversion or not.
         """
         self.scale_rate = scale_rate
 
@@ -657,12 +665,18 @@ class MarkerSet(object):
                 if point_name not in self.markers.keys():
                     self.markers[point_name] = Marker(
                         name=point_name, 
-                        fps=self.fps, 
-                        scale_rate=self.scale_rate)
+                        fps=self.fps,
+                        scale_rate=self.scale_rate,
+                        )
 
                 # fill the following 3 columns' X, Y, Z values into the point's object
-                data_input = df.loc[2:, col_name:col_names[col_id+2]].to_numpy(dtype=float).transpose()
-                self.markers[point_name].fill_data(data_input)
+                try:
+                    data_input = df.loc[2:, col_name:col_names[col_id+2]].to_numpy(dtype=float).transpose()
+                    self.markers[point_name].fill_data(data_input, convert=convert)
+
+                except:
+                    if mesh4d.output_msg:
+                        print("error happended when loading kps file: column {}".format(col_name))
 
         df = pd.read_csv(filedir, skiprows=2)  # skip the first two rows
         df_head = pd.read_csv(filedir, nrows=1)  # only read the first two rows

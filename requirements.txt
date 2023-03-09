@@ -1,7 +1,14 @@
+# python packages
 open3d
 pyvista
+probreg
 numpy
 pandas
 scipy
 matplotlib
-ramdom
+ipykernel
+
+# sphinx packages
+sphinx_copybutton
+myst_parser
+furo
