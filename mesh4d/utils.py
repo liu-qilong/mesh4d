@@ -3,11 +3,13 @@ from typing import Type, Union, Iterable
 
 import os
 import sys
+import pickle
 import imageio
 import numpy as np
 import pyvista as pv
 
 import mesh4d.config.param
+from mesh4d import kps
 
 def images_to_gif(path: Union[str, None] = None, remove: bool = False):
     """Convert images in a folder into a gif.
@@ -116,6 +118,7 @@ def obj_pick_points(filedir: str, use_texture: bool = False, is_save: bool = Fal
         pl.add_mesh(mesh, show_edges=True)
 
     pl.enable_surface_picking(callback=callback, left_clicking=True, show_point=True)
+    pl.camera_position = 'xy'
     pl.show()
 
     # save and return the picked points
@@ -126,6 +129,84 @@ def obj_pick_points(filedir: str, use_texture: bool = False, is_save: bool = Fal
         print("save picked points:\n{}".format(points))
 
     return points
+
+
+def landmarks_labelling(
+    mesh_folder: str,
+    mesh_fps: int = 120,
+    point_num: int = 1,
+    stride: int = 1,
+    is_save: bool = True,
+    export_path: str = 'output/landmarks.pkl',
+    ) -> kps.MarkerSet:
+    """
+    Label landmarks on a set of 3D meshes in the given folder.
+
+    Parameters
+    ----------
+    mesh_folder : str
+        The folder path containing the 3D meshes to label.
+    mesh_fps : int, optional (default=120)
+        The original frame rate of the mesh files.
+    point_num : int, optional (default=1)
+        The number of points to label on each mesh.
+    stride : int, optional (default=1)
+        The stride used to skip over meshes when labeling.
+    is_save : bool, optional (default=True)
+        Whether to save the labelled landmarks to disk.
+    export_path : str, optional (default='output/landmarks.pkl')
+        The file path to save the labelled landmarks to, if :code:`is_save` is True.
+
+    Returns
+    -------
+    kps.MarkerSet
+        A MarkerSet object containing the labelled landmarks.
+    """
+    files = os.listdir(mesh_folder)
+    files = [os.path.join(mesh_folder, f) for f in files if '.obj' in f]
+    files.sort()
+
+    # landmarks labelling
+    landmarks = kps.MarkerSet()
+    landmarks.fps = mesh_fps/stride
+    landmarks.scale_rate = 1
+    landmarks.markers = {}
+
+    for point_idx in range(point_num):
+        point_name = 'marker {}'.format(point_idx)
+        landmarks.markers[point_name] = kps.Marker(
+            name=point_name,
+            fps=landmarks.fps,
+            scale_rate=landmarks.scale_rate,
+        )
+
+    file_idx = 0
+
+    while file_idx < len(files):
+        file = files[file_idx]
+        print("labelling mesh file: {}".format(file))
+        points = obj_pick_points(filedir=file, use_texture=True)
+
+        if len(points) == point_num:
+            # if successfully label point_num points
+            # update file_idx to label the next mesh
+            for point_idx in range(point_num):
+                point_name = 'marker {}'.format(point_idx)
+                landmarks.markers[point_name].append_data(points[point_idx], convert=False)
+            
+            print("extracted points:\n{}\n".format(points))
+            file_idx = file_idx + stride
+
+        else:
+            # otherwise continue to label the same mesh
+            # p.s. when realise that the order of labeling is wrong
+            # we can press P immediately to break the labelling and trigger the relabelling procedure
+            file_idx = file_idx
+            
+
+    # save landmarks object
+    if is_save:
+        save_pkl_object(landmarks, export_path)
 
 
 def progress_bar(percent: float, bar_len: int = 20):
@@ -144,3 +225,49 @@ def progress_bar(percent: float, bar_len: int = 20):
     # avoiding '%' appears when progress completed
     if percent == 1:
         print()
+
+
+def save_pkl_object(obj, filepath: str):
+    """Save an object to an :code:`.pkl` file.
+    
+    .. seealso::
+        `Saving an Object (Data persistence) - StackOverflow <https://stackoverflow.com/questions/4529815/saving-an-object-data-persistence>`_
+    
+    Parameters
+    ---
+    obj
+        the object for storing locally.
+    filepath
+        the path to stored the :code:`.pkl` file.
+
+
+    Example
+    ---
+    ::
+
+         save_pkl_object(vicon, 'data/vkps/vicon.pkl')
+    """
+    with open(filepath, 'wb') as outp:  # overwrites any existing file
+        pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
+
+
+def load_pkl_object(filepath: str):
+    """Load an object stored in :code:`.pkl` file.
+
+    .. seealso::
+        `Saving an Object (Data persistence) - StackOverflow <https://stackoverflow.com/questions/4529815/saving-an-object-data-persistence>`_
+
+    Parameters
+    ---
+    filepath
+        the path of the :code:`.pkl` file.
+
+
+    Example
+    ---
+    ::
+
+         vicon = load_pkl_object('data/vkps/vicon.pkl')
+    """
+    with open(filepath, 'rb') as inp:
+        return pickle.load(inp)
