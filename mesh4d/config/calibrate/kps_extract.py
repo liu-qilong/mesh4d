@@ -14,10 +14,9 @@ from mesh4d import utils
 
 # pick points
 utils.obj_pick_points(
-    # filedir='mesh4d/data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj',
-    filedir='mesh4d/data/static_3markers_1/static_standing.000001.obj',
+    filedir='data/meshes/static_3markers/static_standing.000001.obj',
     use_texture=True,
-    is_save=True,
+    is_save=False,
     save_folder='mesh4d/config/calibrate/',
     save_name='points_3dmd',
 )
