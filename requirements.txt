@@ -6,7 +6,10 @@ numpy
 pandas
 scipy
 matplotlib
+
+# jupyter notebook
 ipykernel
+nbconvert
 
 # sphinx packages
 sphinx_copybutton

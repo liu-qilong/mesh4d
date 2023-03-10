@@ -842,6 +842,7 @@ class MarkerSet(object):
             is_add_line: bool = True,
             is_show: bool = True,
             is_save: bool = False,
+            export_folder: str = 'output/',
             **kwargs
     ):
         """
@@ -859,6 +860,8 @@ class MarkerSet(object):
             weather show the generated graph or not.
         is_save
             weather save the generated graph or not.
+        export_folder
+            the folder for exporting figure.
         """
         fig = plt.figure(dpi=dpi)
         ax = fig.add_subplot(projection='3d')
@@ -875,13 +878,11 @@ class MarkerSet(object):
         ax.set_zlabel('Z-axis', fontdict=font)
         ax.tick_params(labelsize=7)
 
-        plt.savefig('output/gif-{:0>4d}'.format(frame_id))
-
         if is_show:
             plt.show()
 
         if is_save:
-            filedir = 'output/gif-' + str(frame_id)
+            filedir = os.path.join(export_folder, 'gif-{:0>4d}'.format(frame_id))
             plt.savefig(filedir)
 
             if mesh4d.output_msg:
