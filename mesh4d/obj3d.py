@@ -39,14 +39,6 @@ class Obj3d(object):
     ---
     filedir
         the direction of the 3D object.
-    scale_rate
-        the scaling rate of the 3D object.
-
-        .. attention::
-            Noted that the original unit of 3dMD raw data is millimetre (mm). The default :attr:`scale_rate` remains this unit.
-
-        .. seealso::
-            Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.
 
     mode
         
@@ -61,8 +53,6 @@ class Obj3d(object):
         3D mesh (:class:`open3d.geometry.TriangleMesh`) loaded with :mod:`open3d` .
     self.pcd
         3D point cloud (:class:`open3d.geometry.PointCloud`) sampled from :attr:`self.mesh_o3d`.
-    self.scale_rate
-        the scaling rate of the 3dMD model.
 
     Attention
     ---
@@ -81,22 +71,17 @@ class Obj3d(object):
     def __init__(
         self,
         filedir: str = '',
-        scale_rate: float = 1,
         mode: str = "load"
     ):
         if mode == "load":
             self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
             self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
-            self.scale_rate = scale_rate
-
-            self.mesh.scale(self.scale_rate, inplace=True)
             self.pcd = np2pcd(self.mesh.points)
 
         elif mode == "empty":
             self.mesh = None
             self.texture = None
             self.pcd = None
-            self.scale_rate = scale_rate
 
     def show(self):
         """Show the loaded mesh and the sampled point cloud.
@@ -366,10 +351,6 @@ class Obj3d_Deform(Obj3d_Kps):
     **kwargs
         parameters can be passed in via keywords arguments. Please refer to :class:`Obj3d` and :class:`Obj3d_Kps` for accepted parameters.
 
-        Attention
-        ---
-        The transformations (:mod:`mesh4d.field`) are estimated via registration. For effective registration iteration, as an empirical suggestion, the absolute value of coordinates shall falls into or near :math:`(-1, 1)`. That's why we provide a :code:`scale_rate` parameter defaulted as :math:`10^{-2}` in the initialisation method of the base class (:class:`Obj3d`).
-
     Note
     ---
     `Class Attributes`
@@ -428,7 +409,7 @@ class Obj3d_Deform(Obj3d_Kps):
             
             return
 
-        deform_obj = type(self)(mode='empty', scale_rate = self.scale_rate)
+        deform_obj = type(self)(mode='empty')
         deform_obj.mesh = trans.shift_mesh(self.mesh)
         deform_obj.pcd = trans.shift_pcd(self.pcd)
         

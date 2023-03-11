@@ -169,16 +169,11 @@ def landmarks_labelling(
     # landmarks labelling
     landmarks = kps.MarkerSet()
     landmarks.fps = mesh_fps/stride
-    landmarks.scale_rate = 1
     landmarks.markers = {}
 
     for point_idx in range(point_num):
         point_name = 'marker {}'.format(point_idx)
-        landmarks.markers[point_name] = kps.Marker(
-            name=point_name,
-            fps=landmarks.fps,
-            scale_rate=landmarks.scale_rate,
-        )
+        landmarks.markers[point_name] = kps.Marker(name=point_name, fps=landmarks.fps)
 
     file_idx = 0
 

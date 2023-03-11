@@ -18,15 +18,6 @@ class Obj3d_CPD(obj3d.Obj3d_Deform):
     ---
     filedir
         the direction of the 3D object.
-    scale_rate
-        the scaling rate of the 3D object.
-
-        .. attention::
-            Noted that the original unit of 3dMD raw data is millimetre (mm). The default :attr:`scale_rate` remains this unit.
-
-        .. seealso::
-            Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.
-
     sample_num
         the number of the points sampled from the mesh to construct the point cloud.
         
@@ -41,7 +32,6 @@ class Obj3d_CPD(obj3d.Obj3d_Deform):
     def __init__(
         self,
         filedir: str = '',
-        scale_rate: float = 1,
         sample_num: int = 3000,
         mode: str = "load"
     ):
@@ -49,9 +39,6 @@ class Obj3d_CPD(obj3d.Obj3d_Deform):
             # revise Obj3d __init__()
             self.mesh = obj3d.pvmesh_fix_disconnect(pv.read(filedir))
             self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
-            self.scale_rate = scale_rate
-            self.mesh.scale(self.scale_rate, inplace=True)
-
             self.pcd = obj3d.pvmesh2pcd_pro(self.mesh, sample_num)
             # self.pcd = pvmesh2pcd(self.mesh, sample_num)
 
@@ -64,7 +51,6 @@ class Obj3d_CPD(obj3d.Obj3d_Deform):
             self.mesh = None
             self.texture = None
             self.pcd = None
-            self.scale_rate = scale_rate
 
             self.kps_group = {}
             self.trans_rigid = None

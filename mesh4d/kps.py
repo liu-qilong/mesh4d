@@ -28,8 +28,6 @@ class Kps(object):
 
     self.points
         :math:`N` key points in 3D space stored in a dictionary.
-    self.scale_rate
-        the scaling rate of the Vicon key points.
 
     Example
     ---
@@ -106,8 +104,8 @@ class Kps(object):
             - :code:`'diff_str'`: a string in form of :code:`'dist_mean ± dist_std (mm)`.
         """
         names = kps1.points.keys()
-        points1 = kps1.get_points_coord(names) / kps1.scale_rate
-        points2 = kps2.get_points_coord(names) / kps2.scale_rate
+        points1 = kps1.get_points_coord(names)
+        points2 = kps2.get_points_coord(names)
 
         disp = points1 - points2
         dist = np.linalg.norm(disp, axis=1)
@@ -171,16 +169,10 @@ class Marker(object):
         the start time of the coordinates data.
     fps
         the number of frames per second (fps).
-    scale_rate
-        the scaling rate of the Vicon key points.
 
         Attention
         ---
-        Noted that the original unit of Vicon raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
-
-        Warning
-        ---
-        This value must be the same as :class:`mesh4d.obj3d.Obj3d`'s :attr:`scale_rate`.
+        Noted that the original unit of Vicon raw data is millimetre (mm).
 
     Note
     ---
@@ -199,8 +191,6 @@ class Marker(object):
         The start time of the coordinates data.
     self.fps
         The number of frames per second (fps).
-    self.scale_rate
-        the scaling rate of the Vicon key points.
     self.coord
         (3, N) :class:`numpy.array` storing the :code:`N` frames of coordinates data.
     self.speed
@@ -226,14 +216,13 @@ class Marker(object):
     """
     trans_cab = None
 
-    def __init__(self, name: str, start_time: float = 0, fps: int = 100, scale_rate: float = 1, is_cab: bool = True):
+    def __init__(self, name: str, start_time: float = 0, fps: int = 100):
         if self.trans_cab is None:
             self.load_cab_rst()
 
         self.name = name
         self.start_time = start_time
         self.fps = fps
-        self.scale_rate = scale_rate
 
         # x, y, z data are stored in 3xN numpy array
         self.coord = None  # coordinates
@@ -277,7 +266,7 @@ class Marker(object):
         accel
             the acceleration storing in a :class:`float`. Default as :code:`0`.
         convert
-            implement coordinates conversion or not. Default as :code:`True`. Noted that conversion include transformation from Vicon to 3dMD coordinates and the scaling effect controlled by :attr:`self.scale_rate`.
+            implement coordinates conversion or not. Default as :code:`True`. Noted that conversion include transformation from Vicon to 3dMD coordinates.
         """
         # adjust array layout
         coord = np.expand_dims(coord, axis=0).T
@@ -286,9 +275,9 @@ class Marker(object):
 
         # transform to 3dMD coordinates
         if convert:
-            coord = self.scale_rate * self.trans_cab.shift_points(coord).T
-            speed = self.scale_rate * self.trans_cab.scale * speed
-            accel = self.scale_rate * self.trans_cab.scale * accel
+            coord = self.trans_cab.shift_points(coord).T
+            speed = self.trans_cab.scale * speed
+            accel = self.trans_cab.scale * accel
 
         # if self.coord, self.speed, and self.accel haven't been initialised, initialise them
         # otherwise, append the newly arrived data to its end
@@ -320,14 +309,14 @@ class Marker(object):
             - Or (N, ) :class:`numpy.array` for loading speed data or acceleration data.
 
         convert
-            implement coordinates conversion or not. Default as :code:`True`. Noted that conversion include transformation from Vicon to 3dMD coordinates and the scaling effect controlled by :attr:`self.scale_rate`.
+            implement coordinates conversion or not. Default as :code:`True`. Noted that conversion include transformation from Vicon to 3dMD coordinates.
 
         Attention
         ---
         Other than appending data frame by frame, as :meth:`append_data` does, it's more convenient to load the data at one go when data loading data from a parsed Vicon motion capture data (:meth:`MarkerSet.load_from_vicon`). This method is designed for this purpose. Usually the end user don't need to call this method manually.
         """
         if convert:
-            data_input = self.scale_rate * self.trans_cab.shift_points(data_input.T).T
+            data_input = self.trans_cab.shift_points(data_input.T).T
 
         if self.coord is None:
             self.coord = data_input
@@ -433,8 +422,8 @@ class Marker(object):
 
         for frame in range(marker1.frame_num):
             time = marker1.start_time + frame / marker1.fps
-            coord1 = marker1.get_frame_coord(frame) / marker1.scale_rate
-            coord2 = marker2.get_time_coord(time) / marker2.scale_rate
+            coord1 = marker1.get_frame_coord(frame)
+            coord2 = marker2.get_time_coord(time)
             disp.append(coord1 - coord2)
             
         dist = np.linalg.norm(disp, axis=1)
@@ -573,17 +562,6 @@ class MarkerSet(object):
     ---
     filedir
         directory of the :code:`.csv` key points coordinates data exported from the motion capture Vicon system.
-    scale_rate
-        the scaling rate of the Vicon key points.
-
-        Attention
-        ---
-        Noted that the original unit of Vicon raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
-
-        Warning
-        ---
-        This value must be the same as :class:`mesh4d.obj3d.Obj3d`'s :attr:`scale_rate`.
-
 
     Note
     ---
@@ -591,8 +569,6 @@ class MarkerSet(object):
 
     self.fps
         the number of frames per second (fps).
-    self.scale_rate
-        the scaling rate of the Vicon key points.
     self.markers
         a :class:`Dictonary` of :class:`Marker` s, with the corresponding marker names as their keywords.
 
@@ -622,26 +598,20 @@ class MarkerSet(object):
         vicon.plot_track(step=3, end_frame=100)
     
     """
-    def load_from_vicon(self, filedir: str, scale_rate: float = 1, convert: bool = True):
+    def load_from_vicon(self, filedir: str, convert: bool = True):
         """Load and parse data from :code:`.csv` file exported from the Vicon motion capture system.
 
         Parameters
         ---
         filedir
             the directory of the :code:`.csv` file.
-        scale_rate
-            the scaling rate of the 3D object.
 
             .. attention::
-                Noted that the original unit of 3dMD raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
-
-            .. seealso::
-                Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.
+                Noted that the original unit of 3dMD raw data is millimetre (mm).
         
         convert
             implement the coordinates conversion or not.
         """
-        self.scale_rate = scale_rate
 
         def parse(df, df_head):
             self.fps = df_head.values.tolist()[0][0]  # parse the fps
@@ -663,11 +633,7 @@ class MarkerSet(object):
 
                 # the first occurrence of a point
                 if point_name not in self.markers.keys():
-                    self.markers[point_name] = Marker(
-                        name=point_name, 
-                        fps=self.fps,
-                        scale_rate=self.scale_rate,
-                        )
+                    self.markers[point_name] = Marker(name=point_name, fps=self.fps)
 
                 # fill the following 3 columns' X, Y, Z values into the point's object
                 try:
@@ -707,7 +673,6 @@ class MarkerSet(object):
             The extracted coordinates data packed as a :class:`Kps` (or its derived class) object.
         """
         kps = kps_class()
-        kps.scale_rate = self.scale_rate
 
         for name, marker in self.markers.items():
             coord = marker.get_frame_coord(frame_id)
@@ -792,7 +757,6 @@ class MarkerSet(object):
         The returned value will be transferred to :class:`Kps` in future development.
         """
         kps = Kps()
-        kps.scale_rate = self.scale_rate
 
         for name, marker in self.markers.items():
             coord = marker.get_time_coord(time)

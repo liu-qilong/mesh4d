@@ -207,7 +207,6 @@ class Obj4d_Kps(Obj4d):
         """
         markerset = kps.MarkerSet()
         markerset.fps = self.fps
-        markerset.scale_rate = self.obj_ls[0].scale_rate
         markerset.markers = {}
 
         for obj in self.obj_ls:
@@ -215,7 +214,7 @@ class Obj4d_Kps(Obj4d):
 
             for point_name in points_dict.keys():
                 if point_name not in markerset.markers.keys():
-                    markerset.markers[point_name] = kps.Marker(name=point_name, fps=self.fps, scale_rate=obj.scale_rate)
+                    markerset.markers[point_name] = kps.Marker(name=point_name, fps=self.fps)
                 
                 markerset.markers[point_name].append_data(coord=points_dict[point_name], convert=False)
 
