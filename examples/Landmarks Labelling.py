@@ -11,11 +11,11 @@ sys.path.insert(0, parent_dir)
 from mesh4d import utils
 
 utils.landmarks_labelling(
-    mesh_folder = 'data/meshes/6kmh_softbra_8markers/',
+    mesh_folder = 'data/meshes/6kmh_braless_26markers/',
     mesh_fps = 120,
-    point_num = 5,
-    start = 0,
-    end = 0,
+    point_num = 1,
+    start = 7 * 12,
+    end = 7 * 12,
     stride = 12,
     is_save = True,
     export_path = 'examples/output/landmarks.pkl',

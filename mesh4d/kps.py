@@ -857,7 +857,7 @@ class MarkerSet(object):
         for name in markerset1.markers.keys():
             diff = Marker.diff(markerset1.markers[name], markerset2.markers[name])
             diff_dict[name] = diff
-            dist_ls = diff['dist']
+            dist_ls.append(diff['dist'])
 
             if mesh4d.output_msg:
                 print("estimated error of frame {}: {}".format(name, diff['diff_str']))
