@@ -101,7 +101,7 @@ def obj_pick_points(filedir: str, use_texture: bool = False, is_save: bool = Fal
     # call back function for point picking
     def callback(point):
         # point id
-        point_id = len(point_list) + 1
+        point_id = len(point_list)
 
         # create a cube and a label at the click point
         mesh = pv.Cube(center=point, x_length=0.05, y_length=0.05, z_length=0.05)
