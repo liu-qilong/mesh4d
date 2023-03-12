@@ -51,12 +51,12 @@ class Trans_Nonrigid_RBF(field.Trans_Nonrigid):
     def parse(self, field):
         self.source_points = self.source.get_vertices()
         shift_points = field(self.source_points)
-        
+
         target_points = self.target.get_vertices()
         tree = KDTree(target_points)
         _, idx = tree.query(shift_points)
         self.deform_points = target_points[idx]
-        
+
         self.disp = self.deform_points - self.source_points
         self.search_tree = KDTree(self.source_points)
         

@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Type, Union, Iterable
 
 import os
+import copy
 import numpy as np
 import pandas as pd
 import pyvista as pv
@@ -757,7 +758,73 @@ class MarkerSet(object):
             kps.add_point(name, coord)
 
         return kps
+    
+    def get_time_coord(self, time: float) -> np.array:
+        """Get coordinates data according to time stamp.
 
+        Parameters
+        ---
+        time
+            time stamp to get coordinates data.
+
+        Return
+        ---
+        :class:`numpy.array`
+            The structure of the returned array is :code:`array[marker_id][0-2 as x-z][time]`
+        
+        Warnings
+        ---
+        The interpolation must be properly done before accessing coordinates data according to time stamp, which means the :meth:`interp_field` must be called first.
+
+        WARNING
+        ---
+        The returned value will be transferred to :class:`Kps` in future development.
+        """
+        kps = Kps()
+
+        for name, marker in self.markers.items():
+            coord = marker.get_time_coord(time)
+            kps.add_point(name, coord)
+
+        return kps
+    
+    def extract(self, marker_names: Iterable[str]) -> MarkerSet:
+        """Return the assembled marker set with extracted markers. Noted that the original marker set won't be altered.
+        
+        Parameters
+        ---
+        marker_names
+            a list of marker names to be extracted
+        """
+        markerset = MarkerSet()
+
+        for marker_name in marker_names:
+            marker_extract = copy.deepcopy(self.markers[marker_name])
+            markerset.markers[marker_name] = marker_extract
+
+        return markerset
+    
+    def split(self, marker_names: Iterable[str]) -> tuple:
+        """Return the markerset splitted into two part. Noted that the original marker set won't be altered.
+        
+        Parameters
+        ---
+        marker_names
+            a list of marker names to be extracted to the first part.
+
+        Retrun
+        ---
+        MarkerSet, MarkerSet
+            return a tuple of two :class:`MarkerSet`. The first one contains the markers from the :attr:`marker_names`. The second one contains the remaining markers.
+        """
+        other_marker_names = []
+
+        for name in self.markers.keys():
+            if name not in marker_names:
+                other_marker_names.append(name)
+
+        return self.extract(marker_names), self.extract(other_marker_names)
+    
     @staticmethod
     def diff(markerset1: MarkerSet, markerset2: MarkerSet) -> dict:
         """Compute the difference of one marker set object with another.
@@ -812,35 +879,6 @@ class MarkerSet(object):
             print("whole duration error: {}".format(overall_diff_dict['diff_str']))
 
         return overall_diff_dict
-    
-    def get_time_coord(self, time: float) -> np.array:
-        """Get coordinates data according to time stamp.
-
-        Parameters
-        ---
-        time
-            time stamp to get coordinates data.
-
-        Return
-        ---
-        :class:`numpy.array`
-            The structure of the returned array is :code:`array[marker_id][0-2 as x-z][time]`
-        
-        Warnings
-        ---
-        The interpolation must be properly done before accessing coordinates data according to time stamp, which means the :meth:`interp_field` must be called first.
-
-        WARNING
-        ---
-        The returned value will be transferred to :class:`Kps` in future development.
-        """
-        kps = Kps()
-
-        for name, marker in self.markers.items():
-            coord = marker.get_time_coord(time)
-            kps.add_point(name, coord)
-
-        return kps
 
     @staticmethod
     def concatenate(markerset1: Type[Marker], markerset2: Type[Marker]) -> Marker:
