@@ -193,7 +193,6 @@ def landmarks_labelling(
     # landmarks labelling
     landmarks = kps.MarkerSet()
     landmarks.fps = mesh_fps/stride
-    landmarks.markers = {}
 
     for point_idx in range(point_num):
         point_name = 'marker {}'.format(point_idx)

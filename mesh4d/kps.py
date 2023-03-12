@@ -197,8 +197,6 @@ class Marker(object):
         (N, ) :class:`numpy.array` storing :code:`N` frames of speed data.
     self.accel
         (N, ) :class:`numpy.array` storing :code:`N` frames of acceleration data.
-    self.frame_num
-        The number of total frames.
     self.x_field
         An :class:`scipy.interpolate.interp1d` object that storing the interpolated function of the :math:`x` coordinates of all frames. Used for estimated the :math:`x` coordinate of any intermediate time between frames.
     self.y_field
@@ -228,8 +226,6 @@ class Marker(object):
         self.coord = None  # coordinates
         self.speed = None  # speed
         self.accel = None  # acceleration
-
-        self.frame_num = None
 
         self.x_field = None
         self.y_field = None
@@ -296,8 +292,6 @@ class Marker(object):
         else:
             self.accel = np.concatenate((self.accel, accel), axis=0)
 
-        self.frame_num = self.coord.shape[1]
-
     def fill_data(self, data_input: np.array, convert: bool = True):
         """Fill coordinates, speed, and acceleration data of all frames after transforming to 3dMD coordinates. Noted that the first calling fills the coordinates data, the second calling fills the speed data, and the third calling fills the acceleration data, respectively.
 
@@ -320,11 +314,20 @@ class Marker(object):
 
         if self.coord is None:
             self.coord = data_input
-            self.frame_num = data_input.shape[1]
         elif self.speed is None:
             self.speed = data_input
         elif self.accel is None:
             self.accel = data_input
+
+    def get_frame_num(self) -> int:
+        """Get the number of frames.
+        """
+        return self.coord.shape[1]
+    
+    def get_duration(self) -> float:
+        """Get the whole time duration.
+        """
+        return (self.get_frame_num() - 1) / self.fps
 
     def interp_field(self):
         """Interpolating the :math:`x, y, z` coordinates data to estimate its continues change. After that, the coordinates at the intermediate time between frames is accessible.
@@ -392,6 +395,28 @@ class Marker(object):
 
         return coord_interp
 
+    def reslice(self, fps_new: int = 120):
+        """Return the marker object re-slicing to another frame rate. Noted that the original object won't be altered.
+        
+        Parameters
+        ---
+        fps_new
+            the new frame rate (frames per second)
+        """
+        marker = Marker(
+            name=self.name,
+            start_time=self.start_time,
+            fps=fps_new,
+            )
+        
+        frame_num_new = int(self.get_duration() * fps_new) + 1
+
+        for idx in range(frame_num_new):
+            time = self.start_time + idx / fps_new
+            marker.append_data(coord=self.get_time_coord(time), convert=False)
+
+        return marker
+
     @staticmethod
     def diff(marker1: Marker, marker2: Marker) -> dict:
         """Compute the difference of one marker object with another.
@@ -420,7 +445,7 @@ class Marker(object):
         """
         disp = []
 
-        for frame in range(marker1.frame_num):
+        for frame in range(marker1.get_frame_num()):
             time = marker1.start_time + frame / marker1.fps
             coord1 = marker1.get_frame_coord(frame)
             coord2 = marker2.get_time_coord(time)
@@ -439,6 +464,42 @@ class Marker(object):
         }
 
         return diff_dict
+
+    @staticmethod
+    def concatenate(marker1: Type[Marker], marker2: Type[Marker]) -> Marker:
+        """Concatenate two marker object.
+
+        Attention
+        ---
+        If the second marker object has more than 1 frame of data, it will be re-slicing to the same frame rate as the first object and then be concatenated. Otherwise, it will be directly concatenated.
+
+        Parameters
+        ---
+        marker1
+            the first marker object.
+        marker2
+            the second marker object.
+        """
+        marker = Marker(
+            name=marker1.name, 
+            start_time=marker1.start_time, 
+            fps=marker1.fps,
+            )
+        
+        if marker2.get_frame_num() == 1:
+            marker2_reslice = marker2
+        else:
+            marker2_reslice = marker2.reslice(marker1.fps)
+
+        
+        marker.coord = np.concatenate((marker1.coord, marker2_reslice.coord), axis=1)
+        marker.speed = np.concatenate((marker1.speed, marker2_reslice.speed), axis=0)
+        marker.accel = np.concatenate((marker1.accel, marker2_reslice.accel), axis=0)
+
+        marker.frame_num = marker.coord.shape[1]
+        
+        return marker
+        
 
     def plot_track(
         self,
@@ -598,6 +659,9 @@ class MarkerSet(object):
         vicon.plot_track(step=3, end_frame=100)
     
     """
+    def __init__(self):
+        self.markers = {}
+
     def load_from_vicon(self, filedir: str, convert: bool = True):
         """Load and parse data from :code:`.csv` file exported from the Vicon motion capture system.
 
@@ -615,7 +679,6 @@ class MarkerSet(object):
 
         def parse(df, df_head):
             self.fps = df_head.values.tolist()[0][0]  # parse the fps
-            self.markers = {}
             col_names = df.columns.values.tolist()
 
             for col_id in range(len(col_names)):
@@ -734,7 +797,7 @@ class MarkerSet(object):
             print("whole duration error: {}".format(overall_diff_dict['diff_str']))
 
         return overall_diff_dict
-
+    
     def get_time_coord(self, time: float) -> np.array:
         """Get coordinates data according to time stamp.
 
@@ -764,6 +827,32 @@ class MarkerSet(object):
 
         return kps
 
+    @staticmethod
+    def concatenate(markerset1: Type[Marker], markerset2: Type[Marker]) -> Marker:
+        """Concatenate two marker set object.
+
+        Attention
+        ---
+        If the second marker object has more than 1 frame of data, it will be re-slicing to the same frame rate as the first object and then be concatenated. Otherwise, it will be directly concatenated.
+
+        Parameters
+        ---
+        markerset1
+            the first marker set object.
+        markerset2
+            the second marker set object.
+        """
+        markerset = MarkerSet()
+
+        for marker_name in markerset1.markers.keys():
+            markerset.markers[marker_name] = Marker.concatenate(
+                markerset1.markers[marker_name],
+                markerset2.markers[marker_name],
+            )
+
+        return markerset
+        
+
     def plot_track(
             self,
             start_frame: int = 0,
@@ -792,7 +881,7 @@ class MarkerSet(object):
         """
         if end_frame is None:
             first_point = list(self.markers.values())[0]
-            end_frame = first_point.frame_num
+            end_frame = first_point.get_frame_num()
 
         for frame_id in range(start_frame, end_frame, step):
             self.plot_frame(frame_id, is_show=False, is_save=True, *args, **kwargs)

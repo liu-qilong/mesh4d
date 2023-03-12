@@ -208,7 +208,6 @@ class Obj4d_Kps(Obj4d):
         """
         markerset = kps.MarkerSet()
         markerset.fps = self.fps
-        markerset.markers = {}
 
         for obj in self.obj_ls:
             points_dict = obj.kps_group[name].points
