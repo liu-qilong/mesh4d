@@ -226,7 +226,7 @@ def landmarks_labelling(
         save_pkl_object(landmarks, export_path)
 
 
-def progress_bar(percent: float, bar_len: int = 20):
+def progress_bar(percent: float, bar_len: int = 20, front_str: str = '', back_str: str = ''):
     """Print & refresh the progress bar in terminal.
 
     Parameters
@@ -235,9 +235,13 @@ def progress_bar(percent: float, bar_len: int = 20):
         percentage from 0 to 1.
     bar_len
         length of the progress bar
+    front_str
+        string proceeding the progress bar
+    back_str
+        string following the progress bar
     """
     sys.stdout.write("\r")
-    sys.stdout.write("[{:<{}}] {:.1%}".format("=" * int(bar_len * percent), bar_len, percent))
+    sys.stdout.write("{}[{:<{}}] {:.1%}{}".format(front_str, "=" * int(bar_len * percent), bar_len, percent, back_str))
     sys.stdout.flush()
     # avoiding '%' appears when progress completed
     if percent == 1:

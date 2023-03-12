@@ -30,7 +30,7 @@ import matplotlib.colors as mcolors
 
 import mesh4d
 import mesh4d.config.param
-from mesh4d import kps, field
+from mesh4d import kps, field, utils
 
 class Obj3d(object):
     """
@@ -756,6 +756,7 @@ def load_obj_series(
         o3_ls.append(obj_type(filedir=filedir, **kwargs))
         
         if mesh4d.output_msg:
-            print("loaded 1 mesh file: {}".format(filedir))
+            percent = (n + 1) / (end - start + 1)
+            utils.progress_bar(percent, back_str=" loading: {}".format(filedir))
 
     return o3_ls

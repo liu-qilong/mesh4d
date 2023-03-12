@@ -8,7 +8,7 @@ from scipy.interpolate import RBFInterpolator
 
 import mesh4d
 import mesh4d.config.param
-from mesh4d import kps, obj3d, obj4d, field
+from mesh4d import kps, obj3d, obj4d, field, utils
 
 class Obj3d_RBF(obj3d.Obj3d_Deform):
     """Derived from :class:`mesh4d.obj3d.Obj3d_Deform` and replace the displacement field estimation as Radial Basis Function (RBF) based approach.
@@ -47,9 +47,6 @@ class Trans_Nonrigid_RBF(field.Trans_Nonrigid):
         landmarks_target = self.target.control_landmarks.get_points_coord()
         field = RBFInterpolator(landmarks_source, landmarks_target)
         self.parse(field)
-        
-        if mesh4d.output_msg:
-            print("registered 1 nonrigid transformation")
 
     def parse(self, field):
         self.source_points = self.source.get_vertices()
@@ -105,6 +102,10 @@ class Obj4d_RBF(obj4d.Obj4d_Deform):
 
             if self.enable_nonrigid:
                 self.process_nonrigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the later one
+            
+            if mesh4d.output_msg:
+                percent = (idx - reg_start_index + 1) / (reg_end_index - reg_start_index + 1)
+                utils.progress_bar(percent, back_str=" adding the {}-th 3d object".format(idx))
             
 
     def process_nonrigid_dynamic(self, idx_source: int, idx_target: int, **kwargs):

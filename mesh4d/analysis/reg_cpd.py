@@ -81,9 +81,6 @@ class Trans_Nonrigid_CPD(field.Trans_Nonrigid):
             )
         
         self.parse(tf_param, source_pcd)
-        
-        if mesh4d.output_msg:
-            print("registered 1 nonrigid transformation")
 
     def parse(self, tf_param, source_pcd: o3d.cpu.pybind.geometry.PointCloud):
         """Parse the registration result to provide :attr:`self.source_points`, :attr:`self.deform_points`, and :attr:`self.disp`. Called by :meth:`regist`.

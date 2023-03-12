@@ -676,6 +676,8 @@ class MarkerSet(object):
         convert
             implement the coordinates conversion or not.
         """
+        # trigger calibration parameters loading
+        Marker('None')
 
         def parse(df, df_head):
             self.fps = df_head.values.tolist()[0][0]  # parse the fps
@@ -689,23 +691,36 @@ class MarkerSet(object):
                 # (checking start from row 4, because for speed and acceleration the first few rows are empty)
                 # or that follows the 'X' columns
                 if df.loc[4:, col_name].isnull().values.any():
+                    if mesh4d.output_msg:
+                        percent = (col_id + 1) / len(col_names)
+                        utils.progress_bar(percent, back_str=" parsing the {}-th column".format(col_id))
+
                     continue
 
                 if 'Unnamed' in col_name:
-                    continue
-
-                # the first occurrence of a point
-                if point_name not in self.markers.keys():
-                    self.markers[point_name] = Marker(name=point_name, fps=self.fps)
-
-                # fill the following 3 columns' X, Y, Z values into the point's object
-                try:
-                    data_input = df.loc[2:, col_name:col_names[col_id+2]].to_numpy(dtype=float).transpose()
-                    self.markers[point_name].fill_data(data_input, convert=convert)
-
-                except:
                     if mesh4d.output_msg:
-                        print("error happended when loading kps file: column {}".format(col_name))
+                        percent = (col_id + 1) / len(col_names)
+                        utils.progress_bar(percent, back_str=" parsing the {}-th column".format(col_id))
+                        
+                    continue
+                
+                else:
+                    # the first occurrence of a point
+                    if point_name not in self.markers.keys():
+                        self.markers[point_name] = Marker(name=point_name, fps=self.fps)
+
+                    # fill the following 3 columns' X, Y, Z values into the point's object
+                    try:
+                        data_input = df.loc[2:, col_name:col_names[col_id+2]].to_numpy(dtype=float).transpose()
+                        self.markers[point_name].fill_data(data_input, convert=convert)
+
+                    except:
+                        if mesh4d.output_msg:
+                            print("error happended when loading kps file: column {}".format(col_name))
+
+                    if mesh4d.output_msg:
+                        percent = (col_id + 1) / len(col_names)
+                        utils.progress_bar(percent, back_str=" parsing the {}-th column".format(col_id))
 
         df = pd.read_csv(filedir, skiprows=2)  # skip the first two rows
         df_head = pd.read_csv(filedir, nrows=1)  # only read the first two rows

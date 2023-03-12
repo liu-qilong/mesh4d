@@ -22,8 +22,7 @@ import pyvista as pv
 import mesh4d
 import mesh4d.config.param
 from mesh4d import obj3d
-from mesh4d import kps
-from mesh4d import field
+from mesh4d import kps, field, utils
 
 class Obj4d(object):
     """Static 4D object. Contains a list of 3D objects.
@@ -347,6 +346,10 @@ class Obj4d_Deform(Obj4d_Kps):
 
             if self.enable_nonrigid:
                 self.process_nonrigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the later one
+
+            if mesh4d.output_msg:
+                percent = (idx - reg_start_index + 1) / (reg_end_index - reg_start_index + 1)
+                utils.progress_bar(percent, back_str=" adding the {}-th 3d object".format(idx))
 
     def process_first_obj(self):
         """Process the first added 3D object.

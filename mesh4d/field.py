@@ -199,9 +199,6 @@ class Trans_Rigid(Trans):
         )
         self.parse(tf_param)
         self.fix()
-        
-        if mesh4d.output_msg:
-            print("registered 1 rigid transformation")
 
     def parse(self, tf_param: Type[cpd.CoherentPointDrift]):
         """Parse the registration result to provide :attr:`self.s`, :attr:`self.rot`, and :attr:`self.t`. Called by :meth:`regist`.
@@ -375,9 +372,6 @@ class Trans_Nonrigid(Trans):
 
         self.disp = self.deform_points - self.source_points
         self.search_tree = KDTree(self.source_points)
-
-        if mesh4d.output_msg:
-            print("registered 1 nonrigid transformation")
 
     def shift_points(self, points: np.array) -> np.array:
         """Implement the transformation to set of points.
