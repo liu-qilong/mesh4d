@@ -305,11 +305,7 @@ class Obj4d_Deform(Obj4d_Kps):
         self.enable_nonrigid = enable_nonrigid
 
     def add_obj(self, *objs: Iterable[Type[obj3d.Obj3d_Deform]], **kwargs):
-        """ Add object(s) and attach key points (:class:`mesh4d.kps.Kps`) to each of the 3D object via Vicon motion capture data (:attr:`markerset`). And then implement the activated transformation estimation.
-        
-        Danger
-        ---
-        This method shall only be called for one time.
+        """Add object(s) and attach key points (:class:`mesh4d.kps.Kps`) to each of the 3D object via Vicon motion capture data (:attr:`markerset`). And then implement the activated transformation estimation.
 
         Parameters
         ---
@@ -326,12 +322,6 @@ class Obj4d_Deform(Obj4d_Kps):
         
         **kwargs
             configuration parameters for the registration and the configuration parameters of the base classes (:class:`Obj3d` and :class:`Obj3d_Kps`)'s :meth:`add_obj` method can be passed in via :code:`**kwargs`.
-
-            .. seealso::
-
-                Technically, the configuration parameters for the registration are passed to :meth:`mesh4d.field.Trans_Rigid.regist` for rigid transformation and :meth:`mesh4d.field.Trans_Nonrigid.regist`, and they then call :mod:`probreg`'s registration method.
-                
-                For accepted parameters, please refer to `probreg.cpd.registration_cpd <https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd>`_.
 
         Example
         ---

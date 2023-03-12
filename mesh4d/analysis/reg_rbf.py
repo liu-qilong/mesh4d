@@ -12,6 +12,11 @@ from mesh4d import kps, obj3d, obj4d, field
 
 class Obj3d_RBF(obj3d.Obj3d_Deform):
     """Derived from :class:`mesh4d.obj3d.Obj3d_Deform` and replace the displacement field estimation as Radial Basis Function (RBF) based approach.
+
+    .. seealso::
+        Getting started with the the principle of RBF model: `Thin Plate Splines Warping - Khanh Ha <https://khanhha.github.io/posts/Thin-Plate-Splines-Warping/>`_
+
+        :mod:`scipy` implementation: `scipy.interpolate.RBFInterpolator <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.RBFInterpolator.html#scipy.interpolate.RBFInterpolator>`_
     
     Parameters
     ---
@@ -23,6 +28,17 @@ class Obj3d_RBF(obj3d.Obj3d_Deform):
         - :code:`empty` create a 3D object without any 3D data.
     """
     def attach_control_landmarks(self, kps: Type[kps.Kps]):
+        """Attach controlling landmarks to the 3D object.
+
+        Attention
+        ---
+        This step must be completed before it's added to a 4D object, since the controlling landmarks will be used to construct the RBF motion model in the adding procedure.
+
+        Parameters
+        ---
+        kps
+            controlling landmarks of this frame.
+        """
         self.control_landmarks = kps
 
 class Trans_Nonrigid_RBF(field.Trans_Nonrigid):
@@ -50,6 +66,24 @@ class Trans_Nonrigid_RBF(field.Trans_Nonrigid):
 
 class Obj4d_RBF(obj4d.Obj4d_Deform):
     def add_obj(self, *objs: Iterable[Type[obj3d.Obj3d_Deform]], landmarks: kps.MarkerSet, **kwargs):
+        """Add object(s) and attach key points (:class:`mesh4d.kps.Kps`) to each of the 3D object via Vicon motion capture data (:attr:`markerset`). And then implement the activated transformation estimation.
+
+        Parameters
+        ---
+        *objs
+            unspecified number of 3D objects.
+
+            .. warning::
+            
+                The 3D objects' class must derived from :class:`mesh4d.obj3d.Obj3d_Deform`.
+
+            .. seealso::
+
+                About the :code:`*` symbol and its effect, please refer to `*args and **kwargs - Python Tips <https://book.pythontips.com/en/latest/args_and_kwargs.html>`_
+        
+        **kwargs
+            configuration parameters for the registration and the configuration parameters of the base classes (:class:`Obj3d` and :class:`Obj3d_Kps`)'s :meth:`add_obj` method can be passed in via :code:`**kwargs`.
+        """
         # follows Obj3d_Kps, Obj4d_Deform add_obj()
         reg_start_index = len(self.obj_ls)
         obj4d.Obj4d_Kps.add_obj(self, *objs, **kwargs)
