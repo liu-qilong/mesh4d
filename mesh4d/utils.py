@@ -92,7 +92,7 @@ def obj_pick_points(filedir: str, use_texture: bool = False, is_save: bool = Fal
         `numpy.load <https://numpy.org/doc/stable/reference/generated/numpy.load.html>`_ 
 
         About point picking feature provided by the :mod:`pyvista` package: 
-        `Picking a Point on the Surface of a Mesh - PyVista <https://docs.pyvista.org/examples/02-plot/surface-picking.html>`_
+        `Picking a Point on the Surface of a Mesh - PyVista <https://docs.pyvista.org/examples/02-sceneot/surface-picking.html>`_
     """
     # load obj mesh
     mesh = pv.read(filedir)
@@ -100,26 +100,29 @@ def obj_pick_points(filedir: str, use_texture: bool = False, is_save: bool = Fal
 
     # call back function for point picking
     def callback(point):
+        # point id
+        point_id = len(point_list) + 1
+
         # create a cube and a label at the click point
         mesh = pv.Cube(center=point, x_length=0.05, y_length=0.05, z_length=0.05)
-        pl.add_mesh(mesh, style='wireframe', color='r')
-        pl.add_point_labels(point, [f"{point[0]:.2f}, {point[1]:.2f}, {point[2]:.2f}"])
+        scene.add_mesh(mesh, style='wireframe', color='r')
+        scene.add_point_labels(point, ["#{} ({:.2f}, {:.2f}, {:.2f})".format(point_id, point[0], point[1], point[2])])
 
         # store picked point
         point_list.append(np.expand_dims(point, axis=0))
 
     # launch point picking
-    pl = pv.Plotter()
+    scene = pv.Plotter()
     
     if use_texture:
         texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
-        pl.add_mesh(mesh, texture=texture, show_edges=True)
+        scene.add_mesh(mesh, texture=texture, show_edges=True)
     else:
-        pl.add_mesh(mesh, show_edges=True)
+        scene.add_mesh(mesh, show_edges=True)
 
-    pl.enable_surface_picking(callback=callback, left_clicking=True, show_point=True)
-    pl.camera_position = 'xy'
-    pl.show()
+    scene.enable_surface_picking(callback=callback, left_clicking=True, show_point=True)
+    scene.camera_position = 'xy'
+    scene.show()
 
     # save and return the picked points
     points = np.concatenate(point_list, axis=0)
@@ -135,12 +138,20 @@ def landmarks_labelling(
     mesh_folder: str,
     mesh_fps: int = 120,
     point_num: int = 1,
+    start: int = 0,
+    end: int = 1,
     stride: int = 1,
     is_save: bool = True,
     export_path: str = 'output/landmarks.pkl',
     ) -> kps.MarkerSet:
     """
     Label landmarks on a set of 3D meshes in the given folder.
+
+    Tip
+    ---
+    When finished labeling a frame, press `P` to proceed. The algorithm will check if the point number is the same as :code:`point_num`. If matched, the labelling procedure will proceed to next frame of mesh , otherwise the same frame will be reopened for labelling.
+
+    Therefore, if we realise that the locations or the order of labeling is wrong, we can click on random positions to make sure that the selected landmarks number doesn't match :code:`point_num`, and then press :code:`P` to break the labelling and trigger the relabelling procedure of the same frame of mesh.
 
     Parameters
     ----------
@@ -150,6 +161,19 @@ def landmarks_labelling(
         The original frame rate of the mesh files.
     point_num : int, optional (default=1)
         The number of points to label on each mesh.
+    start: int, optional (default=0)
+        begin loading from the :code:`start`-th image.
+        
+        Attention
+        ---
+        Index begins from 0. The :code:`start`-th image is included in the loaded images.
+        Index begins from 0.
+    end: int, optional (default=1)
+        end loading at the :code:`end`-th image.
+        
+        Attention
+        ---
+        Index begins from 0. The :code:`end`-th image is included in the loaded images.
     stride : int, optional (default=1)
         The stride used to skip over meshes when labeling.
     is_save : bool, optional (default=True)
@@ -175,9 +199,9 @@ def landmarks_labelling(
         point_name = 'marker {}'.format(point_idx)
         landmarks.markers[point_name] = kps.Marker(name=point_name, fps=landmarks.fps)
 
-    file_idx = 0
+    file_idx = start
 
-    while file_idx < len(files):
+    while file_idx <= end:
         file = files[file_idx]
         print("labelling mesh file: {}".format(file))
         points = obj_pick_points(filedir=file, use_texture=True)
@@ -194,11 +218,10 @@ def landmarks_labelling(
 
         else:
             # otherwise continue to label the same mesh
-            # p.s. when realise that the order of labeling is wrong
+            # p.s. when realising that the order of labeling is wrong
             # we can press P immediately to break the labelling and trigger the relabelling procedure
             file_idx = file_idx
             
-
     # save landmarks object
     if is_save:
         save_pkl_object(landmarks, export_path)
