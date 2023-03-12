@@ -239,6 +239,10 @@ def progress_bar(percent: float, bar_len: int = 20, front_str: str = '', back_st
         string proceeding the progress bar
     back_str
         string following the progress bar
+
+    Warning
+    ---
+    Avoid including "new line" in :attr:`front_str` or :code:`back_str`.
     """
     sys.stdout.write("\r")
     sys.stdout.write("{}[{:<{}}] {:.1%}{}".format(front_str, "=" * int(bar_len * percent), bar_len, percent, back_str))
