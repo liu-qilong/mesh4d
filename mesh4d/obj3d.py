@@ -20,6 +20,7 @@ from typing import Type, Union, Iterable
 
 import os
 import copy
+import math
 import random
 import numpy as np
 import open3d as o3d
@@ -49,14 +50,8 @@ class Obj3d(object):
     ---
     `Class Attributes`
 
-    self.mesh_o3d
-        3D mesh (:class:`open3d.geometry.TriangleMesh`) loaded with :mod:`open3d` .
-    self.pcd
-        3D point cloud (:class:`open3d.geometry.PointCloud`) sampled from :attr:`self.mesh_o3d`.
-
-    Attention
-    ---
-    In future development, mesh may also be loaded with :mod:`pyvista` as :attr:`self.mesh_pv`, for its advantages in visualisation and some specific geometric analysis features.
+    self.mesh
+        3D mesh (:class:`open3d.geometry.TriangleMesh`) loaded with :mod:`pyvista`.
 
     Example
     ---
@@ -74,31 +69,66 @@ class Obj3d(object):
         mode: str = "load"
     ):
         if mode == "load":
-            self.mesh = pvmesh_fix_disconnect(pv.read(filedir))
+            self.mesh = pv.read(filedir)
             self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
-            self.pcd = np2pcd(self.mesh.points)
 
         elif mode == "empty":
             self.mesh = None
             self.texture = None
-            self.pcd = None
+
+    def get_vertices(self) -> np.array:
+        """Get the vertices of :attr:`self.mesh`.
+
+        Returns
+        ---
+        :class:`numpy.array`
+            (N, 3) array storing the coordinates of the mesh vertices
+        """
+        return np.array(self.mesh.points)
+    
+    def get_sample_points(self, sample_num: int) -> np.array:
+        """Get sampled points from :attr:`self.mesh`.
+
+        Parameters
+        ---
+        sample_num
+            the number of the points sampled from the mesh.
+        """
+        vertices_num = len(self.get_vertices())
+
+        if sample_num < vertices_num:
+            dec_ratio = 1 - sample_num / vertices_num
+            dec_mesh = self.mesh.decimate_pro(dec_ratio)
+            return np.array(dec_mesh.points)
+        
+        else:
+            sub_time = math.ceil(np.log2(sample_num / vertices_num))
+            sub_mesh = self.mesh.subdivide(sub_time, 'loop')
+            return np.array(sub_mesh.points)
+        
+    def get_width(self) -> float:
+        """Return the lateral width of the mesh
+        """
+        left = points_get_max_bound(self.get_vertices())[0]
+        right = points_get_min_bound(self.get_vertices())[0]
+        return left - right
 
     def show(self):
         """Show the loaded mesh and the sampled point cloud.
 
         Attention
         ---
-        Before calling this method in Jupyter Notebook environment, the `pythreejs <https://docs.pyvista.org/user-guide/jupyter/pythreejs.html>`_ backend of :mod:`pyvista` is needed to be selected: ::
+        Before calling this method in Jupyter Notebook environment, the :code:`static` is needed to be selected: ::
 
             import pyvista as pv
-            pv.set_jupyter_backend('pythreejs')
+            pv.set_jupyter_backend('static')
         """
         scene = pv.Plotter()
 
-        width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
+        width = self.get_width()
+
         self.add_mesh_to_scene(scene)
         self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-6*width)
-
 
         scene.camera_position = 'xy'
         scene.show()
@@ -180,7 +210,8 @@ class Obj3d(object):
         :class:`pyvista.Plotter`
             :class:`pyvista.Plotter` scene added the visualisation.
         """
-        scene.add_points(pcd2np(self.pcd) + location, **kwargs)
+        points = self.get_vertices()
+        scene.add_points(points + location, **kwargs)
 
 
 class Obj3d_Kps(Obj3d):
@@ -240,14 +271,14 @@ class Obj3d_Kps(Obj3d):
 
         Attention
         ---
-        Before calling this method in Jupyter Notebook environment, the `pythreejs <https://docs.pyvista.org/user-guide/jupyter/pythreejs.html>`_ backend of :mod:`pyvista` is needed to be selected: ::
+        Before calling this method in Jupyter Notebook environment, the :code:`static` is needed to be selected: ::
 
             import pyvista as pv
-            pv.set_jupyter_backend('pythreejs')
+            pv.set_jupyter_backend('static')
         """
         scene = pv.Plotter()
 
-        width = pcd_get_max_bound(self.pcd)[0] - pcd_get_min_bound(self.pcd)[0]
+        width = self.get_width()
 
         self.add_mesh_to_scene(scene)
         self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-6*width)
@@ -286,7 +317,8 @@ class Obj3d_Kps(Obj3d):
         tree = KDTree(obj2.mesh.points)
         d_kdtree, _ = tree.query(obj1.mesh.points)
         obj1.mesh["distances"] = d_kdtree
-        width = pcd_get_max_bound(obj1.pcd)[0] - pcd_get_min_bound(obj1.pcd)[0]
+
+        width = obj1.get_width()
 
         obj1.add_mesh_to_scene(scene, show_edges=False, opacity=op1, cmap=cmap)
         obj2.add_mesh_to_scene(scene, show_edges=False, opacity=op2)
@@ -411,7 +443,6 @@ class Obj3d_Deform(Obj3d_Kps):
 
         deform_obj = type(self)(mode='empty')
         deform_obj.mesh = trans.shift_mesh(self.mesh)
-        deform_obj.pcd = trans.shift_pcd(self.pcd)
         
         for name in self.kps_group.keys():
             deform_obj.kps_group[name] = trans.shift_kps(self.kps_group[name])
@@ -444,10 +475,10 @@ class Obj3d_Deform(Obj3d_Kps):
 
         Attention
         ---
-        Before calling this method in Jupyter Notebook environment, the `pythreejs <https://docs.pyvista.org/user-guide/jupyter/pythreejs.html>`_ backend of :mod:`pyvista` is needed to be selected: ::
+        Before calling this method in Jupyter Notebook environment, the :code:`static` is needed to be selected: ::
 
             import pyvista as pv
-            pv.set_jupyter_backend('pythreejs')
+            pv.set_jupyter_backend('static')
         """
         if mode == 'nonrigid' and self.trans_nonrigid is not None:
             trans = self.trans_nonrigid
@@ -463,7 +494,8 @@ class Obj3d_Deform(Obj3d_Kps):
 
         deform_obj = self.get_deform_obj3d(mode=mode)
         dist = np.linalg.norm(self.mesh.points - deform_obj.mesh.points, axis = 1)
-        width = pcd_get_max_bound(deform_obj.pcd)[0] - pcd_get_min_bound(deform_obj.pcd)[0]
+
+        width = self.get_width()
 
         deform_obj.mesh["distances"] = dist
         deform_obj.add_mesh_to_scene(scene, cmap=cmap)
@@ -493,40 +525,15 @@ class Obj3d_Deform(Obj3d_Kps):
             return
 
         rot = self.trans_rigid.rot
-        center = pcd_get_center(self.pcd)
+        center = points_get_center(self.get_vertices)
 
         self.mesh_o3d.rotate(rot, center)
-        self.pcd.rotate(rot, center)
         
         if mesh4d.output_msg:
             print("reorientated 1 3d object")
 
 
 # utils for data & object transform
-
-def mesh2pcd(mesh: o3d.geometry.TriangleMesh, sample_num: int) -> o3d.geometry.PointCloud:
-    """Sampled a :mod:`open3d` mesh (:class:`open3d.geometry.TriangleMesh`) to a :mod:`open3d` point cloud (:class:`open3d.geometry.PointCloud`).
-
-    .. seealso::
-
-        The sampling method is :func:`open3d.geometry.sample_points_poisson_disk` (`link <http://www.open3d.org/docs/0.7.0/python_api/open3d.geometry.sample_points_poisson_disk.html#open3d-geometry-sample-points-poisson-disk>`_) [#]_.
-       
-        .. [#] Cem Yuksel. "Sample elimination for generating poisson disk sample sets". Computer Graphics Forum. 2015, 34(2): 25–32.
-
-    Parameters
-    ---
-    mesh
-        the mesh (:class:`open3d.geometry.TriangleMesh`) being sampled.
-    sample_num
-        the number of sampling points.
-    
-    Return
-    ---
-    :class:`o3d.geometry.PointCloud`
-        The sampled point cloud.
-    """
-    return mesh.sample_points_poisson_disk(number_of_points=sample_num, init_factor=5)
-
 
 def pcd2np(pcd: o3d.geometry.PointCloud) -> np.array:
     """Extracted the points coordinates data from a :mod:`open3d` point cloud (:class:`open3d.geometry.PointCloud`).
@@ -596,120 +603,7 @@ def np2pvpcd(points: np.array, **kwargs) -> pv.core.pointset.PolyData:
     return pvpcd
 
 
-def pvmesh2pcd(mesh: pv.core.pointset.PolyData, sample_num: int = 1000) -> o3d.cpu.pybind.geometry.PointCloud:
-    """Transform the :mod:`pyvista` mesh to a :mod:`open3d` point cloud with uniform sampling method
-    
-    Parameters
-    ---
-    mesh
-        the :mod:`pyvista` mesh.
-    sample_num
-        the number of sampling points.
-
-    See Also
-    ---
-    The sampling is realised with decimation function provided by :mod:`pyvista`: `Decimation - PyVista <https://docs.pyvista.org/examples/01-filter/decimate.html>`_.
-    `pyvista.PolyData.decimate <https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.decimate.html#pyvista.PolyData.decimate>`_ is used for uniform sampling.
-    """
-    dec_ratio = 1 - sample_num / len(mesh.points)
-    dec_mesh = mesh.decimate(dec_ratio)
-    return np2pcd(dec_mesh.points)
-
-
-def pvmesh2pcd_pro(mesh: pv.core.pointset.PolyData, sample_num: int = 1000) -> o3d.cpu.pybind.geometry.PointCloud:
-    """Transform the :mod:`pyvista` mesh to a :mod:`open3d` point cloud with curation sampling method
-    
-    Parameters
-    ---
-    mesh
-        the :mod:`pyvista` mesh.
-    sample_num
-        the number of sampling points.
-
-    See Also
-    ---
-    The sampling is realised with decimation function provided by :mod:`pyvista`: `Decimation - PyVista <https://docs.pyvista.org/examples/01-filter/decimate.html>`_.
-    `pyvista.PolyData.decimate_pro <https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.decimate_pro.html>`_ is used for uniform sampling.
-    """
-    dec_ratio = 1 - sample_num / len(mesh.points)
-    dec_mesh = mesh.decimate_pro(dec_ratio)
-    return np2pcd(dec_mesh.points)
-
-
-
 # utils for object cropping and other operations
-
-def mesh_crop(mesh: o3d.geometry.TriangleMesh, min_bound: list = [-1000, -1000, -1000], max_bound: list = [1000, 1000, 1000]) -> o3d.geometry.TriangleMesh:
-    """Crop the mesh (:class:`open3d.geometry.TriangleMesh`) according the maximum and minimum boundaries.
-
-    Parameters
-    ---
-    mesh
-        the mesh (:class:`open3d.geometry.TriangleMesh`) being cropped.
-    max_bound
-        a list containing the maximum value of :math:`x, y, z`-coordinates: :code:`[max_x, max_y, max_z]`.
-    min_bound
-        a list containing the minimum value of :math:`x, y, z`-coordinates: :code:`[min_x, min_y, min_z]`.
-
-    Return
-    ---
-    :class:`o3d.geometry.TriangleMesh`
-        The cropped mesh.
-    """
-    bbox = o3d.geometry.AxisAlignedBoundingBox(min_bound=min_bound, max_bound=max_bound)
-    return mesh.crop(bbox)
-
-
-def pcd_crop(pcd: o3d.geometry.PointCloud, min_bound: list = [-1000, -1000, -1000], max_bound: list = [1000, 1000, 1000]) -> o3d.geometry.PointCloud:
-    """Crop the point cloud (:class:`open3d.geometry.PointCloud`) according the maximum and minimum boundaries.
-
-    Parameters
-    ---
-    pcd
-        the point cloud (:class:`open3d.geometry.PointCloud`) being cropped.
-    max_bound
-        a list containing the maximum value of :math:`x, y, z`-coordinates: :code:`[max_x, max_y, max_z]`.
-    min_bound
-        a list containing the minimum value of :math:`x, y, z`-coordinates: :code:`[min_x, min_y, min_z]`.
-
-    Return
-    ---
-    :class:`o3d.geometry.PointCloud`
-        The cropped point cloud.
-    """
-    points = pcd2np(pcd)
-    points_crop = []
-
-    for point in points:
-        min_to_point = point - min_bound
-        point_to_max = max_bound - point
-        less_than_zero = np.sum(min_to_point < 0) + np.sum(point_to_max < 0)
-        if less_than_zero == 0:
-            points_crop.append(point)
-
-    return np2pcd(np.array(points_crop))
-
-
-def pcd_crop_front(pcd: o3d.geometry.PointCloud, ratio: float = 0.5) -> o3d.geometry.PointCloud:
-    """Crop the front side of a point cloud (:class:`open3d.geometry.PointCloud`) with a adjustable ratio.
-
-    Parameters
-    ---
-    pcd
-        the point cloud (:class:`open3d.geometry.TriangleMesh`) being cropped.
-    ratio
-        the ratio of the cropped front part.
-
-    Return
-    ---
-    :class:`o3d.geometry.PointCloud`
-        the cropped point cloud.
-    """
-    max_bound = pcd_get_max_bound(pcd)
-    min_bound = pcd_get_min_bound(pcd)
-    min_bound[2] = (1-ratio)*max_bound[2] + ratio*min_bound[2]
-    return pcd_crop(pcd, min_bound)
-
 
 def pvmesh_fix_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.PolyData():
     """Fix disconnection problem in :mod:`pyvista` mesh.
@@ -740,8 +634,10 @@ def pvmesh_fix_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.P
 
 # utils for object estimation
 
-def pcd_get_center(pcd: o3d.geometry.PointCloud) -> np.array:
-    """Get the center point of a point cloud. The center point is defined as the geometric average point of all points:
+def points_get_center(points: np.array) -> np.array:
+    """Get the center point of a set of points.
+    
+    The center point is defined as the geometric average point of all points:
 
     .. math::
         \\boldsymbol c = \\frac{\sum_{i} \\boldsymbol p_i}{N}
@@ -750,91 +646,47 @@ def pcd_get_center(pcd: o3d.geometry.PointCloud) -> np.array:
 
     Parameters
     ---
-    pcd
-        the point cloud (:class:`open3d.geometry.TriangleMesh`).
+    points
+        the points' coordinates stored in a (N, 3) :class:`numpy.array`.
 
     Return
     ---
     :class:`numpy.array`
         The center point coordinates represented in a (3, ) :class:`numpy.array`.
     """
-    points = pcd2np(pcd)
     return np.mean(points, 0)
 
 
-def pcd_get_max_bound(pcd: o3d.geometry.PointCloud) -> np.array:
-    """Get the maximum boundary of a point cloud.
+def points_get_max_bound(points: np.array) -> np.array:
+    """Get the maximum boundary of a set of points.
 
     Parameters
     ---
-    pcd
-        the point cloud (:class:`open3d.geometry.TriangleMesh`).
+    points
+        the points' coordinates stored in a (N, 3) :class:`numpy.array`.
 
     Return
     ---
     :class:`numpy.array`
         a list containing the maximum value of :math:`x, y, z`-coordinates: :code:`[max_x, max_y, max_z]`.
     """
-    points = pcd2np(pcd)
     return np.ndarray.max(points, 0)
 
 
-def pcd_get_min_bound(pcd: o3d.geometry.PointCloud) -> o3d.geometry.PointCloud:
-    """Get the minimum boundary of a point cloud.
+def points_get_min_bound(points: np.array) -> np.array:
+    """Get the minimum boundary of a set of points.
 
     Parameters
     ---
-    pcd
-        the point cloud (:class:`open3d.geometry.TriangleMesh`).
+    points
+        the points' coordinates stored in a (N, 3) :class:`numpy.array`.
 
     Return
     ---
     :class:`numpy.array`
         a list containing the minimum value of :math:`x, y, z`-coordinates: :code:`[min_x, min_y, min_z]`.
     """
-    points = pcd2np(pcd)
     return np.ndarray.min(points, 0)
-
-
-def search_nearest_point_idx(point: np.array, target_points: np.array) -> int:
-    """Search the index of the nearest point from a collection of target points.
-
-    Parameters
-    ---
-    point
-        the source point coordinates stores in a (3, ) :class:`numpy.array`.
-    target_points
-        the target points collection stores in a (N, 3) :class:`numpy.array`.
-
-    Return
-    ---
-    :class:`int`
-        the index of the nearest point.
-    """
-    dist = np.linalg.norm(
-        target_points - point, axis=1
-    )
-    idx = np.argmin(dist)
-    return idx
-
-
-def search_nearest_point(point: np.array, target_points: np.array) -> np.array:
-    """Search the nearest point from a collection of target points.
-
-    Parameters
-    ---
-    point
-        the source point coordinates stores in a (3, ) :class:`numpy.array`.
-    target_points
-        the target points collection stores in a (N, 3) :class:`numpy.array`.
-
-    Return
-    ---
-    :class:`numpy.array`
-        the nearest point coordinates stores in a (3, ) :class:`numpy.array`.
-    """
-    idx = search_nearest_point_idx(point, target_points)
-    return target_points[idx]
 
 
 # utils for 3D objects loading

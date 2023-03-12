@@ -108,7 +108,8 @@ class Obj4d(object):
 
         for obj in self.obj_ls:
             scene.clear()
-            width = obj3d.pcd_get_max_bound(obj.pcd)[0] - obj3d.pcd_get_min_bound(obj.pcd)[0]
+
+            width = obj.get_width()
 
             obj.add_mesh_to_scene(scene)
             obj.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-3*width)
@@ -237,7 +238,8 @@ class Obj4d_Kps(Obj4d):
 
         for obj in self.obj_ls:
             scene.clear()
-            width = obj3d.pcd_get_max_bound(obj.pcd)[0] - obj3d.pcd_get_min_bound(obj.pcd)[0]
+            
+            width = obj.get_width()
 
             obj.add_mesh_to_scene(scene)
             obj.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-3*width)
@@ -459,7 +461,7 @@ class Obj4d_Deform(Obj4d_Kps):
 
             deform_obj = obj.get_deform_obj3d(mode=mode)
             dist = np.linalg.norm(obj.mesh.points - deform_obj.mesh.points, axis = 1)
-            width = obj3d.pcd_get_max_bound(deform_obj.pcd)[0] - obj3d.pcd_get_min_bound(deform_obj.pcd)[0]
+            width = deform_obj.get_width()
 
             deform_obj.mesh["distances"] = dist
             deform_obj.add_mesh_to_scene(scene, cmap=cmap)

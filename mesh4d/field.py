@@ -100,21 +100,6 @@ class Trans(object):
         mesh_deform.points = self.shift_points(mesh_deform.points)
         return mesh_deform
 
-    def shift_pcd(self, pcd: o3d.cpu.pybind.geometry.PointCloud) -> o3d.cpu.pybind.geometry.PointCloud:
-        """Implement the transformation to the point cloud object.
-
-        Parameters
-        ---
-        kps
-            the point cloud object.
-
-        Returns
-        ---
-        the deformed point cloud object."""
-        points = obj3d.pcd2np(pcd)
-        points_deform = self.shift_points(points)
-        return obj3d.np2pcd(points_deform)
-
     def show(self):
         """Illustrate the estimated transformation.
 
@@ -187,12 +172,12 @@ class Trans_Rigid(Trans):
         trans.regist()
         print(trans.scale, trans.rot, trans.t)
     """
-    def regist(self, point_num: int = 1000, **kwargs):
+    def regist(self, sample_num: int = 1000, **kwargs):
         """The registration method.
 
         Parameters
         ---
-        point_num
+        sample_num
             number of sample points to be used for rigid registration.
 
             Attention
@@ -206,8 +191,8 @@ class Trans_Rigid(Trans):
             --------
             `probreg.cpd.registration_cpd <https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd>`_
         """
-        source_pcd = obj3d.pvmesh2pcd_pro(self.source.mesh)
-        target_pcd = obj3d.pvmesh2pcd_pro(self.target.mesh)
+        source_pcd = obj3d.np2pcd(self.source.mesh.get_sample_points(sample_num=sample_num))
+        target_pcd = obj3d.np2pcd(self.target.mesh.get_sample_points(sample_num=sample_num))
 
         tf_param, _, _ = cpd.registration_cpd(
             source_pcd, target_pcd, 'rigid', **kwargs
@@ -381,8 +366,8 @@ class Trans_Nonrigid(Trans):
     def regist(self, **kwargs):
         """Align every point from the source object to the nearest point in the target object and use it a this point's displacement.
         """
-        self.source_points = obj3d.pcd2np(self.source.pcd)
-        target_points = obj3d.pcd2np(self.target.pcd)
+        self.source_points = self.source.get_vertices()
+        target_points = self.target.get_vertices()
 
         tree = KDTree(target_points)
         _, idx = tree.query(self.source_points)

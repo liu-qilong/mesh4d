@@ -11,6 +11,17 @@ import mesh4d.config.param
 from mesh4d import kps, obj3d, obj4d, field
 
 class Obj3d_RBF(obj3d.Obj3d_Deform):
+    """Derived from :class:`mesh4d.obj3d.Obj3d_Deform` and replace the displacement field estimation as Radial Basis Function (RBF) based approach.
+    
+    Parameters
+    ---
+    filedir
+        the direction of the 3D object.
+    mode
+        
+        - :code:`load` the default mode is load from a file.
+        - :code:`empty` create a 3D object without any 3D data.
+    """
     def attach_control_landmarks(self, kps: Type[kps.Kps]):
         self.control_landmarks = kps
 
@@ -25,10 +36,10 @@ class Trans_Nonrigid_RBF(field.Trans_Nonrigid):
             print("registered 1 nonrigid transformation")
 
     def parse(self, field):
-        self.source_points = obj3d.pcd2np(self.source.pcd)
+        self.source_points = self.source.get_vertices()
         shift_points = field(self.source_points)
         
-        target_points = obj3d.pcd2np(self.target.pcd)
+        target_points = self.target.get_vertices()
         tree = KDTree(target_points)
         _, idx = tree.query(shift_points)
         self.deform_points = target_points[idx]

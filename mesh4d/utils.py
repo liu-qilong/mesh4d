@@ -149,9 +149,9 @@ def landmarks_labelling(
 
     Tip
     ---
-    When finished labeling a frame, press `P` to proceed. The algorithm will check if the point number is the same as :code:`point_num`. If matched, the labelling procedure will proceed to next frame of mesh , otherwise the same frame will be reopened for labelling.
+    When finished labelling a frame, press :code:`P` to proceed. The algorithm will check if the point number is the same as :code:`point_num`. If matched, the labelling procedure will proceed to next frame of mesh , otherwise the same frame will be reopened for labelling.
 
-    Therefore, if we realise that the locations or the order of labeling is wrong, we can click on random positions to make sure that the selected landmarks number doesn't match :code:`point_num`, and then press :code:`P` to break the labelling and trigger the relabelling procedure of the same frame of mesh.
+    Therefore, if we realise that the locations or the order of labelling is wrong, we can click on random positions to make sure that the selected landmarks number doesn't match :code:`point_num`, and then press :code:`P` to break the labelling and trigger the relabelling procedure of the same frame of mesh.
 
     Parameters
     ----------
@@ -175,7 +175,7 @@ def landmarks_labelling(
         ---
         Index begins from 0. The :code:`end`-th image is included in the loaded images.
     stride : int, optional (default=1)
-        The stride used to skip over meshes when labeling.
+        The stride used to skip over meshes when labelling.
     is_save : bool, optional (default=True)
         Whether to save the labelled landmarks to disk.
     export_path : str, optional (default='output/landmarks.pkl')
@@ -218,7 +218,7 @@ def landmarks_labelling(
 
         else:
             # otherwise continue to label the same mesh
-            # p.s. when realising that the order of labeling is wrong
+            # p.s. when realising that the order of labelling is wrong
             # we can press P immediately to break the labelling and trigger the relabelling procedure
             file_idx = file_idx
             
