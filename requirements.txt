@@ -10,6 +10,8 @@ matplotlib
 # jupyter notebook
 ipykernel
 nbconvert
+trame
+ipywidgets
 
 # sphinx packages
 sphinx_copybutton
