@@ -106,6 +106,22 @@ class Obj3d(object):
             sub_mesh = self.mesh.subdivide(sub_time, 'loop')
             return np.array(sub_mesh.points)
         
+    def get_sample_kps(self, sample_num: int) -> kps.Kps:
+        """Get sampled key points object (:class:`mesh4d.kps.Kps`) from :attr:`self.mesh`.
+
+        Parameters
+        ---
+        sample_num
+            the number of the points sampled from the mesh.
+        """
+        full_kps = kps.Kps()
+        points = self.get_sample_points(sample_num)
+
+        for idx in range(len(points)):
+            full_kps.add_point("point {}".format(idx), points[idx])
+
+        return full_kps
+        
     def get_width(self) -> float:
         """Return the lateral width of the mesh
         """
@@ -133,6 +149,7 @@ class Obj3d(object):
         scene.camera_position = 'xy'
         scene.show()
 
+    @staticmethod
     def show_diff(obj1: Type[Obj3d], obj2: Type[Obj3d], cmap: str = "cool", op2: float = 0.2):
         """Illustrate the difference of two 3D object:
 
@@ -161,6 +178,54 @@ class Obj3d(object):
         obj1.add_mesh_to_scene(scene, show_edges=False, cmap=cmap)
         obj2.add_mesh_to_scene(scene, show_edges=False, opacity=op2)
 
+        scene.camera_position = 'xy'
+        scene.show()
+
+    def show_with_value_mask(self, points: Iterable, values: Iterable, k_nbr: int = 20, max_threshold: Union[float, None] = None, min_threshold: Union[float, None] = None):
+        """Show the 3D mesh with a value mask.
+
+        Parameters
+        ----------
+        points : Iterable
+            An iterable containing the points to use for assigning values to the mesh vertices.
+        values : Iterable
+            An iterable containing the values to assign to the mesh vertices based on their nearest point in `points`.
+        k_nbr : int, optional
+            The number of nearest neighbors to consider when assigning values to the mesh vertices. Default is 20.
+        max_threshold : float or None, optional
+            The maximum value to include in the mask. Any values greater than this threshold will be replaced with the threshold value. Default is None.
+        min_threshold : float or None, optional
+            The minimum value to include in the mask. Any values less than this threshold will be replaced with the threshold value. Default is None.
+        """
+        mesh = copy.deepcopy(self.mesh)
+
+        # assign each vertex with a value based on its nearest point in points  
+        tree = KDTree(points)
+        _, idxs = tree.query(mesh.points, k=k_nbr)
+        value_mask = np.take(values, idxs)
+        value_mask = np.mean(value_mask, axis=1)
+
+        # filter out the values out of the threshold
+        if mesh4d.output_msg:
+            print("original value range: {} - {}".format(np.min(value_mask), np.max(value_mask)))
+
+        for idx in range(len(value_mask)):
+            if min_threshold is not None:
+                if value_mask[idx] < min_threshold:
+                    value_mask[idx] = min_threshold
+
+            if max_threshold is not None:
+                if value_mask[idx] > max_threshold:
+                    value_mask[idx] = max_threshold
+
+        if mesh4d.output_msg:
+            print("after thresholding: {} - {}".format(np.min(value_mask), np.max(value_mask)))
+
+        # plot the mesh mask with the values
+        mesh["distances"] = value_mask
+
+        scene = pv.Plotter()
+        scene.add_mesh(mesh)
         scene.camera_position = 'xy'
         scene.show()
 

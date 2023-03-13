@@ -396,6 +396,22 @@ class Marker(object):
 
         return coord_interp
 
+    def cal_trace(self):
+        """tbf"""
+        coord_0_to_e1 = self.coord[:, :-1]
+        coord_1_to_e0 = self.coord[:, 1:]
+
+        disp = coord_1_to_e0 - coord_0_to_e1
+        dist = np.linalg.norm(disp, axis=0)
+        trace = np.sum(dist)
+
+        self.trace_dict = {}
+        self.trace_dict['disp'] = disp
+        self.trace_dict['dist'] = dist
+        self.trace_dict['trace'] = trace
+
+        return trace
+
     def reslice(self, fps_new: int = 120):
         """Return the marker object re-slicing to another frame rate. Noted that the original object won't be altered.
         
@@ -787,6 +803,16 @@ class MarkerSet(object):
             kps.add_point(name, coord)
 
         return kps
+    
+    def cal_trace(self):
+        """tbf"""
+        self.trace_dict = {}
+
+        for name, marker in self.markers.items():
+            trace = marker.cal_trace()
+            self.trace_dict[name] = trace
+
+        return self.trace_dict
     
     def extract(self, marker_names: Iterable[str]) -> MarkerSet:
         """Return the assembled marker set with extracted markers. Noted that the original marker set won't be altered.
