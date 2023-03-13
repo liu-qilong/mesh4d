@@ -98,7 +98,8 @@ class Obj3d(object):
 
         if sample_num < vertices_num:
             dec_ratio = 1 - sample_num / vertices_num
-            dec_mesh = self.mesh.decimate_pro(dec_ratio)
+            # dec_mesh = self.mesh.decimate_pro(dec_ratio)
+            dec_mesh = self.mesh.decimate(dec_ratio)
             return np.array(dec_mesh.points)
         
         else:

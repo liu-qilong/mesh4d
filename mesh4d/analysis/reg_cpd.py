@@ -14,7 +14,11 @@ from mesh4d import obj3d, obj4d, field
 
 class Obj3d_CPD(obj3d.Obj3d_Deform):
     """Derived from :class:`mesh4d.obj3d.Obj3d_Deform` and replace the displacement field estimation as Coherent Point Drift (CPD) based approach.
-    
+
+    Attention
+    ---
+    No alternation to the source class.
+
     Parameters
     ---
     filedir
@@ -24,33 +28,12 @@ class Obj3d_CPD(obj3d.Obj3d_Deform):
         - :code:`load` the default mode is load from a file.
         - :code:`empty` create a 3D object without any 3D data.
     """
-    def __init__(
-        self,
-        filedir: str = '',
-        mode: str = "load"
-    ):
-        if mode == "load":
-            # revise Obj3d __init__()
-            self.mesh = obj3d.pvmesh_fix_disconnect(pv.read(filedir))
-            self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
-
-            # follows Obj3d_Kps, Obj3d_Deform __init__()
-            self.kps_group = {}
-            self.trans_rigid = None
-            self.trans_nonrigid = None
-        
-        elif mode == "empty":
-            self.mesh = None
-            self.texture = None
-
-            self.kps_group = {}
-            self.trans_rigid = None
-            self.trans_nonrigid = None
+    pass
 
 class Trans_Nonrigid_CPD(field.Trans_Nonrigid):
     """Derived from :class:`mesh4d.field.Trans_Nonrigid` and replace the displacement field estimation as Coherent Point Drift (CPD) based approach.
     """
-    def regist(self, sample_num: int = 3000, tf_type_name: str = 'nonrigid', **kwargs):
+    def regist(self, sample_num: int = 3000, **kwargs):
         """The registration method.
 
         Parameters
@@ -61,8 +44,6 @@ class Trans_Nonrigid_CPD(field.Trans_Nonrigid):
             Attention
             ---
             Since the Coherent Point Drift (CPD) is not very efficient, the number of the sampling points used to estimate the displacement field should relatively small. The default value is :code:`3000`.
-        tf_type_name
-            transformation type: :code:`('rigid', 'affine', 'nonrigid', 'nonrigid_constrained')`
         **kwargs
             Configurations parameters of the registration.
             
@@ -76,7 +57,7 @@ class Trans_Nonrigid_CPD(field.Trans_Nonrigid):
         tf_param, _, _ = cpd.registration_cpd(
             source=source_pcd, 
             target=target_pcd, 
-            tf_type_name=tf_type_name,
+            tf_type_name='nonrigid',
             **kwargs
             )
         

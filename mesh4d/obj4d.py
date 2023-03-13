@@ -519,7 +519,7 @@ class Obj4d_Deform(Obj4d_Kps):
             the frame number to which the key points object attach.
         name
             name of the virtual key points as its keyword when attached to a 3D object.
-         k_nbr
+        k_nbr
             see :meth:`mesh4d.filed.Trans_Nonrigid.shift_points`.
         """
         self.obj_ls[frame_id].attach_kps(name, kps)
