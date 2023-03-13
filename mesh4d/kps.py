@@ -330,12 +330,20 @@ class Marker(object):
         """
         return (self.get_frame_num() - 1) / self.fps
 
-    def interp_field(self):
+    def interp_field(self, kind: str = 'quadratic'):
         """Interpolating the :math:`x, y, z` coordinates data to estimate its continues change. After that, the coordinates at the intermediate time between frames is accessible.
 
         Warnings
         ---
         Before interpolation, the coordinates data, i.e. :attr:`self.coord`, must be properly loaded.
+
+        Parameters
+        ---
+        kind
+            kind of interpolation.
+
+            .. seealso::
+                `scipy.interpolate.interp1d <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html>`_
         """
         if self.coord is None:
             if mesh4d.output_msg:
@@ -345,9 +353,9 @@ class Marker(object):
 
         frame_range = range(len(self.coord[0]))
 
-        self.x_field = interpolate.interp1d(frame_range, self.coord[0], 'slinear')
-        self.y_field = interpolate.interp1d(frame_range, self.coord[1], 'slinear')
-        self.z_field = interpolate.interp1d(frame_range, self.coord[2], 'slinear')
+        self.x_field = interpolate.interp1d(frame_range, self.coord[0], kind=kind)
+        self.y_field = interpolate.interp1d(frame_range, self.coord[1], kind=kind)
+        self.z_field = interpolate.interp1d(frame_range, self.coord[2], kind=kind)
 
     def get_frame_coord(self, frame_id: int) -> np.array:
         """Get coordinates data according to frame id.
@@ -396,8 +404,17 @@ class Marker(object):
 
         return coord_interp
 
-    def cal_trace(self):
-        """tbf"""
+    def get_trace_length(self) -> dict:
+        """Get the trace length information.
+        
+        Return
+        ---
+        A dictionary contains:
+
+        - :code:`'disp'`: a list of displacement vectors of each frame.
+        - :code:`'dist'`: a list of displacement distance of each frame.
+        - :code:`'trace'`: the sum of trace length.
+        """
         coord_0_to_e1 = self.coord[:, :-1]
         coord_1_to_e0 = self.coord[:, 1:]
 
@@ -405,16 +422,20 @@ class Marker(object):
         dist = np.linalg.norm(disp, axis=0)
         trace = np.sum(dist)
 
-        self.trace_dict = {}
-        self.trace_dict['disp'] = disp
-        self.trace_dict['dist'] = dist
-        self.trace_dict['trace'] = trace
+        trace_dict = {}
+        trace_dict['disp'] = disp
+        trace_dict['dist'] = dist
+        trace_dict['trace'] = trace
 
-        return trace
+        return trace_dict
 
     def reslice(self, fps_new: int = 120):
         """Return the marker object re-slicing to another frame rate. Noted that the original object won't be altered.
         
+        Attention
+        ---
+        The new marker set object haven't undergo :meth:`interp_field`.
+
         Parameters
         ---
         fps_new
@@ -746,11 +767,16 @@ class MarkerSet(object):
         if mesh4d.output_msg:
             print("loaded 1 vicon file: {}".format(filedir))
 
-    def interp_field(self):
+    def interp_field(self, **kwargs):
         """After loading Vicon motion capture data, the :class:`MarkerSet` object only carries the key points' coordinates in discrete frames. To access the coordinates at any specific time, it's necessary to call :meth:`interp_field`.
+
+        Parameters
+        ---
+        **kwargs
+            arguments to be passed to :meth:`Marker.interp_field`.
         """
         for point in self.markers.values():
-            point.interp_field()
+            point.interp_field(**kwargs)
 
     def get_frame_coord(self, frame_id: int, kps_class: Type[Kps] = Kps) -> Type[Kps]:
         """Get coordinates data according to frame id and packed as a :class:`Kps` object.
@@ -804,15 +830,31 @@ class MarkerSet(object):
 
         return kps
     
-    def cal_trace(self):
-        """tbf"""
-        self.trace_dict = {}
+    def get_trace_length(self) -> tuple:
+        """Get the trace length information.
+        
+        Return
+        ---
+        dict
+            a dictionary of the trace dictionary of each marker. See :meth:`Marker.get_trace_length`.
+        list
+            a list of the start points of each marker.
+        list
+            a list of whole period trace length of each marker.
+        """
+        trace_dict = {}
 
         for name, marker in self.markers.items():
-            trace = marker.cal_trace()
-            self.trace_dict[name] = trace
+            trace_dict[name] = marker.get_trace_length()
 
-        return self.trace_dict
+        starts = []
+        traces = []
+
+        for name in self.markers.keys():
+            starts.append(self.markers[name].get_frame_coord(0))
+            traces.append(trace_dict[name]['trace'])
+
+        return trace_dict, starts, traces
     
     def extract(self, marker_names: Iterable[str]) -> MarkerSet:
         """Return the assembled marker set with extracted markers. Noted that the original marker set won't be altered.
@@ -906,6 +948,24 @@ class MarkerSet(object):
 
         return overall_diff_dict
 
+    def reslice(self, fps_new: int):
+        """Return the marker set object re-slicing to another frame rate. Noted that the original object won't be altered.
+
+        Attention
+        ---
+        The new marker set object haven't undergo :meth:`interp_field`.
+        
+        Parameters
+        ---
+        fps_new
+            the new frame rate (frames per second)"""
+        markerset = MarkerSet()
+
+        for name in self.markers.keys():
+            markerset.markers[name] = self.markers[name].reslice(fps_new)
+
+        return markerset
+
     @staticmethod
     def concatenate(markerset1: Type[Marker], markerset2: Type[Marker]) -> Marker:
         """Concatenate two marker set object.
@@ -923,10 +983,10 @@ class MarkerSet(object):
         """
         markerset = MarkerSet()
 
-        for marker_name in markerset1.markers.keys():
-            markerset.markers[marker_name] = Marker.concatenate(
-                markerset1.markers[marker_name],
-                markerset2.markers[marker_name],
+        for name in markerset1.markers.keys():
+            markerset.markers[name] = Marker.concatenate(
+                markerset1.markers[name],
+                markerset2.markers[name],
             )
 
         return markerset
