@@ -44,7 +44,7 @@ class Trans(object):
         self.source = source_obj
         self.target = target_obj
 
-    def shift_points(self, points: np.array) -> np.array:
+    def shift_points(self, points: np.array, **kwargs) -> np.array:
         """Implement the transformation to set of points.
 
         Parameters
@@ -63,13 +63,15 @@ class Trans(object):
         """
         return points
 
-    def shift_kps(self, kps: Type[kps.Kps]) -> Type[kps.Kps]:
+    def shift_kps(self, kps: Type[kps.Kps], **kwargs) -> Type[kps.Kps]:
         """Implement the transformation to the key points object.
 
         Parameters
         ---
         kps
             :class:`~mesh4d.kps.Kps` key points object.
+        **kwargs
+            arguments for :meth:`shift_points`.
 
         Returns
         ---
@@ -79,25 +81,27 @@ class Trans(object):
         
         for name, coord in kps.points.items():
             point = np.array((coord, ))
-            coord_deform = self.shift_points(point)
+            coord_deform = self.shift_points(point, **kwargs)
             deform_kps.add_point(name, coord_deform[0])
         
         return deform_kps
 
-    def shift_mesh(self, mesh: pv.core.pointset.PolyData) -> pv.core.pointset.PolyData:
+    def shift_mesh(self, mesh: pv.core.pointset.PolyData, **kwargs) -> pv.core.pointset.PolyData:
         """Implement the transformation to the mesh object.
 
         Parameters
         ---
         kps
             the mesh object.
+        **kwargs
+            arguments for :meth:`shift_points`.
 
         Returns
         ---
         the deformed mesh object.
         """
         mesh_deform = copy.deepcopy(mesh)
-        mesh_deform.points = self.shift_points(mesh_deform.points)
+        mesh_deform.points = self.shift_points(mesh_deform.points, **kwargs)
         return mesh_deform
 
     def show(self):
@@ -360,20 +364,26 @@ class Trans_Nonrigid(Trans):
         trans.regist()
         print(trans.deform_points, trans.disp)
     """
-    def regist(self, **kwargs):
+    def regist(self, k_nbr: int = 10, **kwargs):
         """Align every point from the source object to the nearest point in the target object and use it a this point's displacement.
         """
         self.source_points = self.source.get_vertices()
         target_points = self.target.get_vertices()
 
         tree = KDTree(target_points)
-        _, idx = tree.query(self.source_points)
-        self.deform_points = target_points[idx]
+        _, idx = tree.query(self.source_points, k=k_nbr)
+
+        if k_nbr == 1:
+            self.deform_points = target_points[idx]
+
+        else:
+            deform_points = np.take(target_points, idx, axis=0)
+            self.deform_points = np.mean(deform_points, axis=1)
 
         self.disp = self.deform_points - self.source_points
         self.search_tree = KDTree(self.source_points)
 
-    def shift_points(self, points: np.array) -> np.array:
+    def shift_points(self, points: np.array, k_nbr: int = 10) -> np.array:
         """Implement the transformation to set of points.
 
         To apply proper transformation to an arbitrary point :math:`\\boldsymbol x`:
@@ -389,14 +399,23 @@ class Trans_Nonrigid(Trans):
         ---
         points
             :math:`N` points in 3D space that we want to implement the transformation on. Stored in a (N, 3) :class:`numpy.array`.
+        k_nbr
+            the number of nearest neighbors to be involved to calculate the average movement as the movement of the input points
 
         Return
         ---
         :class:`numpy.array`
             (N, 3) :class:`numpy.array` stores the points after transformation.
         """
-        _, idx = self.search_tree.query(points)
-        return self.deform_points[idx]
+        _, idx = self.search_tree.query(points, k=k_nbr)
+
+        if k_nbr == 1:
+            return self.deform_points[idx]
+        
+        else:
+            deform_points = np.take(self.deform_points, idx, axis=0)
+            deform_points = np.mean(deform_points, axis=1)
+            return deform_points
 
     def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
         """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.

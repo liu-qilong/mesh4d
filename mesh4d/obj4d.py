@@ -496,7 +496,7 @@ class Obj4d_Deform(Obj4d_Kps):
         if mesh4d.output_msg:
             print("4d object reorientated")
 
-    def vkps_track(self, kps: Type[kps.Kps], frame_id: int = 0, name: str = 'vkps'):
+    def vkps_track(self, kps: Type[kps.Kps], frame_id: int = 0, name: str = 'vkps', k_nbr: int = 10):
         """Virtual key points tracking.
 
         - Firstly, attach a set of key points (:class:`~mesh4d.kps.Kps`) to a frame of 3D object.
@@ -519,6 +519,8 @@ class Obj4d_Deform(Obj4d_Kps):
             the frame number to which the key points object attach.
         name
             name of the virtual key points as its keyword when attached to a 3D object.
+         k_nbr
+            see :meth:`mesh4d.filed.Trans_Nonrigid.shift_points`.
         """
         self.obj_ls[frame_id].attach_kps(name, kps)
 
@@ -526,7 +528,7 @@ class Obj4d_Deform(Obj4d_Kps):
         for idx in range(frame_id + 1, len(self.obj_ls)):
             previous_obj = self.obj_ls[idx - 1]
             previous_kps = previous_obj.kps_group[name]
-            current_kps = previous_obj.trans_nonrigid.shift_kps(previous_kps)
+            current_kps = previous_obj.trans_nonrigid.shift_kps(previous_kps, k_nbr=k_nbr)
 
             current_obj = self.obj_ls[idx]
             current_obj.attach_kps(name, current_kps)
