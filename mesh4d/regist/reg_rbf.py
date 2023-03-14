@@ -8,17 +8,17 @@ from scipy.interpolate import RBFInterpolator
 
 import mesh4d
 import mesh4d.config.param
-from mesh4d import kps, obj3d, obj4d, field, utils
+from mesh4d import obj4d, field, utils
 
 class Trans_Nonrigid_RBF(field.Trans_Nonrigid):
-    def regist(self, landmark_name, k_nbr: int = 10, **kwargs):
+    def regist(self, landmark_name: str, k_nbr: int = 1, **kwargs):
         landmarks_source = self.source.kps_group[landmark_name].get_points_coord()
         landmarks_target = self.target.kps_group[landmark_name].get_points_coord()
 
         field = RBFInterpolator(landmarks_source, landmarks_target)
         self.parse(field, k_nbr)
 
-    def parse(self, field, k_nbr: int = 10):
+    def parse(self, field, k_nbr: int = 1):
         self.source_points = self.source.get_vertices()
         shift_points = field(self.source_points)
 
@@ -38,7 +38,7 @@ class Trans_Nonrigid_RBF(field.Trans_Nonrigid):
         
 
 class Obj4d_RBF(obj4d.Obj4d_Deform):
-    def regist(self, landmark_name: kps.MarkerSet, **kwargs):
+    def regist(self, landmark_name: str, **kwargs):
         """Implement registration among 3D objects in :attr:`self.obj_ls`.
 
         Parameters
@@ -60,7 +60,7 @@ class Obj4d_RBF(obj4d.Obj4d_Deform):
                 continue
 
             if self.enable_rigid:
-                self.process_rigid_dynamic(idx - 1, idx, landmark_name, **kwargs)  # aligned to the previous one
+                self.process_rigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the previous one
 
             if self.enable_nonrigid:
                 self.process_nonrigid_dynamic(idx - 1, idx, landmark_name, **kwargs)  # aligned to the later one

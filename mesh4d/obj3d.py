@@ -65,16 +65,12 @@ class Obj3d(object):
     """
     def __init__(
         self,
-        filedir: str = '',
-        mode: str = "load"
+        mesh: Union[None, pv.core.pointset.PolyData] = None,
+        texture: Union[None, pv.core.objects.Texture] = None,
+        **kwargs,
     ):
-        if mode == "load":
-            self.mesh = pv.read(filedir)
-            self.texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
-
-        elif mode == "empty":
-            self.mesh = None
-            self.texture = None
+        self.mesh = mesh
+        self.texture = texture
 
     def get_vertices(self) -> np.array:
         """Get the vertices of :attr:`self.mesh`.
@@ -103,9 +99,17 @@ class Obj3d(object):
             return np.array(dec_mesh.points)
         
         else:
-            sub_time = math.ceil(np.log2(sample_num / vertices_num))
-            sub_mesh = self.mesh.subdivide(sub_time, 'loop')
-            return np.array(sub_mesh.points)
+            try:
+                sub_time = math.ceil(np.log2(sample_num / vertices_num))
+                sub_mesh = self.mesh.subdivide(sub_time, 'loop')
+
+                dec_ratio = 1 - sample_num / len(sub_mesh.points)
+                dec_mesh = self.mesh.decimate(dec_ratio)
+                return np.array(dec_mesh.points)
+            
+            except:
+                print("fail to provide denser sampling points. original vertices will be provided")
+                return self.get_vertices()
         
     def get_sample_kps(self, sample_num: int) -> kps.Kps:
         """Get sampled key points object (:class:`mesh4d.kps.Kps`) from :attr:`self.mesh`.
@@ -520,47 +524,13 @@ def np2pcd(points: np.array) -> o3d.cpu.pybind.geometry.PointCloud:
     return pcd
 
 
-# utils for object cropping and other operations
-
-def pvmesh_fix_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.PolyData():
-    """Fix disconnection problem in :mod:`pyvista` mesh.
-
-    - Split the mesh into variously connected meshes.
-    - Return the connected mesh with biggest point number.
-
-    Parameters
-    ---
-    mesh
-        :mod:`pyvista` mesh.
-
-    Returns
-    ---
-    :mod:`pyvista`
-        the fully connected mesh.
-    """
-    # split the mesh into different bodies according to the connectivity
-    clean = mesh.clean()
-    bodies = clean.split_bodies()
-
-    # get the index of body with maximum number of points 
-    point_nums = [len(body.points) for body in bodies]
-    max_index = point_nums.index(max(point_nums))
-
-    # return the body with maximum number of points 
-    return bodies[max_index].extract_surface()
-
-
-# utils for 3D objects loading
-
-def load_obj_series(
+def load_mesh_series(
         folder: str,
         start: int = 0,
         end: int = 1,
         stride: int = 1,
-        obj_type: Type[Obj3d] = Obj3d,
-        **kwargs
-    ) -> Iterable[Type[Obj3d]]:
-    """ Load a series of point cloud obj files from a folder.
+    ) -> tuple:
+    """ Load a series of obj files from a folder.
     
     Parameters
     ---
@@ -581,6 +551,47 @@ def load_obj_series(
         Index begins from 0. The :code:`end`-th image is included in the loaded images.
     stride
         the stride of loading. For example, setting :code:`stride=5` means load one from every five 3D images.
+
+    Return
+    ---
+    Iterable[pv.core.pointset.PolyData]
+        A list of :mod:`pyvista` mesh.
+    Iterable[pv.core.objects.Texture]
+        A list of :mod:`pyvista` texture.
+    """
+    files = os.listdir(folder)
+    files = [os.path.join(folder, f) for f in files if '.obj' in f]
+    files.sort()
+
+    mesh_ls = []
+    texture_ls = []
+
+    for n in range(start, end + 1, stride):
+        filedir = files[n]
+        mesh_ls.append(pv.read(filedir))
+        texture_ls.append(pv.read_texture(filedir.replace('.obj', '.jpg')))
+        
+        if mesh4d.output_msg:
+            percent = (n + 1) / (end - start + 1)
+            utils.progress_bar(percent, back_str=" loading: {}".format(filedir))
+
+    return mesh_ls, texture_ls
+
+
+def init_obj_series(
+        mesh_ls: Iterable[pv.core.pointset.PolyData],
+        texture_ls: Union[Iterable[pv.core.objects.Texture], None] = None,
+        obj_type: Type[Obj3d] = Obj3d,
+        **kwargs,
+    ) -> Iterable[Type[Obj3d]]:
+    """ Load a series of mesh files from a folder and initialise them as 3D objects.
+    
+    Parameters
+    ---
+    mesh_ls
+        a list of :mod:`pyvista` mesh.
+    texture_ls
+        a list of :mod:`pyvista` texture or :code:`None`.
     obj_type
         The 3D object class. Any class derived from :class:`Obj3d` is accepted.
     **kwargs
@@ -589,35 +600,20 @@ def load_obj_series(
     Return
     ---
     Iterable[Type[Obj3d]]
-        A list of 3D object.
-
-    Example
-    ---
-    The :func:`load_obj_series` is usually used for getting a list of 3D object and then loading to the 4D object: ::
-
-        from mesh4d import obj3d, obj4d
-
-        o3_ls = obj3d.load_obj_series(
-            folder='data/6kmh_softbra_8markers_1/',
-            start=0,
-            end=1,
-            sample_num=1000,
-        )
-
-        o4 = obj4d.Obj4d()
-        o4.add_obj(*o3_ls)
+        a list of 3D object.
     """
-    files = os.listdir(folder)
-    files = [os.path.join(folder, f) for f in files if '.obj' in f]
-    files.sort()
-
     o3_ls = []
-    for n in range(start, end + 1, stride):
-        filedir = files[n]
-        o3_ls.append(obj_type(filedir=filedir, **kwargs))
-        
-        if mesh4d.output_msg:
-            percent = (n + 1) / (end - start + 1)
-            utils.progress_bar(percent, back_str=" loading: {}".format(filedir))
+
+    for idx in range(len(mesh_ls)):
+        mesh = mesh_ls[idx]
+
+        if texture_ls is not None:
+            texture = texture_ls[idx]
+        else:
+            texture = None
+            
+        o3_ls.append(
+            obj_type(mesh=mesh, texture=texture, **kwargs)
+            )
 
     return o3_ls

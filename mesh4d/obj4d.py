@@ -440,7 +440,7 @@ class Obj4d_Deform(Obj4d_Kps):
         if mesh4d.output_msg:
             print("4d object reorientated")
 
-    def vkps_track(self, kps: Type[kps.Kps], frame_id: int = 0, name: str = 'vkps', k_nbr: int = 10):
+    def vkps_track(self, kps: Type[kps.Kps], frame_id: int = 0, name: str = 'vkps', k_nbr: int = 1):
         """Virtual key points tracking.
 
         - Firstly, attach a set of key points (:class:`~mesh4d.kps.Kps`) to a frame of 3D object.

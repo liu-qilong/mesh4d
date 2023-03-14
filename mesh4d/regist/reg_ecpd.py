@@ -10,12 +10,12 @@ from scipy.spatial import KDTree
 
 import mesh4d
 import mesh4d.config.param
-from mesh4d import obj3d, obj4d, field, kps, utils
+from mesh4d import obj3d, obj4d, field, utils
 
 class Trans_Nonrigid_ECPD(field.Trans_Nonrigid):
     """Derived from :class:`mesh4d.field.Trans_Nonrigid` and replace the displacement field estimation as Coherent Point Drift (CPD) based approach.
     """
-    def regist(self, sample_num: int = 3000, **kwargs):
+    def regist(self, landmark_name: str, sample_num = 3000, **kwargs):
         """The registration method.
 
         Parameters
@@ -26,6 +26,8 @@ class Trans_Nonrigid_ECPD(field.Trans_Nonrigid):
             Attention
             ---
             Since the Coherent Point Drift (CPD) is not very efficient, the number of the sampling points used to estimate the displacement field should relatively small. The default value is :code:`3000`.
+
+            tbf
         **kwargs
             Configurations parameters of the registration.
             
@@ -38,14 +40,16 @@ class Trans_Nonrigid_ECPD(field.Trans_Nonrigid):
         target_points = self.target.get_sample_points(sample_num)
 
         # get source & target point clouds
-        def get_landmarks_idx(mesh_points, landmarks_kps):
+        def get_landmarks_idx(mesh_points, landmarks_points):
             tree = KDTree(mesh_points)
-            landmarks_points = landmarks_kps.get_points_coord()
             _, idx = tree.query(landmarks_points)
             return idx
 
-        idx_source = get_landmarks_idx(source_points, self.source.control_landmarks)
-        idx_target = get_landmarks_idx(source_points, self.target.control_landmarks)
+        landmarks_source = self.source.kps_group[landmark_name].get_points_coord()
+        landmarks_target = self.target.kps_group[landmark_name].get_points_coord()
+
+        idx_source = get_landmarks_idx(source_points, landmarks_source)
+        idx_target = get_landmarks_idx(target_points, landmarks_target)
 
         # get source & target point clouds
         source_pcd = obj3d.np2pcd(source_points)
@@ -100,7 +104,7 @@ class Obj4d_ECPD(obj4d.Obj4d_Deform):
         obj4d.Obj4d_Deform.__init__(self, **kwargs)
         self.regist_points_num = regist_points_num
 
-    def regist(self, landmarks: kps.MarkerSet, **kwargs):
+    def regist(self, landmark_name: str, **kwargs):
         """Implement registration among 3D objects in :attr:`self.obj_ls`.
 
         Parameters
@@ -114,12 +118,6 @@ class Obj4d_ECPD(obj4d.Obj4d_Deform):
         reg_num = len(self.obj_ls)
         
         for idx in range(reg_num):
-            # attach control landmarks
-            time = self.start_time + idx / self.fps
-            kps = landmarks.get_time_coord(time)
-            self.obj_ls[idx].attach_control_landmarks(kps)
-
-            # follows Obj3d_Kps, Obj4d_Deform add_obj()
             if idx == 0:
                 self.process_first_obj()
                 continue
@@ -128,17 +126,17 @@ class Obj4d_ECPD(obj4d.Obj4d_Deform):
                 self.process_rigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the previous one
 
             if self.enable_nonrigid:
-                self.process_nonrigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the later one
+                self.process_nonrigid_dynamic(idx - 1, idx, landmark_name, **kwargs)  # aligned to the later one
             
             if mesh4d.output_msg:
                 percent = (idx + 1) / reg_num
                 utils.progress_bar(percent, back_str=" registered the {}-th frame".format(idx))
 
 
-    def process_nonrigid_dynamic(self, idx_source: int, idx_target: int, **kwargs):
+    def process_nonrigid_dynamic(self, idx_source: int, idx_target: int, landmark_name: str, **kwargs):
         trans = Trans_Nonrigid_ECPD(
             source_obj=self.obj_ls[idx_source],
             target_obj=self.obj_ls[idx_target],
         )
-        trans.regist(sample_num=self.regist_points_num, **kwargs)
+        trans.regist(landmark_name, sample_num=self.regist_points_num, **kwargs)
         self.obj_ls[idx_source].set_trans_nonrigid(trans)

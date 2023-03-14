@@ -7,7 +7,8 @@ import pyvista as pv
 
 import mesh4d
 import mesh4d.config.param
-from mesh4d import kps, utils
+from mesh4d import kps, utils, obj4d
+from mesh4d.analyse import measure
 
 def obj_pick_points(filedir: str, use_texture: bool = False, is_save: bool = False, save_folder: str = 'output/', save_name: str = 'points') -> np.array:
     """Manually pick points from 3D mesh loaded from a :code:`.obj` file. The picked points are stored in a (N, 3) :class:`numpy.array` and saved as :code:`.npy` :mod:`numpy` binary file.
@@ -192,3 +193,66 @@ def landmarks_labelling(
     # save landmarks object
     if is_save:
         utils.save_pkl_object(landmarks, export_folder, "{}.pkl".format(export_name))
+
+
+def fix_pvmesh_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.PolyData():
+    """Fix disconnection problem in :mod:`pyvista` mesh.
+
+    - Split the mesh into variously connected meshes.
+    - Return the connected mesh with biggest point number.
+
+    Parameters
+    ---
+    mesh
+        :mod:`pyvista` mesh.
+
+    Returns
+    ---
+    :mod:`pyvista`
+        the fully connected mesh.
+    """
+    # split the mesh into different bodies according to the connectivity
+    clean = mesh.clean()
+    bodies = clean.split_bodies()
+
+    # get the index of body with maximum number of points 
+    point_nums = [len(body.points) for body in bodies]
+    max_index = point_nums.index(max(point_nums))
+
+    # return the body with maximum number of points 
+    return bodies[max_index].extract_surface()
+
+
+def clip_with_contour(mesh_ls: Type[obj4d.Obj4d], start_time: float, fps: float, contour: Type[kps.MarkerSet], margin: float = 0, invert: bool = False, clip_bound: str = '') -> Iterable[pv.core.pointset.PolyData]:
+    """tbf"""
+    mesh_clip_ls = []
+
+    for idx in range(len(mesh_ls)):
+        mesh = mesh_ls[idx]
+
+        # estimate contour plane
+        time = start_time + idx / fps
+        contour_points = contour.get_time_coord(time).get_points_coord()
+        norm, center = measure.estimate_plane_from_points(contour_points)
+
+        # clip the mesh with contour plane
+        mesh_clip = mesh.clip(
+            norm, 
+            origin=center - margin * norm,
+            invert=invert,
+            )
+        
+        # estimate contour bound
+        max_bound = measure.points_get_max_bound(contour_points)
+        min_bound = measure.points_get_min_bound(contour_points)
+
+        for bound_symbol in clip_bound:
+            mesh_clip = mesh_clip.clip(bound_symbol, origin=max_bound, invert=True)
+            mesh_clip = mesh_clip.clip(bound_symbol, origin=min_bound, invert=False)
+
+        # remove disconnected parts
+        mesh_clip = fix_pvmesh_disconnect(mesh_clip)
+
+        mesh_clip_ls.append(mesh_clip)
+
+    return mesh_clip_ls
