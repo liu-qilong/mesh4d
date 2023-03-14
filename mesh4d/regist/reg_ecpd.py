@@ -12,32 +12,6 @@ import mesh4d
 import mesh4d.config.param
 from mesh4d import obj3d, obj4d, field, kps, utils
 
-class Obj3d_ECPD(obj3d.Obj3d_Deform):
-    """Derived from :class:`mesh4d.obj3d.Obj3d_Deform` and replace the displacement field estimation as Extended Coherent Point Drift (ECPD) based approach.
-    
-    Parameters
-    ---
-    filedir
-        the direction of the 3D object.
-    mode
-        
-        - :code:`load` the default mode is load from a file.
-        - :code:`empty` create a 3D object without any 3D data.
-    """
-    def attach_control_landmarks(self, kps: Type[kps.Kps]):
-        """Attach controlling landmarks to the 3D object.
-
-        Attention
-        ---
-        This step must be completed before it's added to a 4D object, since the controlling landmarks will be used to construct the RBF motion model in the adding procedure.
-
-        Parameters
-        ---
-        kps
-            controlling landmarks of this frame.
-        """
-        self.control_landmarks = kps
-
 class Trans_Nonrigid_ECPD(field.Trans_Nonrigid):
     """Derived from :class:`mesh4d.field.Trans_Nonrigid` and replace the displacement field estimation as Coherent Point Drift (CPD) based approach.
     """
@@ -126,31 +100,20 @@ class Obj4d_ECPD(obj4d.Obj4d_Deform):
         obj4d.Obj4d_Deform.__init__(self, **kwargs)
         self.regist_points_num = regist_points_num
 
-    def add_obj(self, *objs: Iterable[Type[obj3d.Obj3d_Deform]], landmarks: kps.MarkerSet, **kwargs):
-        """Add object(s) and attach key points (:class:`mesh4d.kps.Kps`) to each of the 3D object via Vicon motion capture data (:attr:`markerset`). And then implement the activated transformation estimation.
+    def regist(self, landmarks: kps.MarkerSet, **kwargs):
+        """Implement registration among 3D objects in :attr:`self.obj_ls`.
 
         Parameters
         ---
-        *objs
-            unspecified number of 3D objects.
-
-            .. warning::
-            
-                The 3D objects' class must derived from :class:`mesh4d.obj3d.Obj3d_Deform`.
-
-            .. seealso::
-
-                About the :code:`*` symbol and its effect, please refer to `*args and **kwargs - Python Tips <https://book.pythontips.com/en/latest/args_and_kwargs.html>`_
+        landmarks
+            the control landmarks to guide the registration.
         
         **kwargs
             configuration parameters for the registration and the configuration parameters of the base classes (:class:`Obj3d` and :class:`Obj3d_Kps`)'s :meth:`add_obj` method can be passed in via :code:`**kwargs`.
-        """
-        # follows Obj3d_Kps, Obj4d_Deform add_obj()
-        reg_start_index = len(self.obj_ls)
-        obj4d.Obj4d_Kps.add_obj(self, *objs, **kwargs)
-        reg_end_index = len(self.obj_ls) - 1
+        """        
+        reg_num = len(self.obj_ls)
         
-        for idx in range(reg_start_index, reg_end_index + 1):
+        for idx in range(reg_num):
             # attach control landmarks
             time = self.start_time + idx / self.fps
             kps = landmarks.get_time_coord(time)
@@ -168,8 +131,9 @@ class Obj4d_ECPD(obj4d.Obj4d_Deform):
                 self.process_nonrigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the later one
             
             if mesh4d.output_msg:
-                percent = (idx - reg_start_index + 1) / (reg_end_index - reg_start_index + 1)
-                utils.progress_bar(percent, back_str=" adding the {}-th 3d object".format(idx))
+                percent = (idx + 1) / reg_num
+                utils.progress_bar(percent, back_str=" registered the {}-th frame".format(idx))
+
 
     def process_nonrigid_dynamic(self, idx_source: int, idx_target: int, **kwargs):
         trans = Trans_Nonrigid_ECPD(

@@ -12,24 +12,6 @@ import mesh4d
 import mesh4d.config.param
 from mesh4d import obj3d, obj4d, field
 
-class Obj3d_CPD(obj3d.Obj3d_Deform):
-    """Derived from :class:`mesh4d.obj3d.Obj3d_Deform` and replace the displacement field estimation as Coherent Point Drift (CPD) based approach.
-
-    Attention
-    ---
-    No alternation to the source class.
-
-    Parameters
-    ---
-    filedir
-        the direction of the 3D object.
-    mode
-        
-        - :code:`load` the default mode is load from a file.
-        - :code:`empty` create a 3D object without any 3D data.
-    """
-    pass
-
 class Trans_Nonrigid_CPD(field.Trans_Nonrigid):
     """Derived from :class:`mesh4d.field.Trans_Nonrigid` and replace the displacement field estimation as Coherent Point Drift (CPD) based approach.
     """

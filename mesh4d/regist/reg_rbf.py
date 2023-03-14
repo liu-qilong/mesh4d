@@ -10,41 +10,11 @@ import mesh4d
 import mesh4d.config.param
 from mesh4d import kps, obj3d, obj4d, field, utils
 
-class Obj3d_RBF(obj3d.Obj3d_Deform):
-    """Derived from :class:`mesh4d.obj3d.Obj3d_Deform` and replace the displacement field estimation as Radial Basis Function (RBF) based approach.
-
-    .. seealso::
-        Getting started with the the principle of RBF model: `Thin Plate Splines Warping - Khanh Ha <https://khanhha.github.io/posts/Thin-Plate-Splines-Warping/>`_
-
-        :mod:`scipy` implementation: `scipy.interpolate.RBFInterpolator <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.RBFInterpolator.html#scipy.interpolate.RBFInterpolator>`_
-    
-    Parameters
-    ---
-    filedir
-        the direction of the 3D object.
-    mode
-        
-        - :code:`load` the default mode is load from a file.
-        - :code:`empty` create a 3D object without any 3D data.
-    """
-    def attach_control_landmarks(self, kps: Type[kps.Kps]):
-        """Attach controlling landmarks to the 3D object.
-
-        Attention
-        ---
-        This step must be completed before it's added to a 4D object, since the controlling landmarks will be used to construct the RBF motion model in the adding procedure.
-
-        Parameters
-        ---
-        kps
-            controlling landmarks of this frame.
-        """
-        self.control_landmarks = kps
-
 class Trans_Nonrigid_RBF(field.Trans_Nonrigid):
-    def regist(self, k_nbr: int = 10, **kwargs):
-        landmarks_source = self.source.control_landmarks.get_points_coord()
-        landmarks_target = self.target.control_landmarks.get_points_coord()
+    def regist(self, landmark_name, k_nbr: int = 10, **kwargs):
+        landmarks_source = self.source.kps_group[landmark_name].get_points_coord()
+        landmarks_target = self.target.kps_group[landmark_name].get_points_coord()
+
         field = RBFInterpolator(landmarks_source, landmarks_target)
         self.parse(field, k_nbr)
 
@@ -68,56 +38,42 @@ class Trans_Nonrigid_RBF(field.Trans_Nonrigid):
         
 
 class Obj4d_RBF(obj4d.Obj4d_Deform):
-    def add_obj(self, *objs: Iterable[Type[obj3d.Obj3d_Deform]], landmarks: kps.MarkerSet, **kwargs):
-        """Add object(s) and attach key points (:class:`mesh4d.kps.Kps`) to each of the 3D object via Vicon motion capture data (:attr:`markerset`). And then implement the activated transformation estimation.
+    def regist(self, landmark_name: kps.MarkerSet, **kwargs):
+        """Implement registration among 3D objects in :attr:`self.obj_ls`.
 
         Parameters
         ---
-        *objs
-            unspecified number of 3D objects.
+        landmark_name
+            the keyword of the controlling landmarks in :attr:`self.kps_group`.
 
-            .. warning::
-            
-                The 3D objects' class must derived from :class:`mesh4d.obj3d.Obj3d_Deform`.
-
-            .. seealso::
-
-                About the :code:`*` symbol and its effect, please refer to `*args and **kwargs - Python Tips <https://book.pythontips.com/en/latest/args_and_kwargs.html>`_
-        
+            Warning
+            -----
+            The landmarks marker set object must have been attach to the object (:meth:`~mesh4d.obj4d.load_markerset`) before registration.
         **kwargs
             configuration parameters for the registration and the configuration parameters of the base classes (:class:`Obj3d` and :class:`Obj3d_Kps`)'s :meth:`add_obj` method can be passed in via :code:`**kwargs`.
         """
-        # follows Obj3d_Kps, Obj4d_Deform add_obj()
-        reg_start_index = len(self.obj_ls)
-        obj4d.Obj4d_Kps.add_obj(self, *objs, **kwargs)
-        reg_end_index = len(self.obj_ls) - 1
+        reg_num = len(self.obj_ls)
         
-        for idx in range(reg_start_index, reg_end_index + 1):
-            # attach control landmarks
-            time = self.start_time + idx / self.fps
-            kps = landmarks.get_time_coord(time)
-            self.obj_ls[idx].attach_control_landmarks(kps)
-
-            # follows Obj3d_Kps, Obj4d_Deform add_obj()
+        for idx in range(reg_num):
             if idx == 0:
                 self.process_first_obj()
                 continue
 
             if self.enable_rigid:
-                self.process_rigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the previous one
+                self.process_rigid_dynamic(idx - 1, idx, landmark_name, **kwargs)  # aligned to the previous one
 
             if self.enable_nonrigid:
-                self.process_nonrigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the later one
+                self.process_nonrigid_dynamic(idx - 1, idx, landmark_name, **kwargs)  # aligned to the later one
             
             if mesh4d.output_msg:
-                percent = (idx - reg_start_index + 1) / (reg_end_index - reg_start_index + 1)
-                utils.progress_bar(percent, back_str=" adding the {}-th 3d object".format(idx))
+                percent = (idx + 1) / reg_num
+                utils.progress_bar(percent, back_str=" registered the {}-th frame".format(idx))
             
 
-    def process_nonrigid_dynamic(self, idx_source: int, idx_target: int, **kwargs):
+    def process_nonrigid_dynamic(self, idx_source: int, idx_target: int, landmark_name: str, **kwargs):
         trans = Trans_Nonrigid_RBF(
             source_obj=self.obj_ls[idx_source],
             target_obj=self.obj_ls[idx_target],
         )
-        trans.regist(**kwargs)
+        trans.regist(landmark_name, **kwargs)
         self.obj_ls[idx_source].set_trans_nonrigid(trans)

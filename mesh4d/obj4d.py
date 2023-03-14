@@ -151,38 +151,6 @@ class Obj4d_Kps(Obj4d):
 
         o4.add_obj(*o3_ls)
     """
-    def add_obj(self, *objs: Iterable[Type[obj3d.Obj3d_Kps]], **kwargs):
-        """ Add object(s) and attach key points (:class:`mesh4d.kps.Kps`) to each of the 3D object via Vicon motion capture data (:attr:`markerset`).
-        
-        Parameters
-        ---
-        *objs
-            unspecified number of 3D objects.
-
-            .. warning::
-            
-                The 3D objects' class must derived from :class:`mesh4d.obj3d.Obj3d_Kps`.
-
-            .. seealso::
-
-                About the :code:`*` symbol and its effect, please refer to `*args and **kwargs - Python Tips <https://book.pythontips.com/en/latest/args_and_kwargs.html>`_
-        
-        **kwargs
-            configuration parameters of the base classes (:class:`Obj3d`)'s :meth:`add_obj` method can be passed in via :code:`**kwargs`.
-
-        Example
-        ---
-        Let's say we have two 3D objects :code:`o3_a`, :code:`o3_b` and 4D object :code:`o4`. 3D objects can be passed into the :meth:`add_obj` method one by one: ::
-
-            o4.add_obj(o3_a, o3_b)
-
-        3D objects can be passed as a list: ::
-
-            o3_ls = [o3_a, o3_b]
-            o4.add_obj(*o3_ls)
-        """
-        Obj4d.add_obj(self, *objs, **kwargs)
-
     def load_markerset(self, name: str, markerset: Union[kps.MarkerSet, None] = None):
         """Slice the :class:`~mesh4d.kps.MarkerSet` object into :class:`~mesh4d.kps.kps` objects and attached them to the corresponding frames.
 
@@ -302,41 +270,17 @@ class Obj4d_Deform(Obj4d_Kps):
         self.enable_rigid = enable_rigid
         self.enable_nonrigid = enable_nonrigid
 
-    def add_obj(self, *objs: Iterable[Type[obj3d.Obj3d_Deform]], **kwargs):
-        """Add object(s) and attach key points (:class:`mesh4d.kps.Kps`) to each of the 3D object via Vicon motion capture data (:attr:`markerset`). And then implement the activated transformation estimation.
+    def regist(self, **kwargs):
+        """Implement registration among 3D objects in :attr:`self.obj_ls`.
 
         Parameters
         ---
-        *objs
-            unspecified number of 3D objects.
-
-            .. warning::
-            
-                The 3D objects' class must derived from :class:`mesh4d.obj3d.Obj3d_Deform`.
-
-            .. seealso::
-
-                About the :code:`*` symbol and its effect, please refer to `*args and **kwargs - Python Tips <https://book.pythontips.com/en/latest/args_and_kwargs.html>`_
-        
         **kwargs
             configuration parameters for the registration and the configuration parameters of the base classes (:class:`Obj3d` and :class:`Obj3d_Kps`)'s :meth:`add_obj` method can be passed in via :code:`**kwargs`.
-
-        Example
-        ---
-        Let's say we have two 3D objects :code:`o3_a`, :code:`o3_b` and 4D object :code:`o4`. 3D objects can be passed into the :meth:`add_obj` method one by one: ::
-
-            o4.add_obj(o3_a, o3_b)
-
-        3D objects can be passed as a list: ::
-
-            o3_ls = [o3_a, o3_b]
-            o4.add_obj(*o3_ls)
         """
-        reg_start_index = len(self.obj_ls)
-        Obj4d_Kps.add_obj(self, *objs, **kwargs)
-        reg_end_index = len(self.obj_ls) - 1
-        
-        for idx in range(reg_start_index, reg_end_index + 1):
+        reg_num = len(self.obj_ls)
+
+        for idx in range(reg_num):
             if idx == 0:
                 self.process_first_obj()
                 continue
@@ -348,8 +292,8 @@ class Obj4d_Deform(Obj4d_Kps):
                 self.process_nonrigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the later one
 
             if mesh4d.output_msg:
-                percent = (idx - reg_start_index + 1) / (reg_end_index - reg_start_index + 1)
-                utils.progress_bar(percent, back_str=" adding the {}-th 3d object".format(idx))
+                percent = (idx + 1) / reg_num
+                utils.progress_bar(percent, back_str=" registered the {}-th frame".format(idx))
 
     def process_first_obj(self):
         """Process the first added 3D object.
