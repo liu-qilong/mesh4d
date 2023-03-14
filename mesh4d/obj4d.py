@@ -92,7 +92,7 @@ class Obj4d(object):
         for obj in objs:
             self.obj_ls.append(obj)
 
-    def show_gif(self, output_folder: str = "output/", filename: str = "obj4d"):
+    def export_gif(self, output_folder: str = "output/", filename: str = "obj4d"):
         """Illustrate the 4D object.
         
         Parameters
@@ -219,7 +219,7 @@ class Obj4d_Kps(Obj4d):
 
         return markerset
 
-    def show_gif(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None):
+    def export_gif(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None):
         """Illustrate the 4D object.
         
         Parameters
@@ -408,7 +408,7 @@ class Obj4d_Deform(Obj4d_Kps):
         trans.regist(**kwargs)
         self.obj_ls[idx_source].set_trans_nonrigid(trans)
 
-    def show_deform_gif(self, output_folder: str = "output/", filename: str = "obj4d_deform", kps_names: Union[None, list, tuple] = None, mode: str = 'nonrigid', cmap: str = "cool"):
+    def export_deform_gif(self, output_folder: str = "output/", filename: str = "obj4d_deform", kps_names: Union[None, list, tuple] = None, mode: str = 'nonrigid', cmap: str = "cool"):
         """Illustrate the 4D object with estimated displacement field.
 
         - The mesh will be coloured with the distance of deformation. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.

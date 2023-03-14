@@ -8,9 +8,9 @@ current_dir = os.path.dirname(current_path)
 parent_dir = current_dir[:current_dir.rfind(os.path.sep)]
 sys.path.insert(0, parent_dir)
 
-from mesh4d import utils
+from mesh4d.analyse.crave import landmarks_labelling
 
-utils.landmarks_labelling(
+landmarks_labelling(
     mesh_folder = 'data/meshes/6kmh_braless_26markers/',
     mesh_fps = 120,
     point_num = 1,

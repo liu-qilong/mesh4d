@@ -18,7 +18,8 @@ from scipy import interpolate
 
 import mesh4d
 import mesh4d.config.param
-from mesh4d import field, obj3d, utils
+from mesh4d import field, utils
+from mesh4d.analyse import visual
 
 class Kps(object):
     """A collection of the key points that can be attached to a 3D object, i.e. a frame of the 4D object.
@@ -155,7 +156,7 @@ class Kps(object):
         :class:`pyvista.Plotter`
             :class:`pyvista.Plotter` scene added the visualisation.
         """
-        pvpcd_kps = obj3d.np2pvpcd(self.get_points_coord(), radius=radius)
+        pvpcd_kps = visual.np2pvpcd(self.get_points_coord(), radius=radius)
         scene.add_mesh(pvpcd_kps.translate(location, inplace=False), **kwargs)
 
 
