@@ -245,14 +245,15 @@ def clip_with_contour(mesh_ls: Type[obj4d.Obj4d], start_time: float, fps: float,
         # estimate contour bound
         max_bound = measure.points_get_max_bound(contour_points)
         min_bound = measure.points_get_min_bound(contour_points)
+        max_margin = margin * (max_bound - center)
+        min_margin = margin * (center - min_bound)
 
         for bound_symbol in clip_bound:
-            mesh_clip = mesh_clip.clip(bound_symbol, origin=max_bound, invert=True)
-            mesh_clip = mesh_clip.clip(bound_symbol, origin=min_bound, invert=False)
+            mesh_clip = mesh_clip.clip(bound_symbol, origin=max_bound + max_margin, invert=True)
+            mesh_clip = mesh_clip.clip(bound_symbol, origin=min_bound - min_margin, invert=False)
 
         # remove disconnected parts
         mesh_clip = fix_pvmesh_disconnect(mesh_clip)
-
         mesh_clip_ls.append(mesh_clip)
 
     return mesh_clip_ls

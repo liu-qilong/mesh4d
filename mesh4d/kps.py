@@ -405,31 +405,6 @@ class Marker(object):
 
         return coord_interp
 
-    def get_trace_length(self) -> dict:
-        """Get the trace length information.
-        
-        Return
-        ---
-        A dictionary contains:
-
-        - :code:`'disp'`: a list of displacement vectors of each frame.
-        - :code:`'dist'`: a list of displacement distance of each frame.
-        - :code:`'trace'`: the sum of trace length.
-        """
-        coord_0_to_e1 = self.coord[:, :-1]
-        coord_1_to_e0 = self.coord[:, 1:]
-
-        disp = coord_1_to_e0 - coord_0_to_e1
-        dist = np.linalg.norm(disp, axis=0)
-        trace = np.sum(dist)
-
-        trace_dict = {}
-        trace_dict['disp'] = disp
-        trace_dict['dist'] = dist
-        trace_dict['trace'] = trace
-
-        return trace_dict
-
     def reslice(self, fps_new: int = 120):
         """Return the marker object re-slicing to another frame rate. Noted that the original object won't be altered.
         
@@ -830,32 +805,6 @@ class MarkerSet(object):
             kps.add_point(name, coord)
 
         return kps
-    
-    def get_trace_length(self) -> tuple:
-        """Get the trace length information.
-        
-        Return
-        ---
-        dict
-            a dictionary of the trace dictionary of each marker. See :meth:`Marker.get_trace_length`.
-        list
-            a list of the start points of each marker.
-        list
-            a list of whole period trace length of each marker.
-        """
-        trace_dict = {}
-
-        for name, marker in self.markers.items():
-            trace_dict[name] = marker.get_trace_length()
-
-        starts = []
-        traces = []
-
-        for name in self.markers.keys():
-            starts.append(self.markers[name].get_frame_coord(0))
-            traces.append(trace_dict[name]['trace'])
-
-        return trace_dict, starts, traces
     
     def extract(self, marker_names: Iterable[str]) -> MarkerSet:
         """Return the assembled marker set with extracted markers. Noted that the original marker set won't be altered.

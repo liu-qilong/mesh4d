@@ -98,6 +98,9 @@ class Obj3d(object):
             dec_mesh = self.mesh.decimate(dec_ratio)
             return np.array(dec_mesh.points)
         
+        elif sample_num == vertices_num:
+            return self.get_vertices()
+        
         else:
             try:
                 sub_time = math.ceil(np.log2(sample_num / vertices_num))

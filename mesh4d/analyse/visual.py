@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Type, Union, Iterable
 
+import os
 import copy
 import numpy as np
 import pyvista as pv
@@ -82,7 +83,7 @@ def show_obj3d_diff(obj1: Type[obj3d.Obj3d], obj2: Type[obj3d.Obj3d], kps_names:
     scene.show()
 
 
-def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, values: Iterable, k_nbr: int = 20, max_threshold: Union[float, None] = None, min_threshold: Union[float, None] = None, cmap: str = "cool", **kwargs):
+def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, values: Iterable, k_nbr: int = 10, distance_upper_bound: float = 50, max_threshold: Union[float, None] = None, min_threshold: Union[float, None] = None, cmap: str = "cool", is_save: bool = False, export_folder: str = '', export_name: str = 'screeenshot', **kwargs):
     """Show the 3D mesh with a value mask.
 
     Parameters
@@ -94,7 +95,9 @@ def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, valu
     values : Iterable
         An iterable containing the values to assign to the mesh vertices based on their nearest point in `points`.
     k_nbr : int, optional
-        The number of nearest neighbors to consider when assigning values to the mesh vertices. Default is 20.
+        The number of nearest neighbors to consider when assigning values to the mesh vertices. Default is 10.
+    distance_upper_bound
+        Maximum distance when masking the values to the mesh cell. Default is 50.
     max_threshold : float or None, optional
         The maximum value to include in the mask. Any values greater than this threshold will be replaced with the threshold value. Default is None.
     min_threshold : float or None, optional
@@ -104,6 +107,8 @@ def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, valu
         
         .. seealso::
             For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+    tbf
+
     **kwargs
         arguments to be passed to :meth:`pyvista.Plotter.add_mesh`.
 
@@ -114,9 +119,20 @@ def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, valu
 
     # assign each vertex with a value based on its nearest point in points  
     tree = KDTree(points)
-    _, idxs = tree.query(mesh.points, k=k_nbr)
-    value_mask = np.take(values, idxs)
-    value_mask = np.mean(value_mask, axis=1)
+    _, idx = tree.query(mesh.points, k=k_nbr, distance_upper_bound=distance_upper_bound)
+
+    # if kd-tree query doesn't find a match, it returns idx of len(points), i.e. the first idx out of the range
+    # append lowest value at that idx position for non-match query
+    values_qurery = copy.deepcopy(values)
+    values_qurery.append(np.min(values))
+    print(np.min(values))
+
+    if k_nbr == 1:
+        value_mask = np.take(values_qurery, idx)
+
+    else:
+        value_mask = np.take(values_qurery, idx)
+        value_mask = np.mean(value_mask, axis=1)
 
     # filter out the values out of the threshold
     if mesh4d.output_msg:
@@ -140,4 +156,12 @@ def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, valu
     scene = pv.Plotter()
     scene.add_mesh(mesh, cmap=cmap, **kwargs)
     scene.camera_position = 'xy'
-    scene.show()
+
+    if is_save:
+        export_path = os.path.join(export_folder, '{}.png'.format(export_name))
+        scene.show(screenshot=export_path)
+        if mesh4d.output_msg:
+            print("export image: {}".format(export_path))
+
+    else:
+        scene.show()
