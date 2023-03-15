@@ -1,5 +1,0 @@
-<map id="inheritance352095401f" name="inheritance352095401f">
-<area shape="rect" id="node1" href="Mesh4D.obj4d.Obj4d.html#Mesh4D.obj4d.Obj4d" target="_top" title="Static 4D object. Contains a list of 3D objects." alt="" coords="5,5,96,31"/>
-<area shape="rect" id="node3" href="Mesh4D.obj4d.Obj4d_Kps.html#Mesh4D.obj4d.Obj4d_Kps" target="_top" title="Static 4D object :class:`Obj4d_Kps` with key points. Derived from :class:`Obj4d` and attach key points (:class:`Mesh4D.kps.Kps`) to each of the 3D object via Vicon motion capture data (:class:`Mesh4D.kps.MarkerSet`)." alt="" coords="144,5,265,31"/>
-<area shape="rect" id="node2" href="Mesh4D.obj4d.Obj4d_Deform.html#Mesh4D.obj4d.Obj4d_Deform" target="_top" title="Dynamic/Deformable 4D object :class:`Obj4d_Deform`. Derived from :class:`Obj4d_Kps` and attach the rigid transformation (:class:`Mesh4D.field.Trans_Rigid`) and non&#45;rigid deformation (:class:`Mesh4D.field.Trans_Nonrigid`) to each of the 3D object by registration." alt="" coords="313,5,455,31"/>
-</map>

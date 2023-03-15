@@ -1,5 +1,0 @@
-<map id="inheritance85148065d4" name="inheritance85148065d4">
-<area shape="rect" id="node1" href="UltraMotionCapture.obj3d.Obj3d.html#UltraMotionCapture.obj3d.Obj3d" target="_top" title="The basic 3D object class. Loads :code:`.obj` 3D mesh image and sampled it as the point cloud." alt="" coords="5,5,96,31"/>
-<area shape="rect" id="node3" href="UltraMotionCapture.obj3d.Obj3d_Kps.html#UltraMotionCapture.obj3d.Obj3d_Kps" target="_top" title="The 3D object with key points attached to it. Derived from :class:`Obj3d` and attach the key points (:class:`UltraMotionCapture.kps.Kps`) to it." alt="" coords="144,5,265,31"/>
-<area shape="rect" id="node2" href="UltraMotionCapture.obj3d.Obj3d_Deform.html#UltraMotionCapture.obj3d.Obj3d_Deform" target="_top" title="The dynamic/deformable 3D object with key points and transformations attached to it. Derived from :class:`Obj3d_Kps` and attach the rigid transformation (:class:`UltraMotionCapture.field.Trans_Rigid`) and non&#45;rigid deformation (:class:`UltraMotionCapture.field.Trans_Nonrigid`) to it." alt="" coords="313,5,455,31"/>
-</map>

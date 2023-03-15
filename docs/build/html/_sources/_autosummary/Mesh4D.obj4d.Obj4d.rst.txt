@@ -19,7 +19,7 @@ mesh4d.obj4d.Obj4d
    
       ~Obj4d.__init__
       ~Obj4d.add_obj
-      ~Obj4d.show_gif
+      ~Obj4d.export_gif
    
    
 
