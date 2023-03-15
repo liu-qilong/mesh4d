@@ -15,7 +15,7 @@ from mesh4d import obj3d, obj4d, field, utils
 class Trans_Nonrigid_ECPD(field.Trans_Nonrigid):
     """Derived from :class:`mesh4d.field.Trans_Nonrigid` and replace the displacement field estimation as Coherent Point Drift (CPD) based approach.
     """
-    def regist(self, landmark_name: str, sample_num = 3000, **kwargs):
+    def regist(self, landmark_name: str, sample_num = 1000, **kwargs):
         """The registration method.
 
         Parameters
@@ -26,8 +26,6 @@ class Trans_Nonrigid_ECPD(field.Trans_Nonrigid):
             Attention
             ---
             Since the Coherent Point Drift (CPD) is not very efficient, the number of the sampling points used to estimate the displacement field should relatively small. The default value is :code:`3000`.
-
-            tbf
         **kwargs
             Configurations parameters of the registration.
             
@@ -100,7 +98,7 @@ class Obj4d_ECPD(obj4d.Obj4d_Deform):
             ---
             Since the Coherent Point Drift (CPD) is not very efficient, the number of the sampling points used to estimate the displacement field should relatively small. The default value is :code:`3000`.
     """
-    def __init__(self, regist_points_num: int = 3000, **kwargs):
+    def __init__(self, regist_points_num: int = 1000, **kwargs):
         obj4d.Obj4d_Deform.__init__(self, **kwargs)
         self.regist_points_num = regist_points_num
 

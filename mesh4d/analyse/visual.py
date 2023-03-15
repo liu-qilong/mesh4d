@@ -107,7 +107,12 @@ def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, valu
         
         .. seealso::
             For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
-    tbf
+    is_save
+        weather save the generated figure or not.
+    export_folder
+        The folder to save the figure.
+    export_name
+        The filename to save the figure.
 
     **kwargs
         arguments to be passed to :meth:`pyvista.Plotter.add_mesh`.

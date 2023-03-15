@@ -104,8 +104,11 @@ class Obj4d(object):
         """
         scene = pv.Plotter()
         scene.open_gif(os.path.join(output_folder, filename))
+        
+        plot_num = len(self.obj_ls)
 
-        for obj in self.obj_ls:
+        for idx in range(0, plot_num):
+            obj = self.obj_ls[idx]
             scene.clear()
 
             width = obj.get_width()
@@ -115,6 +118,10 @@ class Obj4d(object):
             
             scene.camera_position = 'xy'
             scene.write_frame()
+
+            if mesh4d.output_msg:
+                percent = (idx + 1) / plot_num
+                utils.progress_bar(percent, back_str=" exported the {}-th frame".format(idx))
 
         scene.close()
 
@@ -202,7 +209,10 @@ class Obj4d_Kps(Obj4d):
         scene = pv.Plotter()
         scene.open_gif(os.path.join(output_folder, filename + '.gif'))
 
-        for obj in self.obj_ls:
+        plot_num = len(self.obj_ls)
+
+        for idx in range(0, plot_num):
+            obj = self.obj_ls[idx]
             scene.clear()
             
             width = obj.get_width()
@@ -214,6 +224,10 @@ class Obj4d_Kps(Obj4d):
             
             scene.camera_position = 'xy'
             scene.write_frame()
+
+            if mesh4d.output_msg:
+                percent = (idx + 1) / plot_num
+                utils.progress_bar(percent, back_str=" exported the {}-th frame".format(idx))
 
         scene.close()
 
@@ -352,7 +366,7 @@ class Obj4d_Deform(Obj4d_Kps):
         trans.regist(**kwargs)
         self.obj_ls[idx_source].set_trans_nonrigid(trans)
 
-    def export_deform_gif(self, output_folder: str = "output/", filename: str = "obj4d_deform", kps_names: Union[None, list, tuple] = None, mode: str = 'nonrigid', cmap: str = "cool"):
+    def export_deform_gif(self, output_folder: str = "output/", filename: str = "obj4d_deform", kps_names: Union[None, list, tuple] = None, mode: str = 'nonrigid', is_color_body: bool = True, cmap: str = "cool"):
         """Illustrate the 4D object with estimated displacement field.
 
         - The mesh will be coloured with the distance of deformation. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
@@ -372,6 +386,9 @@ class Obj4d_Deform(Obj4d_Kps):
             - :code:`nonrigid`: the non-rigid transformation will be used to deform the object.
             - :code:`rigid`: the rigid transformation will be used to deform the object.
 
+        is_color_body
+            color the mesh with deformation distance or not.
+
         cmap
             the color map name. 
             
@@ -381,7 +398,10 @@ class Obj4d_Deform(Obj4d_Kps):
         scene = pv.Plotter()
         scene.open_gif(os.path.join(output_folder, filename + '.gif'))
 
-        for obj in self.obj_ls[:-1]:
+        plot_num = len(self.obj_ls) - 1
+
+        for idx in range(0, plot_num):
+            obj = self.obj_ls[idx]
             scene.clear()
 
             if mode == 'nonrigid' and obj.trans_nonrigid is not None:
@@ -399,11 +419,16 @@ class Obj4d_Deform(Obj4d_Kps):
             dist = np.linalg.norm(obj.mesh.points - deform_obj.mesh.points, axis = 1)
             width = deform_obj.get_width()
 
-            deform_obj.mesh["distances"] = dist
-            deform_obj.add_mesh_to_scene(scene, cmap=cmap)
+            if is_color_body:
+                deform_obj.mesh["distances"] = dist
+                deform_obj.add_mesh_to_scene(scene, cmap=cmap)
+
+            else:
+                deform_obj.add_mesh_to_scene(scene)
 
             if mode == 'nonrigid' and obj.trans_nonrigid is not None:
                 trans.add_to_scene(scene, location=[1.5*width, 0, 0], cmap=cmap)
+
             elif mode == 'rigid' and obj.trans_rigid is not None:
                 trans.add_to_scene(scene, location=[1.5*width, 0, 0], cmap=cmap, original_length=width)
             
@@ -412,6 +437,10 @@ class Obj4d_Deform(Obj4d_Kps):
             
             scene.camera_position = 'xy'
             scene.write_frame()
+
+            if mesh4d.output_msg:
+                percent = (idx + 1) / plot_num
+                utils.progress_bar(percent, back_str=" exported the {}-th frame".format(idx))
 
         scene.close()
 

@@ -223,8 +223,39 @@ def fix_pvmesh_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.P
     return bodies[max_index].extract_surface()
 
 
-def clip_with_contour(mesh_ls: Type[obj4d.Obj4d], start_time: float, fps: float, contour: Type[kps.MarkerSet], margin: float = 0, invert: bool = False, clip_bound: str = '') -> Iterable[pv.core.pointset.PolyData]:
-    """tbf"""
+def clip_with_contour(
+    mesh_ls: Type[obj4d.Obj4d], 
+    start_time: float, 
+    fps: float, 
+    contour: Type[kps.MarkerSet], 
+    margin: float = 0, 
+    invert: bool = False, 
+    clip_bound: str = '',
+    ) -> Iterable[pv.core.pointset.PolyData]:
+    """Clip meshes with a given contour plane and bounding box.
+
+    Parameters
+    ---
+    mesh_ls
+        The list of meshes to be clipped.
+    start_time
+        The starting time to use for the clipping process.
+    fps
+        The frames per second used for the clipping process.
+    contour
+        The contour (:class:`~mesh4d.kps.MarkerSet`) used to clip the meshes.
+    margin
+        The margin factor used to extend the bounding box. Defaults to 0.
+    invert
+        Whether to invert the clipping plane. Defaults to :code:`False`.
+    clip_bound
+        The clip bound axis used to clip the meshes. For example, :code:`xy` represents bounding the meshes with the highest and lowest positions of the contour in x and y axis. Defaults to ''.
+
+    Returns
+    ---
+    Iterable[pv.core.pointset.PolyData]
+        The list of clipped meshes.
+    """
     mesh_clip_ls = []
 
     for idx in range(len(mesh_ls)):

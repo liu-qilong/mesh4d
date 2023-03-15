@@ -5,6 +5,7 @@ import numpy as np
 
 import mesh4d
 import mesh4d.config.param
+from mesh4d import kps
 
 def points_get_center(points: np.array) -> np.array:
     """Get the center point of a set of points.
@@ -116,20 +117,25 @@ def estimate_plane_from_points(points: np.array) -> tuple:
     return norm, center
 
 
-def marker_trace_length(marker, start_frame: int = 0, end_frame: Union[int, None] = None) -> dict:
+def marker_trace_length(marker: kps.Marker, start_frame: int = 0, end_frame: Union[int, None] = None) -> dict:
     """Get the trace length information.
 
     Parameters
     ---
-    tbf
+    marker
+        the marker object
+    start_frame
+        the start frame index. Noted that frame index starts at 0.
+    end_frame
+        the end frame index. Default as :code:`None`, meaning using the last frame as the end frame.
     
     Return
     ---
     A dictionary contains:
 
-    - :code:`'disp'`: a list of displacement vectors of each frame.
-    - :code:`'dist'`: a list of displacement distance of each frame.
-    - :code:`'trace'`: the sum of trace length.
+    :code:`'disp'` a list of displacement vectors of each frame.
+    :code:`'dist'` a list of displacement distance of each frame.
+    :code:`'trace'` the sum of trace length.
     """
     coord_clip = marker.coord[:, start_frame:end_frame]
     coord_front = coord_clip[:, :-1]
@@ -147,20 +153,27 @@ def marker_trace_length(marker, start_frame: int = 0, end_frame: Union[int, None
     return trace_dict
 
 
-def markerset_trace_length(markerset, start_frame: int = 0, end_frame: Union[int, None] = None) -> tuple:
+def markerset_trace_length(markerset: kps.MarkerSet, start_frame: int = 0, end_frame: Union[int, None] = None) -> tuple:
     """Get the trace length information.
 
     Parameters
     ---
-    tbf
+    Parameters
+    ---
+    marker
+        the marker set object
+    start_frame
+        the start frame index. Noted that frame index starts at 0.
+    end_frame
+        the end frame index. Default as :code:`None`, meaning using the last frame as the end frame.
     
     Return
     ---
-    dict
+    :class:`dict`
         a dictionary of the trace dictionary of each marker. See :meth:`Marker.get_trace_length`.
-    list
+    :class:`list`
         a list of the start points of each marker.
-    list
+    :class:`list`
         a list of whole period trace length of each marker.
     """
     trace_dict = {}
