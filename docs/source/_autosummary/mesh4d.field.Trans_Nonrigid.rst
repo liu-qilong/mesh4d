@@ -23,7 +23,6 @@ mesh4d.field.Trans\_Nonrigid
       ~Trans_Nonrigid.regist
       ~Trans_Nonrigid.shift_kps
       ~Trans_Nonrigid.shift_mesh
-      ~Trans_Nonrigid.shift_pcd
       ~Trans_Nonrigid.shift_points
       ~Trans_Nonrigid.show
    

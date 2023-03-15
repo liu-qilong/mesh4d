@@ -20,8 +20,11 @@ mesh4d.obj3d.Obj3d
       ~Obj3d.__init__
       ~Obj3d.add_mesh_to_scene
       ~Obj3d.add_pcd_to_scene
+      ~Obj3d.get_sample_kps
+      ~Obj3d.get_sample_points
+      ~Obj3d.get_vertices
+      ~Obj3d.get_width
       ~Obj3d.show
-      ~Obj3d.show_diff
    
    
 

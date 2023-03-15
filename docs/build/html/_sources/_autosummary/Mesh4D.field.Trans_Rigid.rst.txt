@@ -25,7 +25,6 @@ mesh4d.field.Trans\_Rigid
       ~Trans_Rigid.regist
       ~Trans_Rigid.shift_kps
       ~Trans_Rigid.shift_mesh
-      ~Trans_Rigid.shift_pcd
       ~Trans_Rigid.shift_points
       ~Trans_Rigid.show
    

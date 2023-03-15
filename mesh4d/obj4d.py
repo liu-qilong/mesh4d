@@ -22,8 +22,7 @@ import pyvista as pv
 import mesh4d
 import mesh4d.config.param
 from mesh4d import obj3d
-from mesh4d import kps
-from mesh4d import field
+from mesh4d import kps, field, utils
 
 class Obj4d(object):
     """Static 4D object. Contains a list of 3D objects.
@@ -93,7 +92,7 @@ class Obj4d(object):
         for obj in objs:
             self.obj_ls.append(obj)
 
-    def show_gif(self, output_folder: str = "output/", filename: str = "obj4d"):
+    def export_gif(self, output_folder: str = "output/", filename: str = "obj4d"):
         """Illustrate the 4D object.
         
         Parameters
@@ -105,16 +104,24 @@ class Obj4d(object):
         """
         scene = pv.Plotter()
         scene.open_gif(os.path.join(output_folder, filename))
+        
+        plot_num = len(self.obj_ls)
 
-        for obj in self.obj_ls:
+        for idx in range(0, plot_num):
+            obj = self.obj_ls[idx]
             scene.clear()
-            width = obj3d.pcd_get_max_bound(obj.pcd)[0] - obj3d.pcd_get_min_bound(obj.pcd)[0]
+
+            width = obj.get_width()
 
             obj.add_mesh_to_scene(scene)
             obj.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-3*width)
             
             scene.camera_position = 'xy'
             scene.write_frame()
+
+            if mesh4d.output_msg:
+                percent = (idx + 1) / plot_num
+                utils.progress_bar(percent, back_str=" exported the {}-th frame".format(idx))
 
         scene.close()
 
@@ -151,38 +158,6 @@ class Obj4d_Kps(Obj4d):
 
         o4.add_obj(*o3_ls)
     """
-    def add_obj(self, *objs: Iterable[Type[obj3d.Obj3d_Kps]], **kwargs):
-        """ Add object(s) and attach key points (:class:`mesh4d.kps.Kps`) to each of the 3D object via Vicon motion capture data (:attr:`markerset`).
-        
-        Parameters
-        ---
-        *objs
-            unspecified number of 3D objects.
-
-            .. warning::
-            
-                The 3D objects' class must derived from :class:`mesh4d.obj3d.Obj3d_Kps`.
-
-            .. seealso::
-
-                About the :code:`*` symbol and its effect, please refer to `*args and **kwargs - Python Tips <https://book.pythontips.com/en/latest/args_and_kwargs.html>`_
-        
-        **kwargs
-            configuration parameters of the base classes (:class:`Obj3d`)'s :meth:`add_obj` method can be passed in via :code:`**kwargs`.
-
-        Example
-        ---
-        Let's say we have two 3D objects :code:`o3_a`, :code:`o3_b` and 4D object :code:`o4`. 3D objects can be passed into the :meth:`add_obj` method one by one: ::
-
-            o4.add_obj(o3_a, o3_b)
-
-        3D objects can be passed as a list: ::
-
-            o3_ls = [o3_a, o3_b]
-            o4.add_obj(*o3_ls)
-        """
-        Obj4d.add_obj(self, *objs, **kwargs)
-
     def load_markerset(self, name: str, markerset: Union[kps.MarkerSet, None] = None):
         """Slice the :class:`~mesh4d.kps.MarkerSet` object into :class:`~mesh4d.kps.kps` objects and attached them to the corresponding frames.
 
@@ -207,21 +182,19 @@ class Obj4d_Kps(Obj4d):
         """
         markerset = kps.MarkerSet()
         markerset.fps = self.fps
-        markerset.scale_rate = self.obj_ls[0].scale_rate
-        markerset.markers = {}
 
         for obj in self.obj_ls:
             points_dict = obj.kps_group[name].points
 
             for point_name in points_dict.keys():
                 if point_name not in markerset.markers.keys():
-                    markerset.markers[point_name] = kps.Marker(name=point_name, fps=self.fps, scale_rate=obj.scale_rate)
+                    markerset.markers[point_name] = kps.Marker(name=point_name, fps=self.fps)
                 
                 markerset.markers[point_name].append_data(coord=points_dict[point_name], convert=False)
 
         return markerset
 
-    def show_gif(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None):
+    def export_gif(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None):
         """Illustrate the 4D object.
         
         Parameters
@@ -236,9 +209,13 @@ class Obj4d_Kps(Obj4d):
         scene = pv.Plotter()
         scene.open_gif(os.path.join(output_folder, filename + '.gif'))
 
-        for obj in self.obj_ls:
+        plot_num = len(self.obj_ls)
+
+        for idx in range(0, plot_num):
+            obj = self.obj_ls[idx]
             scene.clear()
-            width = obj3d.pcd_get_max_bound(obj.pcd)[0] - obj3d.pcd_get_min_bound(obj.pcd)[0]
+            
+            width = obj.get_width()
 
             obj.add_mesh_to_scene(scene)
             obj.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-3*width)
@@ -247,6 +224,10 @@ class Obj4d_Kps(Obj4d):
             
             scene.camera_position = 'xy'
             scene.write_frame()
+
+            if mesh4d.output_msg:
+                percent = (idx + 1) / plot_num
+                utils.progress_bar(percent, back_str=" exported the {}-th frame".format(idx))
 
         scene.close()
 
@@ -303,51 +284,17 @@ class Obj4d_Deform(Obj4d_Kps):
         self.enable_rigid = enable_rigid
         self.enable_nonrigid = enable_nonrigid
 
-    def add_obj(self, *objs: Iterable[Type[obj3d.Obj3d_Deform]], **kwargs):
-        """ Add object(s) and attach key points (:class:`mesh4d.kps.Kps`) to each of the 3D object via Vicon motion capture data (:attr:`markerset`). And then implement the activated transformation estimation.
-        
-        Danger
-        ---
-        This method shall only be called for one time.
+    def regist(self, **kwargs):
+        """Implement registration among 3D objects in :attr:`self.obj_ls`.
 
         Parameters
         ---
-        *objs
-            unspecified number of 3D objects.
-
-            .. warning::
-            
-                The 3D objects' class must derived from :class:`mesh4d.obj3d.Obj3d_Deform`.
-
-            .. seealso::
-
-                About the :code:`*` symbol and its effect, please refer to `*args and **kwargs - Python Tips <https://book.pythontips.com/en/latest/args_and_kwargs.html>`_
-        
         **kwargs
             configuration parameters for the registration and the configuration parameters of the base classes (:class:`Obj3d` and :class:`Obj3d_Kps`)'s :meth:`add_obj` method can be passed in via :code:`**kwargs`.
-
-            .. seealso::
-
-                Technically, the configuration parameters for the registration are passed to :meth:`mesh4d.field.Trans_Rigid.regist` for rigid transformation and :meth:`mesh4d.field.Trans_Nonrigid.regist`, and they then call :mod:`probreg`'s registration method.
-                
-                For accepted parameters, please refer to `probreg.cpd.registration_cpd <https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd>`_.
-
-        Example
-        ---
-        Let's say we have two 3D objects :code:`o3_a`, :code:`o3_b` and 4D object :code:`o4`. 3D objects can be passed into the :meth:`add_obj` method one by one: ::
-
-            o4.add_obj(o3_a, o3_b)
-
-        3D objects can be passed as a list: ::
-
-            o3_ls = [o3_a, o3_b]
-            o4.add_obj(*o3_ls)
         """
-        reg_start_index = len(self.obj_ls)
-        Obj4d_Kps.add_obj(self, *objs, **kwargs)
-        reg_end_index = len(self.obj_ls) - 1
-        
-        for idx in range(reg_start_index, reg_end_index + 1):
+        reg_num = len(self.obj_ls)
+
+        for idx in range(reg_num):
             if idx == 0:
                 self.process_first_obj()
                 continue
@@ -357,6 +304,10 @@ class Obj4d_Deform(Obj4d_Kps):
 
             if self.enable_nonrigid:
                 self.process_nonrigid_dynamic(idx - 1, idx, **kwargs)  # aligned to the later one
+
+            if mesh4d.output_msg:
+                percent = (idx + 1) / reg_num
+                utils.progress_bar(percent, back_str=" registered the {}-th frame".format(idx))
 
     def process_first_obj(self):
         """Process the first added 3D object.
@@ -415,7 +366,7 @@ class Obj4d_Deform(Obj4d_Kps):
         trans.regist(**kwargs)
         self.obj_ls[idx_source].set_trans_nonrigid(trans)
 
-    def show_deform_gif(self, output_folder: str = "output/", filename: str = "obj4d_deform", kps_names: Union[None, list, tuple] = None, mode: str = 'nonrigid', cmap: str = "cool"):
+    def export_deform_gif(self, output_folder: str = "output/", filename: str = "obj4d_deform", kps_names: Union[None, list, tuple] = None, mode: str = 'nonrigid', is_color_body: bool = True, cmap: str = "cool"):
         """Illustrate the 4D object with estimated displacement field.
 
         - The mesh will be coloured with the distance of deformation. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
@@ -435,6 +386,9 @@ class Obj4d_Deform(Obj4d_Kps):
             - :code:`nonrigid`: the non-rigid transformation will be used to deform the object.
             - :code:`rigid`: the rigid transformation will be used to deform the object.
 
+        is_color_body
+            color the mesh with deformation distance or not.
+
         cmap
             the color map name. 
             
@@ -444,7 +398,10 @@ class Obj4d_Deform(Obj4d_Kps):
         scene = pv.Plotter()
         scene.open_gif(os.path.join(output_folder, filename + '.gif'))
 
-        for obj in self.obj_ls[:-1]:
+        plot_num = len(self.obj_ls) - 1
+
+        for idx in range(0, plot_num):
+            obj = self.obj_ls[idx]
             scene.clear()
 
             if mode == 'nonrigid' and obj.trans_nonrigid is not None:
@@ -460,13 +417,18 @@ class Obj4d_Deform(Obj4d_Kps):
 
             deform_obj = obj.get_deform_obj3d(mode=mode)
             dist = np.linalg.norm(obj.mesh.points - deform_obj.mesh.points, axis = 1)
-            width = obj3d.pcd_get_max_bound(deform_obj.pcd)[0] - obj3d.pcd_get_min_bound(deform_obj.pcd)[0]
+            width = deform_obj.get_width()
 
-            deform_obj.mesh["distances"] = dist
-            deform_obj.add_mesh_to_scene(scene, cmap=cmap)
+            if is_color_body:
+                deform_obj.mesh["distances"] = dist
+                deform_obj.add_mesh_to_scene(scene, cmap=cmap)
+
+            else:
+                deform_obj.add_mesh_to_scene(scene)
 
             if mode == 'nonrigid' and obj.trans_nonrigid is not None:
                 trans.add_to_scene(scene, location=[1.5*width, 0, 0], cmap=cmap)
+
             elif mode == 'rigid' and obj.trans_rigid is not None:
                 trans.add_to_scene(scene, location=[1.5*width, 0, 0], cmap=cmap, original_length=width)
             
@@ -475,6 +437,10 @@ class Obj4d_Deform(Obj4d_Kps):
             
             scene.camera_position = 'xy'
             scene.write_frame()
+
+            if mesh4d.output_msg:
+                percent = (idx + 1) / plot_num
+                utils.progress_bar(percent, back_str=" exported the {}-th frame".format(idx))
 
         scene.close()
 
@@ -503,7 +469,7 @@ class Obj4d_Deform(Obj4d_Kps):
         if mesh4d.output_msg:
             print("4d object reorientated")
 
-    def vkps_track(self, kps: Type[kps.Kps], frame_id: int = 0, name: str = 'vkps'):
+    def vkps_track(self, kps: Type[kps.Kps], frame_id: int = 0, name: str = 'vkps', k_nbr: int = 1):
         """Virtual key points tracking.
 
         - Firstly, attach a set of key points (:class:`~mesh4d.kps.Kps`) to a frame of 3D object.
@@ -526,6 +492,8 @@ class Obj4d_Deform(Obj4d_Kps):
             the frame number to which the key points object attach.
         name
             name of the virtual key points as its keyword when attached to a 3D object.
+        k_nbr
+            see :meth:`mesh4d.filed.Trans_Nonrigid.shift_points`.
         """
         self.obj_ls[frame_id].attach_kps(name, kps)
 
@@ -533,7 +501,7 @@ class Obj4d_Deform(Obj4d_Kps):
         for idx in range(frame_id + 1, len(self.obj_ls)):
             previous_obj = self.obj_ls[idx - 1]
             previous_kps = previous_obj.kps_group[name]
-            current_kps = previous_obj.trans_nonrigid.shift_kps(previous_kps)
+            current_kps = previous_obj.trans_nonrigid.shift_kps(previous_kps, k_nbr=k_nbr)
 
             current_obj = self.obj_ls[idx]
             current_obj.attach_kps(name, current_kps)

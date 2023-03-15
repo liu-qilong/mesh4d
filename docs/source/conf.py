@@ -30,22 +30,22 @@ release = 'v0.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.duration',
-    'sphinx.ext.doctest',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
-    "sphinx.ext.inheritance_diagram",
-    'sphinxcontrib.napoleon',
-    "sphinx.ext.viewcode",
-    "sphinx_copybutton",
-    'myst_parser',
-    'sphinx.ext.autosectionlabel',
+	'sphinx.ext.duration',
+	'sphinx.ext.doctest',
+	'sphinx.ext.autodoc',
+	'sphinx.ext.autosummary',
+	'sphinx.ext.inheritance_diagram',
+	'sphinx.ext.napoleon',
+	'sphinx.ext.viewcode',
+	'sphinx.ext.autosectionlabel',
+	'sphinx_copybutton',
+	'myst_parser',
 ]
 
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.txt': 'markdown',
-    '.md': 'markdown',
+	'.rst': 'restructuredtext',
+	'.txt': 'markdown',
+	'.md': 'markdown',
 }
 
 autosummary_generate = True

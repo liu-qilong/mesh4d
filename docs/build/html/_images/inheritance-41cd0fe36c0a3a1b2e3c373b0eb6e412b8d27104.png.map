@@ -1,6 +1,0 @@
-<map id="inheritancef2d35fa212" name="inheritancef2d35fa212">
-<area shape="rect" id="node1" href="UltraMotionCapture.analysis.virtual_kps.Obj4d_VKps.html#UltraMotionCapture.analysis.virtual_kps.Obj4d_VKps" target="_top" title="analysis.virtual_kps.Obj4d_VKps" alt="" coords="503,5,717,31"/>
-<area shape="rect" id="node2" href="UltraMotionCapture.obj4d.Obj4d_Deform.html#UltraMotionCapture.obj4d.Obj4d_Deform" target="_top" title="Dynamic/Deformable 4D object :class:`Obj4d_Deform`. Derived from :class:`Obj4d_Kps` and attach the rigid transformation (:class:`UltraMotionCapture.field.Trans_Rigid`) and non&#45;rigid deformation (:class:`UltraMotionCapture.field.Trans_Nonrigid`) to each of the 3D object by registration." alt="" coords="313,5,455,31"/>
-<area shape="rect" id="node3" href="UltraMotionCapture.obj4d.Obj4d.html#UltraMotionCapture.obj4d.Obj4d" target="_top" title="Static 4D object. Contains a list of 3D objects." alt="" coords="5,5,96,31"/>
-<area shape="rect" id="node4" href="UltraMotionCapture.obj4d.Obj4d_Kps.html#UltraMotionCapture.obj4d.Obj4d_Kps" target="_top" title="Static 4D object :class:`Obj4d_Kps` with key points. Derived from :class:`Obj4d` and attach key points (:class:`UltraMotionCapture.kps.Kps`) to each of the 3D object via Vicon motion capture data (:class:`UltraMotionCapture.kps.MarkerSet`)." alt="" coords="144,5,265,31"/>
-</map>

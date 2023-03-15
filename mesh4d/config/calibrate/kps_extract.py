@@ -10,13 +10,13 @@ parent_dir = current_dir[:parent_dir.rfind(os.path.sep)]
 parent_dir = current_dir[:parent_dir.rfind(os.path.sep)]
 sys.path.insert(0, parent_dir)
 
-from mesh4d import utils
+from mesh4d.analyse.crave import obj_pick_points
 
 # pick points
-utils.obj_pick_points(
-    filedir='mesh4d/data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj',
+obj_pick_points(
+    filedir='data/meshes/static_3markers/static_standing.000001.obj',
     use_texture=True,
-    is_save=True,
+    is_save=False,
     save_folder='mesh4d/config/calibrate/',
-    save_name='points_3dmd_test',
+    save_name='points_3dmd',
 )

@@ -21,7 +21,6 @@ mesh4d.field.Trans
       ~Trans.add_to_scene
       ~Trans.shift_kps
       ~Trans.shift_mesh
-      ~Trans.shift_pcd
       ~Trans.shift_points
       ~Trans.show
    

@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Type, Union, Iterable
 
 import os
+import copy
 import numpy as np
 import pandas as pd
 import pyvista as pv
@@ -17,7 +18,8 @@ from scipy import interpolate
 
 import mesh4d
 import mesh4d.config.param
-from mesh4d import field, obj3d, utils
+from mesh4d import field, utils
+from mesh4d.analyse import visual
 
 class Kps(object):
     """A collection of the key points that can be attached to a 3D object, i.e. a frame of the 4D object.
@@ -28,8 +30,6 @@ class Kps(object):
 
     self.points
         :math:`N` key points in 3D space stored in a dictionary.
-    self.scale_rate
-        the scaling rate of the Vicon key points.
 
     Example
     ---
@@ -106,8 +106,8 @@ class Kps(object):
             - :code:`'diff_str'`: a string in form of :code:`'dist_mean ± dist_std (mm)`.
         """
         names = kps1.points.keys()
-        points1 = kps1.get_points_coord(names) / kps1.scale_rate
-        points2 = kps2.get_points_coord(names) / kps2.scale_rate
+        points1 = kps1.get_points_coord(names)
+        points2 = kps2.get_points_coord(names)
 
         disp = points1 - points2
         dist = np.linalg.norm(disp, axis=1)
@@ -156,7 +156,7 @@ class Kps(object):
         :class:`pyvista.Plotter`
             :class:`pyvista.Plotter` scene added the visualisation.
         """
-        pvpcd_kps = obj3d.np2pvpcd(self.get_points_coord(), radius=radius)
+        pvpcd_kps = visual.np2pvpcd(self.get_points_coord(), radius=radius)
         scene.add_mesh(pvpcd_kps.translate(location, inplace=False), **kwargs)
 
 
@@ -171,16 +171,10 @@ class Marker(object):
         the start time of the coordinates data.
     fps
         the number of frames per second (fps).
-    scale_rate
-        the scaling rate of the Vicon key points.
 
         Attention
         ---
-        Noted that the original unit of Vicon raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
-
-        Warning
-        ---
-        This value must be the same as :class:`mesh4d.obj3d.Obj3d`'s :attr:`scale_rate`.
+        Noted that the original unit of Vicon raw data is millimetre (mm).
 
     Note
     ---
@@ -199,16 +193,12 @@ class Marker(object):
         The start time of the coordinates data.
     self.fps
         The number of frames per second (fps).
-    self.scale_rate
-        the scaling rate of the Vicon key points.
     self.coord
         (3, N) :class:`numpy.array` storing the :code:`N` frames of coordinates data.
     self.speed
         (N, ) :class:`numpy.array` storing :code:`N` frames of speed data.
     self.accel
         (N, ) :class:`numpy.array` storing :code:`N` frames of acceleration data.
-    self.frame_num
-        The number of total frames.
     self.x_field
         An :class:`scipy.interpolate.interp1d` object that storing the interpolated function of the :math:`x` coordinates of all frames. Used for estimated the :math:`x` coordinate of any intermediate time between frames.
     self.y_field
@@ -226,39 +216,41 @@ class Marker(object):
     """
     trans_cab = None
 
-    def __init__(self, name: str, start_time: float = 0, fps: int = 100, scale_rate: float = 1):
+    def __init__(self, name: str, start_time: float = 0, fps: int = 100):
         if self.trans_cab is None:
             self.load_cab_rst()
-            
-            if mesh4d.output_msg:
-                print('calibration parameters loaded')
 
         self.name = name
         self.start_time = start_time
         self.fps = fps
-        self.scale_rate = scale_rate
 
         # x, y, z data are stored in 3xN numpy array
         self.coord = None  # coordinates
         self.speed = None  # speed
         self.accel = None  # acceleration
 
-        self.frame_num = None
-
         self.x_field = None
         self.y_field = None
         self.z_field = None
-
+    
     @classmethod
     def load_cab_rst(cls):
         """Load the calibration parameters from Vicon to 3dMD coordination system.
         """
-        mod_path = os.path.dirname(mesh4d.__file__)
-        cls.trans_cab = field.Trans_Rigid(source_obj=None, target_obj=None)
-        
-        cls.trans_cab.rot = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
-        cls.trans_cab.scale = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
-        cls.trans_cab.t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
+        try:
+            mod_path = os.path.dirname(mesh4d.__file__)
+            cls.trans_cab = field.Trans_Rigid(source_obj=None, target_obj=None)
+            
+            cls.trans_cab.rot = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
+            cls.trans_cab.scale = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
+            cls.trans_cab.t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
+
+            if mesh4d.output_msg:
+                print('calibration parameters loaded')
+
+        except:
+            if mesh4d.output_msg:
+                print('marker calibration parameters not found\nwhen filling data, please use convert=False mode')
 
     def append_data(self, coord: np.array, speed: float = 0, accel: float = 0, convert: bool = True):
         """Append a frame of coordinates, speed, and acceleration data. after transforming to 3dMD coordinates.
@@ -272,7 +264,7 @@ class Marker(object):
         accel
             the acceleration storing in a :class:`float`. Default as :code:`0`.
         convert
-            implement coordinates conversion or not. Default as :code:`True`. Noted that conversion include transformation from Vicon to 3dMD coordinates and the scaling effect controlled by :attr:`self.scale_rate`.
+            implement coordinates conversion or not. Default as :code:`True`. Noted that conversion include transformation from Vicon to 3dMD coordinates.
         """
         # adjust array layout
         coord = np.expand_dims(coord, axis=0).T
@@ -281,9 +273,9 @@ class Marker(object):
 
         # transform to 3dMD coordinates
         if convert:
-            coord = self.scale_rate * self.trans_cab.shift_points(coord).T
-            speed = self.scale_rate * self.trans_cab.scale * speed
-            accel = self.scale_rate * self.trans_cab.scale * accel
+            coord = self.trans_cab.shift_points(coord).T
+            speed = self.trans_cab.scale * speed
+            accel = self.trans_cab.scale * accel
 
         # if self.coord, self.speed, and self.accel haven't been initialised, initialise them
         # otherwise, append the newly arrived data to its end
@@ -302,8 +294,6 @@ class Marker(object):
         else:
             self.accel = np.concatenate((self.accel, accel), axis=0)
 
-        self.frame_num = self.coord.shape[1]
-
     def fill_data(self, data_input: np.array, convert: bool = True):
         """Fill coordinates, speed, and acceleration data of all frames after transforming to 3dMD coordinates. Noted that the first calling fills the coordinates data, the second calling fills the speed data, and the third calling fills the acceleration data, respectively.
 
@@ -315,29 +305,46 @@ class Marker(object):
             - Or (N, ) :class:`numpy.array` for loading speed data or acceleration data.
 
         convert
-            implement coordinates conversion or not. Default as :code:`True`. Noted that conversion include transformation from Vicon to 3dMD coordinates and the scaling effect controlled by :attr:`self.scale_rate`.
+            implement coordinates conversion or not. Default as :code:`True`. Noted that conversion include transformation from Vicon to 3dMD coordinates.
 
         Attention
         ---
         Other than appending data frame by frame, as :meth:`append_data` does, it's more convenient to load the data at one go when data loading data from a parsed Vicon motion capture data (:meth:`MarkerSet.load_from_vicon`). This method is designed for this purpose. Usually the end user don't need to call this method manually.
         """
         if convert:
-            data_input = self.scale_rate * self.trans_cab.shift_points(data_input.T).T
+            data_input = self.trans_cab.shift_points(data_input.T).T
 
         if self.coord is None:
             self.coord = data_input
-            self.frame_num = data_input.shape[1]
         elif self.speed is None:
             self.speed = data_input
         elif self.accel is None:
             self.accel = data_input
 
-    def interp_field(self):
+    def get_frame_num(self) -> int:
+        """Get the number of frames.
+        """
+        return self.coord.shape[1]
+    
+    def get_duration(self) -> float:
+        """Get the whole time duration.
+        """
+        return (self.get_frame_num() - 1) / self.fps
+
+    def interp_field(self, kind: str = 'quadratic'):
         """Interpolating the :math:`x, y, z` coordinates data to estimate its continues change. After that, the coordinates at the intermediate time between frames is accessible.
 
         Warnings
         ---
         Before interpolation, the coordinates data, i.e. :attr:`self.coord`, must be properly loaded.
+
+        Parameters
+        ---
+        kind
+            kind of interpolation.
+
+            .. seealso::
+                `scipy.interpolate.interp1d <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.interp1d.html>`_
         """
         if self.coord is None:
             if mesh4d.output_msg:
@@ -347,9 +354,9 @@ class Marker(object):
 
         frame_range = range(len(self.coord[0]))
 
-        self.x_field = interpolate.interp1d(frame_range, self.coord[0], 'slinear')
-        self.y_field = interpolate.interp1d(frame_range, self.coord[1], 'slinear')
-        self.z_field = interpolate.interp1d(frame_range, self.coord[2], 'slinear')
+        self.x_field = interpolate.interp1d(frame_range, self.coord[0], kind=kind)
+        self.y_field = interpolate.interp1d(frame_range, self.coord[1], kind=kind)
+        self.z_field = interpolate.interp1d(frame_range, self.coord[2], kind=kind)
 
     def get_frame_coord(self, frame_id: int) -> np.array:
         """Get coordinates data according to frame id.
@@ -398,6 +405,32 @@ class Marker(object):
 
         return coord_interp
 
+    def reslice(self, fps_new: int = 120):
+        """Return the marker object re-slicing to another frame rate. Noted that the original object won't be altered.
+        
+        Attention
+        ---
+        The new marker set object haven't undergo :meth:`interp_field`.
+
+        Parameters
+        ---
+        fps_new
+            the new frame rate (frames per second)
+        """
+        marker = Marker(
+            name=self.name,
+            start_time=self.start_time,
+            fps=fps_new,
+            )
+        
+        frame_num_new = int(self.get_duration() * fps_new) + 1
+
+        for idx in range(frame_num_new):
+            time = self.start_time + idx / fps_new
+            marker.append_data(coord=self.get_time_coord(time), convert=False)
+
+        return marker
+
     @staticmethod
     def diff(marker1: Marker, marker2: Marker) -> dict:
         """Compute the difference of one marker object with another.
@@ -426,10 +459,10 @@ class Marker(object):
         """
         disp = []
 
-        for frame in range(marker1.frame_num):
+        for frame in range(marker1.get_frame_num()):
             time = marker1.start_time + frame / marker1.fps
-            coord1 = marker1.get_frame_coord(frame) / marker1.scale_rate
-            coord2 = marker2.get_time_coord(time) / marker2.scale_rate
+            coord1 = marker1.get_frame_coord(frame)
+            coord2 = marker2.get_time_coord(time)
             disp.append(coord1 - coord2)
             
         dist = np.linalg.norm(disp, axis=1)
@@ -445,6 +478,42 @@ class Marker(object):
         }
 
         return diff_dict
+
+    @staticmethod
+    def concatenate(marker1: Type[Marker], marker2: Type[Marker]) -> Marker:
+        """Concatenate two marker object.
+
+        Attention
+        ---
+        If the second marker object has more than 1 frame of data, it will be re-slicing to the same frame rate as the first object and then be concatenated. Otherwise, it will be directly concatenated.
+
+        Parameters
+        ---
+        marker1
+            the first marker object.
+        marker2
+            the second marker object.
+        """
+        marker = Marker(
+            name=marker1.name, 
+            start_time=marker1.start_time, 
+            fps=marker1.fps,
+            )
+        
+        if marker2.get_frame_num() == 1:
+            marker2_reslice = marker2
+        else:
+            marker2_reslice = marker2.reslice(marker1.fps)
+
+        
+        marker.coord = np.concatenate((marker1.coord, marker2_reslice.coord), axis=1)
+        marker.speed = np.concatenate((marker1.speed, marker2_reslice.speed), axis=0)
+        marker.accel = np.concatenate((marker1.accel, marker2_reslice.accel), axis=0)
+
+        marker.frame_num = marker.coord.shape[1]
+        
+        return marker
+        
 
     def plot_track(
         self,
@@ -568,17 +637,6 @@ class MarkerSet(object):
     ---
     filedir
         directory of the :code:`.csv` key points coordinates data exported from the motion capture Vicon system.
-    scale_rate
-        the scaling rate of the Vicon key points.
-
-        Attention
-        ---
-        Noted that the original unit of Vicon raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
-
-        Warning
-        ---
-        This value must be the same as :class:`mesh4d.obj3d.Obj3d`'s :attr:`scale_rate`.
-
 
     Note
     ---
@@ -586,8 +644,6 @@ class MarkerSet(object):
 
     self.fps
         the number of frames per second (fps).
-    self.scale_rate
-        the scaling rate of the Vicon key points.
     self.markers
         a :class:`Dictonary` of :class:`Marker` s, with the corresponding marker names as their keywords.
 
@@ -617,27 +673,28 @@ class MarkerSet(object):
         vicon.plot_track(step=3, end_frame=100)
     
     """
-    def load_from_vicon(self, filedir: str, scale_rate: float = 1):
+    def __init__(self):
+        self.markers = {}
+
+    def load_from_vicon(self, filedir: str, convert: bool = True):
         """Load and parse data from :code:`.csv` file exported from the Vicon motion capture system.
 
         Parameters
         ---
         filedir
             the directory of the :code:`.csv` file.
-        scale_rate
-            the scaling rate of the 3D object.
 
             .. attention::
-                Noted that the original unit of 3dMD raw data is millimetre (mm). The default :attr:`scale_rate` transforms it to metre (m).
-
-            .. seealso::
-                Reason for providing :code:`scale_rate` parameter is explained in :class:`Obj3d_Deform`.
+                Noted that the original unit of 3dMD raw data is millimetre (mm).
+        
+        convert
+            implement the coordinates conversion or not.
         """
-        self.scale_rate = scale_rate
+        # trigger calibration parameters loading
+        Marker('None')
 
         def parse(df, df_head):
             self.fps = df_head.values.tolist()[0][0]  # parse the fps
-            self.markers = {}
             col_names = df.columns.values.tolist()
 
             for col_id in range(len(col_names)):
@@ -648,21 +705,36 @@ class MarkerSet(object):
                 # (checking start from row 4, because for speed and acceleration the first few rows are empty)
                 # or that follows the 'X' columns
                 if df.loc[4:, col_name].isnull().values.any():
+                    if mesh4d.output_msg:
+                        percent = (col_id + 1) / len(col_names)
+                        utils.progress_bar(percent, back_str=" parsing the {}-th column".format(col_id))
+
                     continue
 
                 if 'Unnamed' in col_name:
+                    if mesh4d.output_msg:
+                        percent = (col_id + 1) / len(col_names)
+                        utils.progress_bar(percent, back_str=" parsing the {}-th column".format(col_id))
+                        
                     continue
+                
+                else:
+                    # the first occurrence of a point
+                    if point_name not in self.markers.keys():
+                        self.markers[point_name] = Marker(name=point_name, fps=self.fps)
 
-                # the first occurrence of a point
-                if point_name not in self.markers.keys():
-                    self.markers[point_name] = Marker(
-                        name=point_name, 
-                        fps=self.fps, 
-                        scale_rate=self.scale_rate)
+                    # fill the following 3 columns' X, Y, Z values into the point's object
+                    try:
+                        data_input = df.loc[2:, col_name:col_names[col_id+2]].to_numpy(dtype=float).transpose()
+                        self.markers[point_name].fill_data(data_input, convert=convert)
 
-                # fill the following 3 columns' X, Y, Z values into the point's object
-                data_input = df.loc[2:, col_name:col_names[col_id+2]].to_numpy(dtype=float).transpose()
-                self.markers[point_name].fill_data(data_input)
+                    except:
+                        if mesh4d.output_msg:
+                            print("error happended when loading kps file: column {}".format(col_name))
+
+                    if mesh4d.output_msg:
+                        percent = (col_id + 1) / len(col_names)
+                        utils.progress_bar(percent, back_str=" parsing the {}-th column".format(col_id))
 
         df = pd.read_csv(filedir, skiprows=2)  # skip the first two rows
         df_head = pd.read_csv(filedir, nrows=1)  # only read the first two rows
@@ -671,11 +743,16 @@ class MarkerSet(object):
         if mesh4d.output_msg:
             print("loaded 1 vicon file: {}".format(filedir))
 
-    def interp_field(self):
+    def interp_field(self, **kwargs):
         """After loading Vicon motion capture data, the :class:`MarkerSet` object only carries the key points' coordinates in discrete frames. To access the coordinates at any specific time, it's necessary to call :meth:`interp_field`.
+
+        Parameters
+        ---
+        **kwargs
+            arguments to be passed to :meth:`Marker.interp_field`.
         """
         for point in self.markers.values():
-            point.interp_field()
+            point.interp_field(**kwargs)
 
     def get_frame_coord(self, frame_id: int, kps_class: Type[Kps] = Kps) -> Type[Kps]:
         """Get coordinates data according to frame id and packed as a :class:`Kps` object.
@@ -693,14 +770,79 @@ class MarkerSet(object):
             The extracted coordinates data packed as a :class:`Kps` (or its derived class) object.
         """
         kps = kps_class()
-        kps.scale_rate = self.scale_rate
 
         for name, marker in self.markers.items():
             coord = marker.get_frame_coord(frame_id)
             kps.add_point(name, coord)
 
         return kps
+    
+    def get_time_coord(self, time: float) -> np.array:
+        """Get coordinates data according to time stamp.
 
+        Parameters
+        ---
+        time
+            time stamp to get coordinates data.
+
+        Return
+        ---
+        :class:`numpy.array`
+            The structure of the returned array is :code:`array[marker_id][0-2 as x-z][time]`
+        
+        Warnings
+        ---
+        The interpolation must be properly done before accessing coordinates data according to time stamp, which means the :meth:`interp_field` must be called first.
+
+        WARNING
+        ---
+        The returned value will be transferred to :class:`Kps` in future development.
+        """
+        kps = Kps()
+
+        for name, marker in self.markers.items():
+            coord = marker.get_time_coord(time)
+            kps.add_point(name, coord)
+
+        return kps
+    
+    def extract(self, marker_names: Iterable[str]) -> MarkerSet:
+        """Return the assembled marker set with extracted markers. Noted that the original marker set won't be altered.
+        
+        Parameters
+        ---
+        marker_names
+            a list of marker names to be extracted
+        """
+        markerset = MarkerSet()
+
+        for marker_name in marker_names:
+            marker_extract = copy.deepcopy(self.markers[marker_name])
+            markerset.markers[marker_name] = marker_extract
+
+        return markerset
+    
+    def split(self, marker_names: Iterable[str]) -> tuple:
+        """Return the markerset splitted into two part. Noted that the original marker set won't be altered.
+        
+        Parameters
+        ---
+        marker_names
+            a list of marker names to be extracted to the first part.
+
+        Retrun
+        ---
+        MarkerSet, MarkerSet
+            return a tuple of two :class:`MarkerSet`. The first one contains the markers from the :attr:`marker_names`. The second one contains the remaining markers.
+        """
+        other_marker_names = []
+
+        for name in self.markers.keys():
+            if name not in marker_names:
+                other_marker_names.append(name)
+
+        return self.extract(marker_names), self.extract(other_marker_names)
+    
     @staticmethod
     def diff(markerset1: MarkerSet, markerset2: MarkerSet) -> dict:
         """Compute the difference of one marker set object with another.
@@ -733,7 +875,7 @@ class MarkerSet(object):
         for name in markerset1.markers.keys():
             diff = Marker.diff(markerset1.markers[name], markerset2.markers[name])
             diff_dict[name] = diff
-            dist_ls = diff['dist']
+            dist_ls.append(diff['dist'])
 
             if mesh4d.output_msg:
                 print("estimated error of frame {}: {}".format(name, diff['diff_str']))
@@ -756,35 +898,49 @@ class MarkerSet(object):
 
         return overall_diff_dict
 
-    def get_time_coord(self, time: float) -> np.array:
-        """Get coordinates data according to time stamp.
+    def reslice(self, fps_new: int):
+        """Return the marker set object re-slicing to another frame rate. Noted that the original object won't be altered.
+
+        Attention
+        ---
+        The new marker set object haven't undergo :meth:`interp_field`.
+        
+        Parameters
+        ---
+        fps_new
+            the new frame rate (frames per second)"""
+        markerset = MarkerSet()
+
+        for name in self.markers.keys():
+            markerset.markers[name] = self.markers[name].reslice(fps_new)
+
+        return markerset
+
+    @staticmethod
+    def concatenate(markerset1: Type[Marker], markerset2: Type[Marker]) -> Marker:
+        """Concatenate two marker set object.
+
+        Attention
+        ---
+        If the second marker object has more than 1 frame of data, it will be re-slicing to the same frame rate as the first object and then be concatenated. Otherwise, it will be directly concatenated.
 
         Parameters
         ---
-        time
-            time stamp to get coordinates data.
-
-        Return
-        ---
-        :class:`numpy.array`
-            The structure of the returned array is :code:`array[marker_id][0-2 as x-z][time]`
-        
-        Warnings
-        ---
-        The interpolation must be properly done before accessing coordinates data according to time stamp, which means the :meth:`interp_field` must be called first.
-
-        WARNING
-        ---
-        The returned value will be transferred to :class:`Kps` in future development.
+        markerset1
+            the first marker set object.
+        markerset2
+            the second marker set object.
         """
-        kps = Kps()
-        kps.scale_rate = self.scale_rate
+        markerset = MarkerSet()
 
-        for name, marker in self.markers.items():
-            coord = marker.get_time_coord(time)
-            kps.add_point(name, coord)
+        for name in markerset1.markers.keys():
+            markerset.markers[name] = Marker.concatenate(
+                markerset1.markers[name],
+                markerset2.markers[name],
+            )
 
-        return kps
+        return markerset
+        
 
     def plot_track(
             self,
@@ -814,7 +970,7 @@ class MarkerSet(object):
         """
         if end_frame is None:
             first_point = list(self.markers.values())[0]
-            end_frame = first_point.frame_num
+            end_frame = first_point.get_frame_num()
 
         for frame_id in range(start_frame, end_frame, step):
             self.plot_frame(frame_id, is_show=False, is_save=True, *args, **kwargs)
@@ -828,6 +984,7 @@ class MarkerSet(object):
             is_add_line: bool = True,
             is_show: bool = True,
             is_save: bool = False,
+            export_folder: str = 'output/',
             **kwargs
     ):
         """
@@ -845,6 +1002,8 @@ class MarkerSet(object):
             weather show the generated graph or not.
         is_save
             weather save the generated graph or not.
+        export_folder
+            the folder for exporting figure.
         """
         fig = plt.figure(dpi=dpi)
         ax = fig.add_subplot(projection='3d')
@@ -861,13 +1020,11 @@ class MarkerSet(object):
         ax.set_zlabel('Z-axis', fontdict=font)
         ax.tick_params(labelsize=7)
 
-        plt.savefig('output/gif-{:0>4d}'.format(frame_id))
-
         if is_show:
             plt.show()
 
         if is_save:
-            filedir = 'output/gif-' + str(frame_id)
+            filedir = os.path.join(export_folder, 'gif-{:0>4d}'.format(frame_id))
             plt.savefig(filedir)
 
             if mesh4d.output_msg:
