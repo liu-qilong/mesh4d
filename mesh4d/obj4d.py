@@ -125,6 +125,37 @@ class Obj4d(object):
 
         scene.close()
 
+    def export_pcd_gif(self, output_folder: str = "output/", filename: str = "obj4d"):
+        """Illustrate the vertices point cloud of 4D object.
+        
+        Parameters
+        ---
+        output_folder
+            the output folder of the generated :code:`.gif` file.
+        filename
+            the output filename of the generated :code:`.gif` file.
+        """
+        scene = pv.Plotter()
+        scene.open_gif(os.path.join(output_folder, filename + '.gif'))
+
+        plot_num = len(self.obj_ls)
+
+        for idx in range(0, plot_num):
+            obj = self.obj_ls[idx]
+            scene.clear()
+            
+            width = obj.get_width()
+            obj.add_pcd_to_scene(scene, point_size=1e-3*width)
+            
+            scene.camera_position = 'xy'
+            scene.write_frame()
+
+            if mesh4d.output_msg:
+                percent = (idx + 1) / plot_num
+                utils.progress_bar(percent, back_str=" exported the {}-th frame".format(idx))
+
+        scene.close()
+
 
 class Obj4d_Kps(Obj4d):
     """Static 4D object :class:`Obj4d_Kps` with key points. Derived from :class:`Obj4d` and attach key points (:class:`mesh4d.kps.Kps`) to each of the 3D object via Vicon motion capture data (:class:`mesh4d.kps.MarkerSet`).
@@ -221,6 +252,41 @@ class Obj4d_Kps(Obj4d):
             obj.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-3*width)
             obj.add_kps_to_scene(scene, kps_names, radius=0.02*width)
             obj.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
+            
+            scene.camera_position = 'xy'
+            scene.write_frame()
+
+            if mesh4d.output_msg:
+                percent = (idx + 1) / plot_num
+                utils.progress_bar(percent, back_str=" exported the {}-th frame".format(idx))
+
+        scene.close()
+
+    def export_pcd_gif(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None):
+        """Illustrate the vertices point cloud of 4D object with key points.
+        
+        Parameters
+        ---
+        output_folder
+            the output folder of the generated :code:`.gif` file.
+        filename
+            the output filename of the generated :code:`.gif` file.
+        kps_names
+            a list of names of the :class:`~mesh4d.kps.Kps` objects to be shown. Noted that a :class:`~mesh4d.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
+        """
+        scene = pv.Plotter()
+        scene.open_gif(os.path.join(output_folder, filename + '.gif'))
+
+        plot_num = len(self.obj_ls)
+
+        for idx in range(0, plot_num):
+            obj = self.obj_ls[idx]
+            scene.clear()
+            
+            width = obj.get_width()
+
+            obj.add_pcd_to_scene(scene, point_size=1e-3*width)
+            obj.add_kps_to_scene(scene, kps_names, radius=0.02*width)
             
             scene.camera_position = 'xy'
             scene.write_frame()
