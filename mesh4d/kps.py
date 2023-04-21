@@ -10,11 +10,12 @@ from typing import Type, Union, Iterable
 
 import os
 import copy
+import random
 import numpy as np
 import pandas as pd
 import pyvista as pv
-import matplotlib.pyplot as plt
 from scipy import interpolate
+import matplotlib.colors as mcolors
 
 import mesh4d
 import mesh4d.config.param
@@ -513,121 +514,60 @@ class Marker(object):
         marker.frame_num = marker.coord.shape[1]
         
         return marker
+    
+    def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), trace_fps: float = 100, trace_width: float = 2, trace_op: float = 0.5, radius: float = 1, color: str = 'gold', **kwargs) -> pv.Plotter:
+        """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
         
-
-    def plot_track(
-        self,
-        line_start_frame: int = 0,
-        line_end_frame: Union[int, None] = None,
-        dot_start_frame: int = 0,
-        dot_end_frame: Union[int, None] = None,
-        line_alpha: float = 0.5,
-        line_width: float = 1.0,
-        dot_s: float = 10,
-        dot_alpha: float = 0.5,
-        dpi: int = 300,
-        is_show: bool = True,
-        is_save: bool = False,
-    ):
-        """Plotting the marker motion track.
-
         Parameters
         ---
-        line_start_frame
-            start frame of line plotting.
-        line_end_frame
-            end frame of line plotting, default as :code:`None`, which means plot till the end.
-        dot_start_frame
-            start frame of dot plotting.
-        dot_end_frame
-            end frame of dot plotting, default as :code:`None`, which means plot till the end.
-        is_show
-            weather show the generated graph or not.
-        is_save
-            weather save the generated graph or not.
-        Others
-            parameters passed to :meth:`plot_add_line` and :meth:`plot_add_dot` to controlling the appearance.
-        """
-        fig = plt.figure(dpi=dpi)
-        ax = fig.add_subplot(projection='3d')
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        location
+            the displace location represented in a (3, ) :class:`numpy.array`.
+        trace_fps
+            when drawing the trajectory, interpolate the marker points to :code:`trace_fps` to draw a smooth and continues trajectory.
+        trace_width
+            line width of the trajectory.
+        trace_op
+            opacity of the trajectory.
+        radius
+            radius of the key points.
+        color
+            color of the points and trajectory.
+        **kwargs
+            other visualisation parameters.
+            
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
 
-        self.plot_add_line(
-            ax,
-            line_start_frame,
-            line_end_frame,
-            line_alpha,
-            line_width)
-
-        self.plot_add_dot(
-            ax,
-            dot_start_frame,
-            dot_end_frame,
-            dot_s,
-            dot_alpha,
-        )
-
-        font = {'family': 'Times New Roman'}
-        plt.title('Marker Point Trajectory\n' + self.name, fontdict=font)
-        ax.set_xlabel('X-axis', fontdict=font)
-        ax.set_ylabel('Y-axis', fontdict=font)
-        ax.set_zlabel('Z-axis', fontdict=font)
-        ax.tick_params(labelsize=7)
-
-        if is_show:
-            plt.show()
-
-        if is_save:
-            plt.savefig('output/save-line'
-                        + str(line_start_frame) + ' ' + str(line_end_frame)
-                        + '-dot' + str(dot_start_frame) + ' ' + str(dot_end_frame))
-
-    def plot_add_line(
-            self,
-            ax: plt.subplot,
-            line_start_frame: int = 0,
-            line_end_frame: Union[int, None] = None,
-            line_alpha: float = 0.5,
-            line_width: float = 1,
-            **kwargs
-    ):
-        """Adding motion track lines to the :class:`matplotlib.pyplot.subplot` object created in :meth:`plot_track`.
-
-        Tip
+        Returns
         ---
-        About the appearance controlling parameters, please refer to `Pyplot tutorial - matplotlib <https://matplotlib.org/stable/tutorials/introductory/pyplot.html#pyplot-tutorial>`_.
-
-        Additional appearance controlling parameters can be passed into :code:`**kwargs`, please refer to `*args and **kwargs - Python Tips <https://book.pythontips.com/en/latest/args_and_kwargs.html>`_.
+        :class:`pyvista.Plotter`
+            :class:`pyvista.Plotter` scene added the visualisation.
         """
-        ax.plot3D(
-            self.coord[0, line_start_frame:line_end_frame],
-            self.coord[1, line_start_frame:line_end_frame],
-            self.coord[2, line_start_frame:line_end_frame],
-            'gray', alpha=line_alpha, linewidth=line_width, **kwargs
-        )
+        points = self.coord.transpose()
+        dots = visual.np2pvpcd(points, radius=radius)
 
-    def plot_add_dot(
-            self,
-            ax: plt.subplot,
-            dot_start_frame: int = 0,
-            dot_end_frame: Union[int, None] = None,
-            dot_s: int = 10,
-            dot_alpha: float = 0.5,
-            **kwargs
-    ):
-        """Adding motion dots in different frames to the :class:`matplotlib.pyplot.subplot` object created in :meth:`plot_track`.
+        points_trace = [self.get_time_coord(t) for t in np.arange(
+            self.start_time, 
+            self.start_time + (len(points) - 1)/self.fps,
+            1/trace_fps
+            )]
+        points_trace.append(points[-1])
+        
+        lines = pv.lines_from_points(points_trace)
+        scene.add_mesh(dots.translate(location, inplace=False), color=color, **kwargs)
+        scene.add_mesh(lines, color=color, line_width=trace_width, opacity=trace_op)
 
-        Tip
-        ---
-        About the appearance controlling parameters, please refer to `Pyplot tutorial - matplotlib <https://matplotlib.org/stable/tutorials/introductory/pyplot.html#pyplot-tutorial>`_.
-
-        Additional appearance controlling parameters can be passed into :code:`**kwargs`, please refer to `*args and **kwargs - Python Tips <https://book.pythontips.com/en/latest/args_and_kwargs.html>`_.
+    def show(self):
+        """Illustrate the key points object.
         """
-        ax.scatter3D(
-            self.coord[0, dot_start_frame:dot_end_frame],
-            self.coord[1, dot_start_frame:dot_end_frame],
-            self.coord[2, dot_start_frame:dot_end_frame],
-            s=dot_s, alpha=dot_alpha, **kwargs
-        )
+        scene = pv.Plotter()
+        self.add_to_scene(scene)
+
+        scene.camera_position = 'xy'
+        scene.show()
 
 
 class MarkerSet(object):
@@ -940,92 +880,59 @@ class MarkerSet(object):
             )
 
         return markerset
+    
+    def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), trace_fps: float = 100, trace_width: float = 5, trace_op: float = 0.5, radius: float = 1, color: Union[str, None] = None, **kwargs) -> pv.Plotter:
+        """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
         
-
-    def plot_track(
-            self,
-            start_frame: int = 0,
-            end_frame: Union[int, None] = None,
-            step: int = 1,
-            remove: bool = True,
-            *args,
-            **kwargs
-    ):
-        """Plotting the marker motion track.
-
         Parameters
         ---
-        start_frame
-            start frame of plotting.
-        end_frame
-            end frame of plotting, default as :code:`None`, which means plot till the end.
-        step
-            Plot 1 frame for every :code:`step` frame. The purpose is reducing graph generating time.
-        remove
-            after generating the :code:`.gif` file, remove the frames' images or not.
+        scene
+            :class:`pyvista.Plotter` scene to add the visualisation.
+        location
+            the displace location represented in a (3, ) :class:`numpy.array`.
+        trace_fps
+            when drawing the trajectory, interpolate the marker points to :code:`trace_fps` to draw a smooth and continues trajectory.
+        trace_width
+            line width of the trajectory.
+        trace_op
+            opacity of the trajectory.
+        radius
+            radius of the key points.
+        color
+            color of the points and trajectory.
+        **kwargs
+            other visualisation parameters.
+            
+            .. seealso::
+                `pyvista.Plotter.add_mesh <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html>`_
+                `pyvista.Plotter.add_points <https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_points.html>`_
 
-        Tip
+        Returns
         ---
-        Additional appearance controlling parameters can be passed into :code:`**kwargs`, please refer to `*args and **kwargs - Python Tips <https://book.pythontips.com/en/latest/args_and_kwargs.html>`_ and `Pyplot tutorial - matplotlib <https://matplotlib.org/stable/tutorials/introductory/pyplot.html#pyplot-tutorial>`_
+        :class:`pyvista.Plotter`
+            :class:`pyvista.Plotter` scene added the visualisation.
         """
-        if end_frame is None:
-            first_point = list(self.markers.values())[0]
-            end_frame = first_point.get_frame_num()
+        if color is None:
+            # prepare random color select
+            random_color = True
+            seed = 26
+            color_ls = list(mcolors.CSS4_COLORS.keys())
+        else:
+            random_color = False
 
-        for frame_id in range(start_frame, end_frame, step):
-            self.plot_frame(frame_id, is_show=False, is_save=True, *args, **kwargs)
+        for marker in self.markers.values():
+            # random color select
+            if random_color:
+                random.seed(seed)
+                color = random.choice(color_ls)
+                seed = seed + 1
+            marker.add_to_scene(scene=scene, location=location, trace_fps=trace_fps, trace_width=trace_width, trace_op=trace_op, radius=radius, color=color, **kwargs)
 
-        utils.images_to_gif('output/', remove=remove)
-
-    def plot_frame(
-            self,
-            frame_id: int,
-            dpi: int = 300,
-            is_add_line: bool = True,
-            is_show: bool = True,
-            is_save: bool = False,
-            export_folder: str = 'output/',
-            **kwargs
-    ):
+    def show(self):
+        """Illustrate the key points object.
         """
-        Plot a specific frame.
+        scene = pv.Plotter()
+        self.add_to_scene(scene)
 
-        Parameters
-        ---
-        frame_id
-            index of the frame to be plotted.
-        dpi
-            the dots per inch (dpi) of the generated graph, controlling the graph quality.
-        is_add_line
-            weather add track links or not
-        is_show
-            weather show the generated graph or not.
-        is_save
-            weather save the generated graph or not.
-        export_folder
-            the folder for exporting figure.
-        """
-        fig = plt.figure(dpi=dpi)
-        ax = fig.add_subplot(projection='3d')
-
-        for point in self.markers.values():
-            point.plot_add_dot(ax, frame_id, frame_id+1, **kwargs)
-            if is_add_line:
-                point.plot_add_line(ax)
-
-        font = {'family': 'Times New Roman'}
-        plt.title('Marker Point Trajectory', fontdict=font)
-        ax.set_xlabel('X-axis', fontdict=font)
-        ax.set_ylabel('Y-axis', fontdict=font)
-        ax.set_zlabel('Z-axis', fontdict=font)
-        ax.tick_params(labelsize=7)
-
-        if is_show:
-            plt.show()
-
-        if is_save:
-            filedir = os.path.join(export_folder, 'gif-{:0>4d}'.format(frame_id))
-            plt.savefig(filedir)
-
-            if mesh4d.output_msg:
-                print('saved ' + filedir)
+        scene.camera_position = 'xy'
+        scene.show()

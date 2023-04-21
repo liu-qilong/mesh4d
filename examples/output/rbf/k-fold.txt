@@ -1,36 +1,18 @@
-computation time: 23.49686908721924
-marker 0: test error: diff = 15.2 ± 7.68 (mm)
-computation time: 23.653051137924194
-marker 1: test error: diff = 18.3 ± 29.3 (mm)
-computation time: 24.02491021156311
-marker 2: test error: diff = 32.9 ± 42.8 (mm)
-computation time: 23.008420944213867
-marker 3: test error: diff = 11.4 ± 5.27 (mm)
-computation time: 25.499243021011353
-marker 4: test error: diff = 12.0 ± 6.84 (mm)
-computation time: 30.813791036605835
-marker 5: test error: diff = 5.75 ± 3.1 (mm)
-computation time: 34.4249792098999
-marker 6: test error: diff = 9.36 ± 5.21 (mm)
-computation time: 27.278385162353516
-marker 7: test error: diff = 5.76 ± 4.32 (mm)
-computation time: 28.61742901802063
-marker 8: test error: diff = 15.0 ± 15.4 (mm)
-computation time: 26.286109924316406
+marker 0: test error: diff = 13.2 ± 5.89 (mm)
+marker 1: test error: diff = 5.69 ± 2.4 (mm)
+marker 2: test error: diff = 11.2 ± 6.28 (mm)
+marker 3: test error: diff = 12.3 ± 5.51 (mm)
+marker 4: test error: diff = 8.27 ± 3.61 (mm)
+marker 5: test error: diff = 7.33 ± 4.28 (mm)
+marker 6: test error: diff = 9.38 ± 5.07 (mm)
+marker 7: test error: diff = 6.51 ± 4.1 (mm)
+marker 8: test error: diff = 16.0 ± 15.4 (mm)
 marker 9: test error: diff = 19.1 ± 8.82 (mm)
-computation time: 35.38233017921448
 marker 10: test error: diff = 16.1 ± 16.6 (mm)
-computation time: 29.217721700668335
-marker 11: test error: diff = 6.03 ± 3.57 (mm)
-computation time: 29.20094585418701
-marker 12: test error: diff = 11.1 ± 4.93 (mm)
-computation time: 26.298710107803345
-marker 13: test error: diff = 18.0 ± 9.68 (mm)
-computation time: 24.592397928237915
-marker 14: test error: diff = 27.7 ± 16.9 (mm)
-computation time: 25.33036208152771
-marker 15: test error: diff = 10.9 ± 5.81 (mm)
-computation time: 23.05149817466736
-marker 16: test error: diff = 18.8 ± 8.8 (mm)
-computation time: 24.52942180633545
-marker 17: test error: diff = 11.4 ± 5.62 (mm)
+marker 11: test error: diff = 8.08 ± 2.85 (mm)
+marker 12: test error: diff = 8.8 ± 3.17 (mm)
+marker 13: test error: diff = 15.4 ± 7.98 (mm)
+marker 14: test error: diff = 18.6 ± 9.92 (mm)
+marker 15: test error: diff = 11.2 ± 6.38 (mm)
+marker 16: test error: diff = 19.8 ± 9.79 (mm)
+marker 17: test error: diff = 8.89 ± 6.44 (mm)

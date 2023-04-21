@@ -24,7 +24,6 @@ import random
 import numpy as np
 import open3d as o3d
 import pyvista as pv
-from scipy.spatial import KDTree
 import matplotlib.colors as mcolors
 
 import mesh4d
