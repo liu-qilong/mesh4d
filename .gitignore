@@ -41,6 +41,3 @@ build/
 
 # rendered html docs
 build/
-#!docs/build/
-#docs/build/doctrees/
-#docs/build/latex/
