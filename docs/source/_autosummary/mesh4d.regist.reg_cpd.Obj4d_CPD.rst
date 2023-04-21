@@ -1,4 +1,4 @@
-mesh4d.regist.reg\_cpd.Obj4d\_CPD
+﻿mesh4d.regist.reg\_cpd.Obj4d\_CPD
 =================================
 
 .. currentmodule:: mesh4d.regist.reg_cpd
@@ -22,6 +22,7 @@ mesh4d.regist.reg\_cpd.Obj4d\_CPD
       ~Obj4d_CPD.assemble_markerset
       ~Obj4d_CPD.export_deform_gif
       ~Obj4d_CPD.export_gif
+      ~Obj4d_CPD.export_pcd_gif
       ~Obj4d_CPD.load_markerset
       ~Obj4d_CPD.offset_rotate
       ~Obj4d_CPD.process_first_obj

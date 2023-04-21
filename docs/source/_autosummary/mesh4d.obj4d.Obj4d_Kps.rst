@@ -1,4 +1,4 @@
-mesh4d.obj4d.Obj4d\_Kps
+﻿mesh4d.obj4d.Obj4d\_Kps
 =======================
 
 .. currentmodule:: mesh4d.obj4d
@@ -21,6 +21,7 @@ mesh4d.obj4d.Obj4d\_Kps
       ~Obj4d_Kps.add_obj
       ~Obj4d_Kps.assemble_markerset
       ~Obj4d_Kps.export_gif
+      ~Obj4d_Kps.export_pcd_gif
       ~Obj4d_Kps.load_markerset
    
    

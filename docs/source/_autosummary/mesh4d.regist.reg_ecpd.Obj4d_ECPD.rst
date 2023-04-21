@@ -1,4 +1,4 @@
-mesh4d.regist.reg\_ecpd.Obj4d\_ECPD
+﻿mesh4d.regist.reg\_ecpd.Obj4d\_ECPD
 ===================================
 
 .. currentmodule:: mesh4d.regist.reg_ecpd
@@ -22,6 +22,7 @@ mesh4d.regist.reg\_ecpd.Obj4d\_ECPD
       ~Obj4d_ECPD.assemble_markerset
       ~Obj4d_ECPD.export_deform_gif
       ~Obj4d_ECPD.export_gif
+      ~Obj4d_ECPD.export_pcd_gif
       ~Obj4d_ECPD.load_markerset
       ~Obj4d_ECPD.offset_rotate
       ~Obj4d_ECPD.process_first_obj

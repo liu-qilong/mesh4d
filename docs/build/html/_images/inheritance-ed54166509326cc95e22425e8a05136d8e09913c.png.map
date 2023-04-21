@@ -1,5 +1,0 @@
-<map id="inheritancea59398b98d" name="inheritancea59398b98d">
-<area shape="rect" id="node1" href="mesh4d.kps.Kps.html#mesh4d.kps.Kps" target="_top" title="A collection of the key points that can be attached to a 3D object, i.e. a frame of the 4D object." alt="" coords="23,104,95,129"/>
-<area shape="rect" id="node2" href="mesh4d.kps.Marker.html#mesh4d.kps.Marker" target="_top" title="Storing single key point&#39;s coordinates data within a time period. Usually loaded from the Vicon motion capture data. In this case, a key point is also referred as a marker." alt="" coords="15,55,102,80"/>
-<area shape="rect" id="node3" href="mesh4d.kps.MarkerSet.html#mesh4d.kps.MarkerSet" target="_top" title="A collection of :class:`Marker` s. At current stage, it&#39;s usually loaded from the Vicon motion capture data." alt="" coords="5,5,112,31"/>
-</map>

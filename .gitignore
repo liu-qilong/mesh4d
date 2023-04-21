@@ -40,6 +40,7 @@ build/
 *gz
 
 # rendered html docs
-!docs/build/
-docs/build/doctrees/
-docs/build/latex/
+build/
+#!docs/build/
+#docs/build/doctrees/
+#docs/build/latex/

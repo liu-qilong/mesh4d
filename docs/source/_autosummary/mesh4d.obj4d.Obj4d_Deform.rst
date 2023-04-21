@@ -1,4 +1,4 @@
-mesh4d.obj4d.Obj4d\_Deform
+﻿mesh4d.obj4d.Obj4d\_Deform
 ==========================
 
 .. currentmodule:: mesh4d.obj4d
@@ -22,6 +22,7 @@ mesh4d.obj4d.Obj4d\_Deform
       ~Obj4d_Deform.assemble_markerset
       ~Obj4d_Deform.export_deform_gif
       ~Obj4d_Deform.export_gif
+      ~Obj4d_Deform.export_pcd_gif
       ~Obj4d_Deform.load_markerset
       ~Obj4d_Deform.offset_rotate
       ~Obj4d_Deform.process_first_obj

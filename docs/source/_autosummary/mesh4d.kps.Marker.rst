@@ -1,4 +1,4 @@
-mesh4d.kps.Marker
+﻿mesh4d.kps.Marker
 =================
 
 .. currentmodule:: mesh4d.kps
@@ -18,6 +18,7 @@ mesh4d.kps.Marker
    .. autosummary::
    
       ~Marker.__init__
+      ~Marker.add_to_scene
       ~Marker.append_data
       ~Marker.concatenate
       ~Marker.diff
@@ -28,10 +29,8 @@ mesh4d.kps.Marker
       ~Marker.get_time_coord
       ~Marker.interp_field
       ~Marker.load_cab_rst
-      ~Marker.plot_add_dot
-      ~Marker.plot_add_line
-      ~Marker.plot_track
       ~Marker.reslice
+      ~Marker.show
    
    
 

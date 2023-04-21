@@ -1,4 +1,4 @@
-mesh4d.regist.reg\_rbf.Obj4d\_RBF
+﻿mesh4d.regist.reg\_rbf.Obj4d\_RBF
 =================================
 
 .. currentmodule:: mesh4d.regist.reg_rbf
@@ -22,6 +22,7 @@ mesh4d.regist.reg\_rbf.Obj4d\_RBF
       ~Obj4d_RBF.assemble_markerset
       ~Obj4d_RBF.export_deform_gif
       ~Obj4d_RBF.export_gif
+      ~Obj4d_RBF.export_pcd_gif
       ~Obj4d_RBF.load_markerset
       ~Obj4d_RBF.offset_rotate
       ~Obj4d_RBF.process_first_obj

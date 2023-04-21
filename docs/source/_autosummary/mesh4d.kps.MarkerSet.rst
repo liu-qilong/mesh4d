@@ -1,4 +1,4 @@
-mesh4d.kps.MarkerSet
+﻿mesh4d.kps.MarkerSet
 ====================
 
 .. currentmodule:: mesh4d.kps
@@ -18,6 +18,7 @@ mesh4d.kps.MarkerSet
    .. autosummary::
    
       ~MarkerSet.__init__
+      ~MarkerSet.add_to_scene
       ~MarkerSet.concatenate
       ~MarkerSet.diff
       ~MarkerSet.extract
@@ -25,9 +26,8 @@ mesh4d.kps.MarkerSet
       ~MarkerSet.get_time_coord
       ~MarkerSet.interp_field
       ~MarkerSet.load_from_vicon
-      ~MarkerSet.plot_frame
-      ~MarkerSet.plot_track
       ~MarkerSet.reslice
+      ~MarkerSet.show
       ~MarkerSet.split
    
    
