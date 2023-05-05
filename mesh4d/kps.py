@@ -821,7 +821,7 @@ class MarkerSet(object):
                 print("estimated error of frame {}: {}".format(name, diff['diff_str']))
 
         # estimate the overall difference
-        dist_array = np.array(dist_ls)
+        dist_array = np.array(dist_ls).reshape((-1,))
         dist_mean = np.mean(dist_array)
         dist_std = np.std(dist_array)
 
