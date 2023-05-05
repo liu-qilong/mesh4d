@@ -1,4 +1,4 @@
-"""Replace the simple nearest point alignment displacement field estimation workflow with Coherent Point Drift (CPD) based approach."""
+"""Replace the simple nearest point alignment displacement field estimation workflow with Bayesian Coherent Point Drift (BCPD) based approach."""
 from __future__ import annotations
 from typing import Type, Union, Iterable
 
@@ -13,7 +13,7 @@ import mesh4d.config.param
 from mesh4d import obj3d, obj4d, field
 
 class Trans_Nonrigid_BCPD(field.Trans_Nonrigid):
-    """Derived from :class:`mesh4d.field.Trans_Nonrigid` and replace the displacement field estimation as Coherent Point Drift (CPD) based approach.
+    """Derived from :class:`mesh4d.field.Trans_Nonrigid` and replace the displacement field estimation as Bayesian Coherent Point Drift (BCPD) based approach.
     """
     def regist(self, sample_num: int = 1000, **kwargs):
         """The registration method.
@@ -25,7 +25,7 @@ class Trans_Nonrigid_BCPD(field.Trans_Nonrigid):
             
             Attention
             ---
-            Since the Coherent Point Drift (CPD) is not very efficient, the number of the sampling points used to estimate the displacement field should relatively small. The default value is :code:`3000`.
+            Since the Bayesian Coherent Point Drift (BCPD) is not very efficient, the number of the sampling points used to estimate the displacement field should relatively small. The default value is :code:`3000`.
         **kwargs
             Configurations parameters of the registration.
             
@@ -52,7 +52,7 @@ class Trans_Nonrigid_BCPD(field.Trans_Nonrigid):
         tf_param
             Attention
             ---
-            At current stage, the default registration method is Coherent Point Drift (CPD) method realised by :mod:`probreg` package. Therefore the accepted transformation object to be parse is derived from :class:`cpd.CoherentPointDrift`. Transformation object provided by other registration method shall be tested in future development.
+            At current stage, the default registration method is Bayesian Coherent Point Drift (BCPD) method realised by :mod:`probreg` package. Therefore the accepted transformation object to be parse is derived from :class:`cpd.CoherentPointDrift`. Transformation object provided by other registration method shall be tested in future development.
         source_pcd
             :mod:`open3d` point cloud object sampled from the source mesh.
         """
@@ -67,7 +67,7 @@ class Trans_Nonrigid_BCPD(field.Trans_Nonrigid):
 
 
 class Obj4d_BCPD(obj4d.Obj4d_Deform):
-    """Derived from :class:`mesh4d.obj4d.Obj4d_Deform` and replace the displacement field estimation as Coherent Point Drift (CPD) based approach.
+    """Derived from :class:`mesh4d.obj4d.Obj4d_Deform` and replace the displacement field estimation as Bayesian Coherent Point Drift (BCPD) based approach.
 
     Parameters
     ---
@@ -76,7 +76,7 @@ class Obj4d_BCPD(obj4d.Obj4d_Deform):
             
             Attention
             ---
-            Since the Coherent Point Drift (CPD) is not very efficient, the number of the sampling points used to estimate the displacement field should relatively small. The default value is :code:`3000`.
+            Since the Bayesian Coherent Point Drift (BCPD) is not very efficient, the number of the sampling points used to estimate the displacement field should relatively small. The default value is :code:`3000`.
     """
     def __init__(self, regist_points_num: int = 1000, **kwargs):
         obj4d.Obj4d_Deform.__init__(self, **kwargs)
