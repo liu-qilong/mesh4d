@@ -389,7 +389,7 @@ class Trans_Nonrigid(Trans):
         self.disp = self.deform_points - self.source_points
         self.search_tree = KDTree(self.source_points)
 
-    def shift_points(self, points: np.array, k_nbr: int = 3) -> np.array:
+    def shift_points(self, points: np.array, k_nbr: int = 1) -> np.array:
         """Implement the transformation to set of points.
 
         To apply proper transformation to an arbitrary point :math:`\\boldsymbol x`:

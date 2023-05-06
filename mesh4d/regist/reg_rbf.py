@@ -15,23 +15,29 @@ class Trans_Nonrigid_RBF(field.Trans_Nonrigid):
         landmarks_source = self.source.kps_group[landmark_name].get_points_coord()
         landmarks_target = self.target.kps_group[landmark_name].get_points_coord()
 
-        field = RBFInterpolator(landmarks_source, landmarks_target)
+        field = RBFInterpolator(landmarks_source, landmarks_target, **kwargs)
         self.parse(field, k_nbr)
 
     def parse(self, field, k_nbr: int = 1):
         self.source_points = self.source.get_vertices()
         shift_points = field(self.source_points)
 
-        target_points = self.target.get_vertices()
-        tree = KDTree(target_points)
-        _, idx = tree.query(shift_points, k=k_nbr)
-
-        if k_nbr == 1:
-            self.deform_points = target_points[idx]
+        if k_nbr == 0:
+            # no post-alignment
+            self.deform_points = shift_points
 
         else:
-            deform_points = np.take(target_points, idx, axis=0)
-            self.deform_points = np.mean(deform_points, axis=1)
+            # post-alignment with k_nbr nearest points
+            target_points = self.target.get_vertices()
+            tree = KDTree(target_points)
+            _, idx = tree.query(shift_points, k=k_nbr)
+
+            if k_nbr == 1:
+                self.deform_points = target_points[idx]
+
+            else:
+                deform_points = np.take(target_points, idx, axis=0)
+                self.deform_points = np.mean(deform_points, axis=1)
 
         self.disp = self.deform_points - self.source_points
         self.search_tree = KDTree(self.source_points)
