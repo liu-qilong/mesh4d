@@ -9,35 +9,21 @@ from scipy.interpolate import RBFInterpolator
 import mesh4d
 import mesh4d.config.param
 from mesh4d import obj4d, field, utils
+from mesh4d.analyse import measure
 
 class Trans_Nonrigid_RBF(field.Trans_Nonrigid):
-    def regist(self, landmark_name: str, k_nbr: int = 1, **kwargs):
+    def regist(self, landmark_name: str, **kwargs):
         landmarks_source = self.source.kps_group[landmark_name].get_points_coord()
         landmarks_target = self.target.kps_group[landmark_name].get_points_coord()
 
         field = RBFInterpolator(landmarks_source, landmarks_target, **kwargs)
-        self.parse(field, k_nbr)
+        self.parse(field)
 
-    def parse(self, field, k_nbr: int = 1):
+    def parse(self, field):
         self.source_points = self.source.get_vertices()
         shift_points = field(self.source_points)
 
-        if k_nbr == 0:
-            # no post-alignment
-            self.deform_points = shift_points
-
-        else:
-            # post-alignment with k_nbr nearest points
-            target_points = self.target.get_vertices()
-            tree = KDTree(target_points)
-            _, idx = tree.query(shift_points, k=k_nbr)
-
-            if k_nbr == 1:
-                self.deform_points = target_points[idx]
-
-            else:
-                deform_points = np.take(target_points, idx, axis=0)
-                self.deform_points = np.mean(deform_points, axis=1)
+        self.deform_points = measure.search_nearest_points_plane(self.target.mesh, shift_points)
 
         self.disp = self.deform_points - self.source_points
         self.search_tree = KDTree(self.source_points)

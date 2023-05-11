@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import Type, Union, Iterable
 
 import numpy as np
+import pyvista as pv
 
 import mesh4d
 import mesh4d.config.param
@@ -60,6 +61,12 @@ def points_get_min_bound(points: np.array) -> np.array:
         a list containing the minimum value of :math:`x, y, z`-coordinates: :code:`[min_x, min_y, min_z]`.
     """
     return np.ndarray.min(points, 0)
+
+
+def search_nearest_points_plane(mesh: pv.core.pointset.PolyData, points: np.array) -> np.array:
+    """tbf"""
+    _, closest_points = mesh.find_closest_cell(points, return_closest_point=True)
+    return closest_points
 
 
 def estimate_plane_from_points(points: np.array) -> tuple:
