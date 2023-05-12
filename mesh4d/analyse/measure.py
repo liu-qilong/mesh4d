@@ -3,10 +3,13 @@ from typing import Type, Union, Iterable
 
 import numpy as np
 import pyvista as pv
+from scipy.spatial import KDTree
 
 import mesh4d
 import mesh4d.config.param
 from mesh4d import kps
+from mesh4d.analyse import crave
+
 
 def points_get_center(points: np.array) -> np.array:
     """Get the center point of a set of points.
@@ -196,3 +199,11 @@ def markerset_trace_length(markerset: kps.MarkerSet, start_frame: int = 0, end_f
         traces.append(trace_dict[name]['trace'])
 
     return trace_dict, starts, traces
+
+
+def mesh_density(mesh):
+    """tbf"""
+    mesh = crave.fix_pvmesh_disconnect(mesh)
+    tree = KDTree(mesh.points)
+    d, _ = tree.query(mesh.points, k=3)
+    print("{:.2f} \pm {:.2f}".format(np.mean(d[:, 1]), np.std(d[:, 1])))
