@@ -203,18 +203,20 @@ class Obj4d_Kps(Obj4d):
             obj = self.obj_ls[idx]
             obj.load_kps_from_markerset(name, markerset, self.start_time + idx / self.fps)
 
-    def assemble_markerset(self, name: str) -> kps.MarkerSet:
+    def assemble_markerset(self, name: str, start_id: int = 0) -> kps.MarkerSet:
         """Assemble key points object in different frames into a marker set object (:class:`mesh4d.kps.MarkerSet`).
         
         Parameters
         ---
         name
             the name of the key points object, i.e. its keyword in the 3D object's :attr:`kps_group` dictionary.
+        start_id
+            tbf
         """
         markerset = kps.MarkerSet()
         markerset.fps = self.fps
 
-        for obj in self.obj_ls:
+        for obj in self.obj_ls[start_id:]:
             points_dict = obj.kps_group[name].points
 
             for point_name in points_dict.keys():
@@ -535,7 +537,7 @@ class Obj4d_Deform(Obj4d_Kps):
         if mesh4d.output_msg:
             print("4d object reorientated")
 
-    def vkps_track(self, kps: Type[kps.Kps], frame_id: int = 0, name: str = 'vkps', k_nbr: int = 1):
+    def vkps_track(self, kps: Type[kps.Kps], start_id: int = 0, name: str = 'vkps', k_nbr: int = 1):
         """Virtual key points tracking.
 
         - Firstly, attach a set of key points (:class:`~mesh4d.kps.Kps`) to a frame of 3D object.
@@ -554,17 +556,17 @@ class Obj4d_Deform(Obj4d_Kps):
         ---
         kps
             key points object (:class:`~mesh4d.kps.Kps`).
-        frame_id
+        start_id
             the frame number to which the key points object attach.
         name
             name of the virtual key points as its keyword when attached to a 3D object.
         k_nbr
             see :meth:`mesh4d.filed.Trans_Nonrigid.shift_points`.
         """
-        self.obj_ls[frame_id].attach_kps(name, kps)
+        self.obj_ls[start_id].attach_kps(name, kps)
 
         # track forward
-        for idx in range(frame_id + 1, len(self.obj_ls)):
+        for idx in range(start_id + 1, len(self.obj_ls)):
             previous_obj = self.obj_ls[idx - 1]
             previous_kps = previous_obj.kps_group[name]
             current_kps = previous_obj.trans_nonrigid.shift_kps(previous_kps, k_nbr=k_nbr)
@@ -574,7 +576,7 @@ class Obj4d_Deform(Obj4d_Kps):
 
         # track backward
         """
-        for idx in range(frame_id - 1, -1, -1):
+        for idx in range(start_id - 1, -1, -1):
             later_obj = self.obj_ls[idx + 1]
             later_kps = later_obj.kps_group[name]
             later_trans_invert = later_obj.trans_nonrigid.invert()
