@@ -573,6 +573,7 @@ class Obj4d_Deform(Obj4d_Kps):
             current_obj.attach_kps(name, current_kps)
 
         # track backward
+        """
         for idx in range(frame_id - 1, -1, -1):
             later_obj = self.obj_ls[idx + 1]
             later_kps = later_obj.kps_group[name]
@@ -581,3 +582,4 @@ class Obj4d_Deform(Obj4d_Kps):
 
             current_obj = self.obj_ls[idx]
             current_obj.attach_kps(name, current_kps)
+        """
