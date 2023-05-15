@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Type, Union, Iterable
 
 import numpy as np
-from scipy.spatial import KDTree
 from scipy.interpolate import RBFInterpolator
 
 import mesh4d
@@ -13,22 +12,20 @@ from mesh4d.analyse import measure
 
 class Trans_Nonrigid_RBF(field.Trans_Nonrigid):
     def regist(self, landmark_name: str, field_nbr: int = 100, **kwargs):
-        self.field_nbr = field_nbr
-
         landmarks_source = self.source.kps_group[landmark_name].get_points_coord()
         landmarks_target = self.target.kps_group[landmark_name].get_points_coord()
-
         landmarks_field = RBFInterpolator(landmarks_source, landmarks_target, **kwargs)
-        self.parse(landmarks_field)
 
-    def parse(self, landmarks_field):
+        self.post_align(landmarks_field, field_nbr)
+
+    def post_align(self, landmarks_field, field_nbr: int = 100):
         self.source_points = self.source.get_vertices()
         shift_points = landmarks_field(self.source_points)
 
         self.deform_points = measure.search_nearest_points_plane(self.target.mesh, shift_points)
 
         self.disp = self.deform_points - self.source_points
-        self.field = RBFInterpolator(self.source_points, self.deform_points, neighbors=self.field_nbr)
+        self.field = RBFInterpolator(self.source_points, self.deform_points, neighbors=field_nbr)
 
     def shift_points(self, points: np.array, **kwargs) -> np.array:
         return self.field(points)

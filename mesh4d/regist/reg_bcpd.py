@@ -6,7 +6,7 @@ import copy
 import open3d as o3d
 import pyvista as pv
 from probreg import bcpd
-from scipy.spatial import KDTree
+from scipy.interpolate import RBFInterpolator
 
 import mesh4d
 import mesh4d.config.param
@@ -15,7 +15,7 @@ from mesh4d import obj3d, obj4d, field
 class Trans_Nonrigid_BCPD(field.Trans_Nonrigid):
     """Derived from :class:`mesh4d.field.Trans_Nonrigid` and replace the displacement field estimation as Bayesian Coherent Point Drift (BCPD) based approach.
     """
-    def regist(self, sample_num: int = 1000, **kwargs):
+    def regist(self, sample_num: int = 1000, field_nbr: int = 100, scale_rate: float = 100, **kwargs):
         """The registration method.
 
         Parameters
@@ -25,7 +25,11 @@ class Trans_Nonrigid_BCPD(field.Trans_Nonrigid):
             
             Attention
             ---
-            Since the Bayesian Coherent Point Drift (BCPD) is not very efficient, the number of the sampling points used to estimate the displacement field should relatively small. The default value is :code:`3000`.
+            Since the Bayesian Coherent Point Drift (BCPD) is not very efficient, the number of the sampling points used to estimate the displacement field should relatively small. The default value is :code:`1000`.
+        field_nbr
+            tbf
+        scale_rate
+            scale the point cloud to guarantee convergence within limits of iteration.
         **kwargs
             Configurations parameters of the registration.
             
@@ -33,8 +37,9 @@ class Trans_Nonrigid_BCPD(field.Trans_Nonrigid):
         --------
         `probreg.cpd.registration_cpd <https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd>`_
         """
-        source_pcd = obj3d.np2pcd(self.source.get_sample_points(sample_num))
-        target_pcd = obj3d.np2pcd(self.target.get_sample_points(sample_num))
+        # registration
+        source_pcd = obj3d.np2pcd(self.source.get_sample_points(sample_num) / scale_rate)
+        target_pcd = obj3d.np2pcd(self.target.get_sample_points(sample_num) / scale_rate)
 
         tf_param = bcpd.registration_bcpd(
             source=source_pcd, 
@@ -42,28 +47,14 @@ class Trans_Nonrigid_BCPD(field.Trans_Nonrigid):
             **kwargs
             )
         
-        self.parse(tf_param, source_pcd)
-
-    def parse(self, tf_param, source_pcd: o3d.cpu.pybind.geometry.PointCloud):
-        """Parse the registration result to provide :attr:`self.source_points`, :attr:`self.deform_points`, and :attr:`self.disp`. Called by :meth:`regist`.
-        
-        Parameters
-        ---
-        tf_param
-            Attention
-            ---
-            At current stage, the default registration method is Bayesian Coherent Point Drift (BCPD) method realised by :mod:`probreg` package. Therefore the accepted transformation object to be parse is derived from :class:`cpd.CoherentPointDrift`. Transformation object provided by other registration method shall be tested in future development.
-        source_pcd
-            :mod:`open3d` point cloud object sampled from the source mesh.
-        """
-        self.source_points = obj3d.pcd2np(source_pcd)
-
+       # parse
         deform = copy.deepcopy(source_pcd)
         deform.points = tf_param.transform(deform.points)
-        self.deform_points = obj3d.pcd2np(deform)
+        self.deform_points = obj3d.pcd2np(deform) * scale_rate
 
+        self.source_points = self.source.get_sample_points(sample_num)
         self.disp = self.deform_points - self.source_points
-        self.search_tree = KDTree(self.source_points)
+        self.field = RBFInterpolator(self.source_points, self.deform_points, neighbors=field_nbr)
 
 
 class Obj4d_BCPD(obj4d.Obj4d_Deform):
