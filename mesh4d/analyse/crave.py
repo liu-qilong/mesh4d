@@ -276,8 +276,8 @@ def clip_with_contour(
         # estimate contour bound
         max_bound = measure.points_get_max_bound(contour_points)
         min_bound = measure.points_get_min_bound(contour_points)
-        max_margin = margin * (max_bound - center)
-        min_margin = margin * (center - min_bound)
+        max_margin = margin * (max_bound - center) / np.linalg.norm(max_bound - center)
+        min_margin = margin * (center - min_bound) / np.linalg.norm(center - min_bound)
 
         for bound_symbol in clip_bound:
             mesh_clip = mesh_clip.clip(bound_symbol, origin=max_bound + max_margin, invert=True)
