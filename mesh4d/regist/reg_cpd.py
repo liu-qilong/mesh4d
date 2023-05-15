@@ -55,7 +55,6 @@ class Trans_Nonrigid_CPD(field.Trans_Nonrigid):
         self.deform_points = obj3d.pcd2np(deform) * scale_rate
 
         self.source_points = self.source.get_sample_points(sample_num)
-        self.disp = self.deform_points - self.source_points
         self.field = RBFInterpolator(self.source_points, self.deform_points, neighbors=field_nbr)
 
 

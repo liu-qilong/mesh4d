@@ -339,8 +339,6 @@ class Trans_Nonrigid(Trans):
         The source points :math:`\\boldsymbol S \in \mathbb R^{N \\times 3}` stored in (N, 3) :class:`numpy.array`.
     self.deform_points
         The deformed points :math:`\\boldsymbol S + \\boldsymbol T \in \mathbb R^{N \\times 3}` stored in (N, 3) :class:`numpy.array`.
-    self.disp
-        The displacement matrix :math:`\\boldsymbol T \in \mathbb R^{N \\times 3}` stored in (N, 3) :class:`numpy.array`.
     self.search_tree
         :class:`scipy.spatial.KDTree` of :attr:`self.source_points`, used for acquired the nearest point for a given point from :attr:`self.source_points`.
 
@@ -364,7 +362,7 @@ class Trans_Nonrigid(Trans):
 
         trans = field.Trans_Nonrigid(o3_1, o3_2)
         trans.regist()
-        print(trans.deform_points, trans.disp)
+        print(trans.deform_points)
     """
     def regist(self, field_nbr: int = 100):
         """Align every point from the source object to the nearest point in the target object and use it a this point's displacement.
@@ -379,7 +377,6 @@ class Trans_Nonrigid(Trans):
         """
         self.source_points = self.source.get_vertices()
         self.deform_points = measure.search_nearest_points_plane(self.target.mesh, self.source_points)
-        self.disp = self.deform_points - self.source_points
         self.field = RBFInterpolator(self.source_points, self.deform_points, neighbors=field_nbr)
 
     def shift_points(self, points: np.array) -> np.array:
@@ -407,12 +404,14 @@ class Trans_Nonrigid(Trans):
         :class:`pyvista.Plotter`
             :class:`pyvista.Plotter` scene added the visualisation.
         """
-        pdata = pv.vector_poly_data(self.source_points, self.disp)
+        pdata = pv.vector_poly_data(self.source_points, self.target_points - self.source_points)
         glyph = pdata.glyph()
         scene.add_mesh(glyph.translate(location, inplace=False), **kwargs)
 
     def invert(self):
         """Return the inverted non-rigid transformation.
+
+        [broken feature] tbf
 
         Note
         ---
@@ -425,10 +424,10 @@ class Trans_Nonrigid(Trans):
         .. math:: \\boldsymbol S = \\boldsymbol Y - \\boldsymbol T
         """
         trans_invert = type(self)(source_obj=self.target, target_obj=self.source)
+        trans_invert.field_nbr = self.field_nbr
         trans_invert.source_points = self.deform_points
         trans_invert.deform_points = self.source_points
-        trans_invert.disp = -self.disp
-        trans_invert.search_tree = KDTree(trans_invert.source_points)
+        trans_invert.field = RBFInterpolator(trans_invert.source_points, trans_invert.deform_points, neighbors=trans_invert.field_nbr)
 
         return trans_invert
 
