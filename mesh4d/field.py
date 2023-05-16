@@ -376,7 +376,7 @@ class Trans_Nonrigid(Trans):
 
         """
         self.source_points = self.source.get_vertices()
-        self.deform_points = measure.search_nearest_points_plane(self.target.mesh, self.source_points)
+        self.deform_points = measure.nearest_points_from_plane(self.target.mesh, self.source_points)
         self.field = RBFInterpolator(self.source_points, self.deform_points, neighbors=field_nbr)
 
     def shift_points(self, points: np.array) -> np.array:

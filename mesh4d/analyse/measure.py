@@ -66,7 +66,7 @@ def points_get_min_bound(points: np.array) -> np.array:
     return np.ndarray.min(points, 0)
 
 
-def search_nearest_points_plane(mesh: pv.core.pointset.PolyData, points: np.array) -> np.array:
+def nearest_points_from_plane(mesh: pv.core.pointset.PolyData, points: np.array) -> np.array:
     """tbf"""
     _, closest_points = mesh.find_closest_cell(points, return_closest_point=True)
     return closest_points

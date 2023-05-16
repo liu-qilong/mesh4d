@@ -21,7 +21,7 @@ class Trans_Nonrigid_RBF(field.Trans_Nonrigid):
     def post_align(self, landmarks_field, field_nbr: int = 100):
         self.source_points = self.source.get_vertices()
         shift_points = landmarks_field(self.source_points)
-        self.deform_points = measure.search_nearest_points_plane(self.target.mesh, shift_points)
+        self.deform_points = measure.nearest_points_from_plane(self.target.mesh, shift_points)
         self.field = RBFInterpolator(self.source_points, self.deform_points, neighbors=field_nbr)
 
 
