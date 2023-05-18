@@ -92,7 +92,7 @@ class Obj4d(object):
         for obj in objs:
             self.obj_ls.append(obj)
 
-    def export_gif(self, output_folder: str = "output/", filename: str = "obj4d"):
+    def gif_animate(self, output_folder: str = "output/", filename: str = "obj4d", elements: str = 'mp'):
         """Illustrate the 4D object.
         
         Parameters
@@ -101,6 +101,8 @@ class Obj4d(object):
             the output folder of the generated :code:`.gif` file.
         filename
             the output filename of the generated :code:`.gif` file.
+        elements
+            tbf
         """
         scene = pv.Plotter()
         scene.open_gif(os.path.join(output_folder, filename))
@@ -113,39 +115,11 @@ class Obj4d(object):
 
             width = obj.get_width()
 
-            obj.add_mesh_to_scene(scene)
-            obj.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-3*width)
+            if 'm' in elements:
+                obj.add_mesh_to_scene(scene)
             
-            scene.camera_position = 'xy'
-            scene.write_frame()
-
-            if mesh4d.output_msg:
-                percent = (idx + 1) / plot_num
-                utils.progress_bar(percent, back_str=" exported the {}-th frame".format(idx))
-
-        scene.close()
-
-    def export_pcd_gif(self, output_folder: str = "output/", filename: str = "obj4d"):
-        """Illustrate the vertices point cloud of 4D object.
-        
-        Parameters
-        ---
-        output_folder
-            the output folder of the generated :code:`.gif` file.
-        filename
-            the output filename of the generated :code:`.gif` file.
-        """
-        scene = pv.Plotter()
-        scene.open_gif(os.path.join(output_folder, filename + '.gif'))
-
-        plot_num = len(self.obj_ls)
-
-        for idx in range(0, plot_num):
-            obj = self.obj_ls[idx]
-            scene.clear()
-            
-            width = obj.get_width()
-            obj.add_pcd_to_scene(scene, point_size=1e-3*width)
+            if 'p' in elements:
+                obj.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-3*width)
             
             scene.camera_position = 'xy'
             scene.write_frame()
@@ -227,7 +201,7 @@ class Obj4d_Kps(Obj4d):
 
         return markerset
 
-    def export_gif(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None):
+    def gif_animate(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None, elements: str = 'mpk'):
         """Illustrate the 4D object.
         
         Parameters
@@ -238,6 +212,8 @@ class Obj4d_Kps(Obj4d):
             the output filename of the generated :code:`.gif` file.
         kps_names
             a list of names of the :class:`~mesh4d.kps.Kps` objects to be shown. Noted that a :class:`~mesh4d.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
+        elements
+            tbf
         """
         scene = pv.Plotter()
         scene.open_gif(os.path.join(output_folder, filename + '.gif'))
@@ -250,45 +226,17 @@ class Obj4d_Kps(Obj4d):
             
             width = obj.get_width()
 
-            obj.add_mesh_to_scene(scene)
-            obj.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-3*width)
-            obj.add_kps_to_scene(scene, kps_names, radius=0.02*width)
-            obj.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
-            
-            scene.camera_position = 'xy'
-            scene.write_frame()
+            if 'm' in elements:
+                obj.add_mesh_to_scene(scene)
 
-            if mesh4d.output_msg:
-                percent = (idx + 1) / plot_num
-                utils.progress_bar(percent, back_str=" exported the {}-th frame".format(idx))
+                if 'k' in elements:
+                    obj.add_kps_to_scene(scene, kps_names, radius=0.02*width)
 
-        scene.close()
+            if 'p' in elements:
+                obj.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-3*width)
 
-    def export_pcd_gif(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None):
-        """Illustrate the vertices point cloud of 4D object with key points.
-        
-        Parameters
-        ---
-        output_folder
-            the output folder of the generated :code:`.gif` file.
-        filename
-            the output filename of the generated :code:`.gif` file.
-        kps_names
-            a list of names of the :class:`~mesh4d.kps.Kps` objects to be shown. Noted that a :class:`~mesh4d.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
-        """
-        scene = pv.Plotter()
-        scene.open_gif(os.path.join(output_folder, filename + '.gif'))
-
-        plot_num = len(self.obj_ls)
-
-        for idx in range(0, plot_num):
-            obj = self.obj_ls[idx]
-            scene.clear()
-            
-            width = obj.get_width()
-
-            obj.add_pcd_to_scene(scene, point_size=1e-3*width)
-            obj.add_kps_to_scene(scene, kps_names, radius=0.02*width)
+                if 'k' in elements:
+                    obj.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
             
             scene.camera_position = 'xy'
             scene.write_frame()
@@ -433,84 +381,6 @@ class Obj4d_Deform(Obj4d_Kps):
         )
         trans.regist(**kwargs)
         self.obj_ls[idx_source].set_trans_nonrigid(trans)
-
-    def export_deform_gif(self, output_folder: str = "output/", filename: str = "obj4d_deform", kps_names: Union[None, list, tuple] = None, mode: str = 'nonrigid', is_color_body: bool = True, cmap: str = "cool"):
-        """Illustrate the 4D object with estimated displacement field.
-
-        - The mesh will be coloured with the distance of deformation. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
-        - The sampled points will be attached with displacement vectors to illustrate the displacement field.
-        - The deformed key points will be shown attached to the mesh and point cloud.
-        
-        Parameters
-        ---
-        output_folder
-            the output folder of the generated :code:`.gif` file.
-        filename
-            the output filename of the generated :code:`.gif` file.
-        kps_names
-            a list of names of the :class:`~mesh4d.kps.Kps` objects to be shown. Noted that a :class:`~mesh4d.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
-        mode
-            
-            - :code:`nonrigid`: the non-rigid transformation will be used to deform the object.
-            - :code:`rigid`: the rigid transformation will be used to deform the object.
-
-        is_color_body
-            color the mesh with deformation distance or not.
-
-        cmap
-            the color map name. 
-            
-            .. seealso::
-                For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
-        """
-        scene = pv.Plotter()
-        scene.open_gif(os.path.join(output_folder, filename + '.gif'))
-
-        plot_num = len(self.obj_ls) - 1
-
-        for idx in range(0, plot_num):
-            obj = self.obj_ls[idx]
-            scene.clear()
-
-            if mode == 'nonrigid' and obj.trans_nonrigid is not None:
-                trans = obj.trans_nonrigid
-            elif mode == 'rigid' and obj.trans_rigid is not None:
-                trans = obj.trans_rigid
-            else:
-                if mesh4d.output_msg:
-                    print("fail to provide deformed object")
-
-                scene.close()
-                return
-
-            deform_obj = obj.get_deform_obj3d(mode=mode)
-            dist = np.linalg.norm(obj.mesh.points - deform_obj.mesh.points, axis = 1)
-            width = deform_obj.get_width()
-
-            if is_color_body:
-                deform_obj.mesh["distances"] = dist
-                deform_obj.add_mesh_to_scene(scene, cmap=cmap)
-
-            else:
-                deform_obj.add_mesh_to_scene(scene)
-
-            if mode == 'nonrigid' and obj.trans_nonrigid is not None:
-                trans.add_to_scene(scene, location=[1.5*width, 0, 0], cmap=cmap)
-
-            elif mode == 'rigid' and obj.trans_rigid is not None:
-                trans.add_to_scene(scene, location=[1.5*width, 0, 0], cmap=cmap, original_length=width)
-            
-            deform_obj.add_kps_to_scene(scene, kps_names, radius=0.02*width)
-            deform_obj.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
-            
-            scene.camera_position = 'xy'
-            scene.write_frame()
-
-            if mesh4d.output_msg:
-                percent = (idx + 1) / plot_num
-                utils.progress_bar(percent, back_str=" exported the {}-th frame".format(idx))
-
-        scene.close()
 
     def offset_rotate(self):
         """Offset the rotation according to the estimated rigid transformation.
