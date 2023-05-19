@@ -136,8 +136,13 @@ class Obj3d(object):
         right = measure.points_get_min_bound(self.get_vertices())[0]
         return left - right
 
-    def show(self):
+    def show(self, elements: str = 'mp'):
         """Show the loaded mesh and the sampled point cloud.
+
+        Parameters
+        ---
+        elements
+            tbf
 
         Attention
         ---
@@ -150,8 +155,11 @@ class Obj3d(object):
 
         width = self.get_width()
 
-        self.add_mesh_to_scene(scene)
-        self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-6*width)
+        if 'm' in elements:
+            self.add_mesh_to_scene(scene)
+
+        if 'p' in elements:
+            self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-6*width)
 
         scene.camera_position = 'xy'
         scene.show()
@@ -253,13 +261,15 @@ class Obj3d_Kps(Obj3d):
         kps = markerset.get_time_coord(time)
         self.attach_kps(name, kps)
 
-    def show(self, kps_names: Union[None, list, tuple] = None):
+    def show(self, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk'):
         """Show the loaded mesh, the sampled point cloud, and the key points attached to it.
 
         Parameters
         ---
         kps_names
             a list of names of the :class:`~mesh4d.kps.Kps` objects to be shown. Noted that a :class:`~mesh4d.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
+        elements
+            tbf
 
         Attention
         ---
@@ -272,10 +282,17 @@ class Obj3d_Kps(Obj3d):
 
         width = self.get_width()
 
-        self.add_mesh_to_scene(scene)
-        self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-6*width)
-        self.add_kps_to_scene(scene, kps_names, radius=0.02*width)
-        self.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
+        if 'm' in elements:
+            self.add_mesh_to_scene(scene)
+
+            if 'k' in elements:
+                self.add_kps_to_scene(scene, kps_names, radius=0.02*width)
+
+        if 'p' in elements:
+            self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-6*width)
+
+            if 'k' in elements:
+                self.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
 
         scene.camera_position = 'xy'
         scene.show()
