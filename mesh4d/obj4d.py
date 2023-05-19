@@ -92,6 +92,29 @@ class Obj4d(object):
         for obj in objs:
             self.obj_ls.append(obj)
 
+    def show(self, elements: str = 'mp', stack_dist: float = 1000, zoom_rate: float = 3.5, window_size: list = [2000, 800]):
+        """tbf"""
+        scene = pv.Plotter()
+        plot_num = len(self.obj_ls)
+
+        for idx in range(0, plot_num):
+            obj = self.obj_ls[idx]
+
+            width = obj.get_width()
+
+            if 'm' in elements:
+                obj.add_mesh_to_scene(scene, location=[0, 0, idx*stack_dist])
+            
+            if 'p' in elements:
+                obj.add_pcd_to_scene(scene, location=[1.5*width, 0, idx*stack_dist], point_size=1e-5*width)
+            
+        scene.camera_position = 'zy'
+        scene.camera.azimuth = 45
+        scene.camera.zoom(zoom_rate)
+        scene.window_size = window_size
+        scene.enable_parallel_projection()
+        scene.show()
+
     def gif_animate(self, output_folder: str = "output/", filename: str = "obj4d", elements: str = 'mp'):
         """Illustrate the 4D object.
         
@@ -200,6 +223,35 @@ class Obj4d_Kps(Obj4d):
                 markerset.markers[point_name].append_data(coord=points_dict[point_name], convert=False)
 
         return markerset
+    
+    def show(self, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk', stack_dist: float = 1000, zoom_rate: float = 3.5, window_size: list = [2000, 800]):
+        """tbf"""
+        scene = pv.Plotter()
+        plot_num = len(self.obj_ls)
+
+        for idx in range(0, plot_num):
+            obj = self.obj_ls[idx]
+
+            width = obj.get_width()
+
+            if 'm' in elements:
+                obj.add_mesh_to_scene(scene, location=[0, 0, idx*stack_dist])
+
+                if 'k' in elements:
+                    obj.add_kps_to_scene(scene, kps_names, location=[0, 0, idx*stack_dist], radius=0.02*width)
+            
+            if 'p' in elements:
+                obj.add_pcd_to_scene(scene, location=[1.5*width, 0, idx*stack_dist], point_size=1e-5*width)
+
+                if 'k' in elements:
+                    obj.add_kps_to_scene(scene, kps_names, location=[1.5*width, 0, idx*stack_dist], radius=0.02*width)
+            
+        scene.camera_position = 'zy'
+        scene.camera.azimuth = 45
+        scene.camera.zoom(zoom_rate)
+        scene.window_size = window_size
+        scene.enable_parallel_projection()
+        scene.show()
 
     def gif_animate(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None, elements: str = 'mpk'):
         """Illustrate the 4D object.
