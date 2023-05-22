@@ -3,39 +3,27 @@ from __future__ import annotations
 from typing import Type, Union, Iterable
 
 import numpy as np
-from scipy.spatial import KDTree
 from scipy.interpolate import RBFInterpolator
 
 import mesh4d
 import mesh4d.config.param
-from mesh4d import obj4d, field, utils
+from mesh4d import obj3d, obj4d, field, utils
+from mesh4d.analyse import measure
 
 class Trans_Nonrigid_RBF(field.Trans_Nonrigid):
-    def regist(self, landmark_name: str, k_nbr: int = 1, **kwargs):
+    def regist(self, landmark_name: str, field_nbr: int = 100, **kwargs):
         landmarks_source = self.source.kps_group[landmark_name].get_points_coord()
         landmarks_target = self.target.kps_group[landmark_name].get_points_coord()
+        landmarks_field = RBFInterpolator(landmarks_source, landmarks_target, **kwargs)
 
-        field = RBFInterpolator(landmarks_source, landmarks_target)
-        self.parse(field, k_nbr)
+        self.post_align(landmarks_field, field_nbr)
 
-    def parse(self, field, k_nbr: int = 1):
+    def post_align(self, landmarks_field, field_nbr: int = 100):
         self.source_points = self.source.get_vertices()
-        shift_points = field(self.source_points)
+        shift_points = landmarks_field(self.source_points)
+        self.deform_points = measure.nearest_points_from_plane(self.target.mesh, shift_points)
+        self.field = RBFInterpolator(self.source_points, self.deform_points, neighbors=field_nbr)
 
-        target_points = self.target.get_vertices()
-        tree = KDTree(target_points)
-        _, idx = tree.query(shift_points, k=k_nbr)
-
-        if k_nbr == 1:
-            self.deform_points = target_points[idx]
-
-        else:
-            deform_points = np.take(target_points, idx, axis=0)
-            self.deform_points = np.mean(deform_points, axis=1)
-
-        self.disp = self.deform_points - self.source_points
-        self.search_tree = KDTree(self.source_points)
-        
 
 class Obj4d_RBF(obj4d.Obj4d_Deform):
     def regist(self, landmark_name: str, **kwargs):

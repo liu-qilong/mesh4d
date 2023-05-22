@@ -6,6 +6,7 @@ import copy
 import numpy as np
 import pyvista as pv
 from scipy.spatial import KDTree
+from scipy.interpolate import RBFInterpolator
 
 import mesh4d
 import mesh4d.config.param
@@ -122,22 +123,9 @@ def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, valu
     """
     mesh = copy.deepcopy(mesh)
 
-    # assign each vertex with a value based on its nearest point in points  
-    tree = KDTree(points)
-    _, idx = tree.query(mesh.points, k=k_nbr, distance_upper_bound=distance_upper_bound)
-
-    # if kd-tree query doesn't find a match, it returns idx of len(points), i.e. the first idx out of the range
-    # append lowest value at that idx position for non-match query
-    values_qurery = copy.deepcopy(values)
-    values_qurery.append(np.min(values))
-    print(np.min(values))
-
-    if k_nbr == 1:
-        value_mask = np.take(values_qurery, idx)
-
-    else:
-        value_mask = np.take(values_qurery, idx)
-        value_mask = np.mean(value_mask, axis=1)
+    # assign each vertex with a value based on rbf interpolation
+    value_field = RBFInterpolator(points, values, neighbors=k_nbr)
+    value_mask = value_field(mesh.points)
 
     # filter out the values out of the threshold
     if mesh4d.output_msg:
@@ -170,3 +158,19 @@ def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, valu
 
     else:
         scene.show()
+
+    # filter out the values out of the threshold
+    if mesh4d.output_msg:
+        print("original value range: {} - {}".format(np.min(value_mask), np.max(value_mask)))
+
+    for idx in range(len(value_mask)):
+        if min_threshold is not None:
+            if value_mask[idx] < min_threshold:
+                value_mask[idx] = min_threshold
+
+        if max_threshold is not None:
+            if value_mask[idx] > max_threshold:
+                value_mask[idx] = max_threshold
+
+    if mesh4d.output_msg:
+        print("after thresholding: {} - {}".format(np.min(value_mask), np.max(value_mask)))

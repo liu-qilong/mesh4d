@@ -16,10 +16,12 @@ import pyvista as pv
 import open3d as o3d
 from probreg import cpd
 from scipy.spatial import KDTree
+from scipy.interpolate import RBFInterpolator
 
 import mesh4d
 import mesh4d.config.param
 from mesh4d import obj3d, kps
+from mesh4d.analyse import measure
 
 class Trans(object):
     """The base class of transformation. Different types of transformation, such as rigid and non-rigid transformation, are further defined in the children classes like :class:`Trans_Rigid` and :class:`Trans_Nonrigid`.
@@ -337,8 +339,6 @@ class Trans_Nonrigid(Trans):
         The source points :math:`\\boldsymbol S \in \mathbb R^{N \\times 3}` stored in (N, 3) :class:`numpy.array`.
     self.deform_points
         The deformed points :math:`\\boldsymbol S + \\boldsymbol T \in \mathbb R^{N \\times 3}` stored in (N, 3) :class:`numpy.array`.
-    self.disp
-        The displacement matrix :math:`\\boldsymbol T \in \mathbb R^{N \\times 3}` stored in (N, 3) :class:`numpy.array`.
     self.search_tree
         :class:`scipy.spatial.KDTree` of :attr:`self.source_points`, used for acquired the nearest point for a given point from :attr:`self.source_points`.
 
@@ -362,10 +362,12 @@ class Trans_Nonrigid(Trans):
 
         trans = field.Trans_Nonrigid(o3_1, o3_2)
         trans.regist()
-        print(trans.deform_points, trans.disp)
+        print(trans.deform_points)
     """
-    def regist(self, k_nbr: int = 3, **kwargs):
+    def regist(self, field_nbr: int = 100):
         """Align every point from the source object to the nearest point in the target object and use it a this point's displacement.
+
+        tbf
 
         Parameters
         ---
@@ -374,54 +376,12 @@ class Trans_Nonrigid(Trans):
 
         """
         self.source_points = self.source.get_vertices()
-        target_points = self.target.get_vertices()
+        self.deform_points = measure.nearest_points_from_plane(self.target.mesh, self.source_points)
+        self.field = RBFInterpolator(self.source_points, self.deform_points, neighbors=field_nbr)
 
-        tree = KDTree(target_points)
-        _, idx = tree.query(self.source_points, k=k_nbr)
-
-        if k_nbr == 1:
-            self.deform_points = target_points[idx]
-
-        else:
-            deform_points = np.take(target_points, idx, axis=0)
-            self.deform_points = np.mean(deform_points, axis=1)
-
-        self.disp = self.deform_points - self.source_points
-        self.search_tree = KDTree(self.source_points)
-
-    def shift_points(self, points: np.array, k_nbr: int = 3) -> np.array:
-        """Implement the transformation to set of points.
-
-        To apply proper transformation to an arbitrary point :math:`\\boldsymbol x`:
-
-        - Find the closest point :math:`\\boldsymbol s_{\\boldsymbol x}` and its displacement :math:`\\boldsymbol t_{\\boldsymbol x}`.
-        - Use :math:`\\boldsymbol t_{\\boldsymbol x}` as :math:`\\boldsymbol x`'s displacement: :math:`\\boldsymbol x' = \\boldsymbol x + \\boldsymbol t_{\\boldsymbol x}`
-
-        Warning
-        ---
-        This logic may be replaced by better scheme in future development.
-
-        Parameters
-        ---
-        points
-            :math:`N` points in 3D space that we want to implement the transformation on. Stored in a (N, 3) :class:`numpy.array`.
-        k_nbr
-            the number of nearest neighbors to be involved to calculate the average movement as the movement of the input points
-
-        Return
-        ---
-        :class:`numpy.array`
-            (N, 3) :class:`numpy.array` stores the points after transformation.
-        """
-        _, idx = self.search_tree.query(points, k=k_nbr)
-
-        if k_nbr == 1:
-            return self.deform_points[idx]
-        
-        else:
-            deform_points = np.take(self.deform_points, idx, axis=0)
-            deform_points = np.mean(deform_points, axis=1)
-            return deform_points
+    def shift_points(self, points: np.array) -> np.array:
+        """tbf"""
+        return self.field(points)
 
     def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
         """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
@@ -444,12 +404,14 @@ class Trans_Nonrigid(Trans):
         :class:`pyvista.Plotter`
             :class:`pyvista.Plotter` scene added the visualisation.
         """
-        pdata = pv.vector_poly_data(self.source_points, self.disp)
+        pdata = pv.vector_poly_data(self.source_points, self.deform_points - self.source_points)
         glyph = pdata.glyph()
         scene.add_mesh(glyph.translate(location, inplace=False), **kwargs)
 
     def invert(self):
         """Return the inverted non-rigid transformation.
+
+        [broken feature] tbf
 
         Note
         ---
@@ -462,10 +424,10 @@ class Trans_Nonrigid(Trans):
         .. math:: \\boldsymbol S = \\boldsymbol Y - \\boldsymbol T
         """
         trans_invert = type(self)(source_obj=self.target, target_obj=self.source)
+        trans_invert.field_nbr = self.field_nbr
         trans_invert.source_points = self.deform_points
         trans_invert.deform_points = self.source_points
-        trans_invert.disp = -self.disp
-        trans_invert.search_tree = KDTree(trans_invert.source_points)
+        trans_invert.field = RBFInterpolator(trans_invert.source_points, trans_invert.deform_points, neighbors=trans_invert.field_nbr)
 
         return trans_invert
 

@@ -7,6 +7,7 @@ import open3d as o3d
 import pyvista as pv
 from probreg import cpd
 from scipy.spatial import KDTree
+from scipy.interpolate import RBFInterpolator
 
 import mesh4d
 import mesh4d.config.param
@@ -15,7 +16,7 @@ from mesh4d import obj3d, obj4d, field, utils
 class Trans_Nonrigid_ECPD(field.Trans_Nonrigid):
     """Derived from :class:`mesh4d.field.Trans_Nonrigid` and replace the displacement field estimation as Coherent Point Drift (CPD) based approach.
     """
-    def regist(self, landmark_name: str, sample_num = 1000, **kwargs):
+    def regist(self, landmark_name: str, sample_num = 1000, field_nbr: int = 100, scale_rate: float = 100, **kwargs):
         """The registration method.
 
         Parameters
@@ -25,7 +26,11 @@ class Trans_Nonrigid_ECPD(field.Trans_Nonrigid):
             
             Attention
             ---
-            Since the Coherent Point Drift (CPD) is not very efficient, the number of the sampling points used to estimate the displacement field should relatively small. The default value is :code:`3000`.
+            Since the Coherent Point Drift (CPD) is not very efficient, the number of the sampling points used to estimate the displacement field should relatively small. The default value is :code:`1000`.
+        field_nbr
+            tbf
+        scale_rate
+            scale the point cloud to guarantee convergence within limits of iteration.
         **kwargs
             Configurations parameters of the registration.
             
@@ -33,11 +38,11 @@ class Trans_Nonrigid_ECPD(field.Trans_Nonrigid):
         --------
         `probreg.cpd.registration_cpd <https://probreg.readthedocs.io/en/latest/probreg.html?highlight=registration_cpd#probreg.cpd.registration_cpd>`_
         """
-        # sample source & target mesh
+        # sampling source & target mesh
         source_points = self.source.get_sample_points(sample_num)
         target_points = self.target.get_sample_points(sample_num)
 
-        # get source & target point clouds
+        # get source & target correspondence
         def get_landmarks_idx(mesh_points, landmarks_points):
             tree = KDTree(mesh_points)
             _, idx = tree.query(landmarks_points)
@@ -49,10 +54,10 @@ class Trans_Nonrigid_ECPD(field.Trans_Nonrigid):
         idx_source = get_landmarks_idx(source_points, landmarks_source)
         idx_target = get_landmarks_idx(target_points, landmarks_target)
 
-        # get source & target point clouds
-        source_pcd = obj3d.np2pcd(source_points)
-        target_pcd = obj3d.np2pcd(target_points)
-
+        # registration
+        source_pcd = obj3d.np2pcd(source_points / scale_rate)
+        target_pcd = obj3d.np2pcd(target_points /scale_rate)
+        
         tf_param, _, _ = cpd.registration_cpd(
             source=source_pcd, 
             target=target_pcd, 
@@ -61,29 +66,14 @@ class Trans_Nonrigid_ECPD(field.Trans_Nonrigid):
             idx_target=idx_target,
             **kwargs
             )
-        
-        self.parse(tf_param, source_pcd)
 
-    def parse(self, tf_param, source_pcd: o3d.cpu.pybind.geometry.PointCloud):
-        """Parse the registration result to provide :attr:`self.source_points`, :attr:`self.deform_points`, and :attr:`self.disp`. Called by :meth:`regist`.
-        
-        Parameters
-        ---
-        tf_param
-            Attention
-            ---
-            At current stage, the default registration method is Coherent Point Drift (CPD) method realised by :mod:`probreg` package. Therefore the accepted transformation object to be parse is derived from :class:`cpd.CoherentPointDrift`. Transformation object provided by other registration method shall be tested in future development.
-        source_pcd
-            :mod:`open3d` point cloud object sampled from the source mesh.
-        """
-        self.source_points = obj3d.pcd2np(source_pcd)
-
+        # parse
         deform = copy.deepcopy(source_pcd)
         deform.points = tf_param.transform(deform.points)
-        self.deform_points = obj3d.pcd2np(deform)
-
-        self.disp = self.deform_points - self.source_points
-        self.search_tree = KDTree(self.source_points)
+        self.deform_points = obj3d.pcd2np(deform) * scale_rate
+        
+        self.source_points = source_points
+        self.field = RBFInterpolator(self.source_points, self.deform_points, neighbors=field_nbr)
 
 
 class Obj4d_ECPD(obj4d.Obj4d_Deform):
