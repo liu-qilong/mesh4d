@@ -404,7 +404,7 @@ class Trans_Nonrigid(Trans):
         :class:`pyvista.Plotter`
             :class:`pyvista.Plotter` scene added the visualisation.
         """
-        pdata = pv.vector_poly_data(self.source_points, self.target_points - self.source_points)
+        pdata = pv.vector_poly_data(self.source_points, self.deform_points - self.source_points)
         glyph = pdata.glyph()
         scene.add_mesh(glyph.translate(location, inplace=False), **kwargs)
 
