@@ -245,6 +245,10 @@ class Obj4d_Kps(Obj4d):
 
                 if 'k' in elements:
                     obj.add_kps_to_scene(scene, kps_names, location=[1.5*width, 0, idx*stack_dist], radius=0.02*width)
+
+            if ('m' not in elements) and ('p' not in elements):
+                if 'k' in elements:
+                    obj.add_kps_to_scene(scene, kps_names, location=[0, 0, idx*stack_dist], radius=0.02*width)
             
         scene.camera_position = 'zy'
         scene.camera.azimuth = 45
@@ -289,6 +293,10 @@ class Obj4d_Kps(Obj4d):
 
                 if 'k' in elements:
                     obj.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
+
+            if ('m' not in elements) and ('p' not in elements):
+                if 'k' in elements:
+                    obj.add_kps_to_scene(scene, kps_names, radius=0.02*width)
             
             scene.camera_position = 'xy'
             scene.write_frame()
