@@ -1,16 +1,16 @@
-# gitignore
-
 # system file
 .DS_Store
 .idea/
-
 __pycache__/
 
 # raw data
-media/
 dataset/
 data/
+media/
 param/
+build/
+output/
+temp/
 
 # binary file
 *.png
@@ -34,10 +34,6 @@ build/
 *.bcf
 *.run.xml
 *.blg
-
 *cls
 *xdy
 *gz
-
-# rendered html docs
-build/

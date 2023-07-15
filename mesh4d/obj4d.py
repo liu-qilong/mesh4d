@@ -92,21 +92,21 @@ class Obj4d(object):
         for obj in objs:
             self.obj_ls.append(obj)
 
-    def show(self, elements: str = 'mp', stack_dist: float = 1000, zoom_rate: float = 3.5, window_size: list = [2000, 800]):
+    def show(self, elements: str = 'mp', stack_dist: float = 1000, zoom_rate: float = 3.5, window_size: list = [2000, 800], skip: int = 1, m_props: dict = {}, p_props: dict = {}):
         """tbf"""
         scene = pv.Plotter()
         plot_num = len(self.obj_ls)
 
-        for idx in range(0, plot_num):
+        for idx in range(0, plot_num, skip):
             obj = self.obj_ls[idx]
 
             width = obj.get_width()
 
             if 'm' in elements:
-                obj.add_mesh_to_scene(scene, location=[0, 0, idx*stack_dist])
+                obj.add_mesh_to_scene(scene, location=[0, 0, idx * stack_dist / skip], **m_props)
             
             if 'p' in elements:
-                obj.add_pcd_to_scene(scene, location=[1.5*width, 0, idx*stack_dist], point_size=1e-5*width)
+                obj.add_pcd_to_scene(scene, location=[1.5*width, 0, idx * stack_dist / skip], point_size=1e-5*width, **p_props)
             
         scene.camera_position = 'zy'
         scene.camera.azimuth = 45
@@ -115,7 +115,7 @@ class Obj4d(object):
         scene.enable_parallel_projection()
         scene.show()
 
-    def gif_animate(self, output_folder: str = "output/", filename: str = "obj4d", elements: str = 'mp'):
+    def gif_animate(self, output_folder: str = "output/", filename: str = "obj4d", elements: str = 'mp', m_props: dict = {}, k_props: dict = {}, p_props: dict = {}):
         """Illustrate the 4D object.
         
         Parameters
@@ -139,10 +139,10 @@ class Obj4d(object):
             width = obj.get_width()
 
             if 'm' in elements:
-                obj.add_mesh_to_scene(scene)
+                obj.add_mesh_to_scene(scene, **m_props)
             
             if 'p' in elements:
-                obj.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-3*width)
+                obj.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-3*width, **p_props)
             
             scene.camera_position = 'xy'
             scene.write_frame()
@@ -224,27 +224,31 @@ class Obj4d_Kps(Obj4d):
 
         return markerset
     
-    def show(self, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk', stack_dist: float = 1000, zoom_rate: float = 3.5, window_size: list = [2000, 800]):
+    def show(self, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk', stack_dist: float = 1000, zoom_rate: float = 3.5, window_size: list = [2000, 800], skip: int = 1, m_props: dict = {}, k_props: dict = {}, p_props: dict = {}):
         """tbf"""
         scene = pv.Plotter()
         plot_num = len(self.obj_ls)
 
-        for idx in range(0, plot_num):
+        for idx in range(0, plot_num, skip):
             obj = self.obj_ls[idx]
 
             width = obj.get_width()
 
             if 'm' in elements:
-                obj.add_mesh_to_scene(scene, location=[0, 0, idx*stack_dist])
+                obj.add_mesh_to_scene(scene, location=[0, 0, idx * stack_dist / skip], **m_props)
 
                 if 'k' in elements:
-                    obj.add_kps_to_scene(scene, kps_names, location=[0, 0, idx*stack_dist], radius=0.02*width)
+                    obj.add_kps_to_scene(scene, kps_names, location=[0, 0, idx * stack_dist / skip], radius=0.02*width, **k_props)
             
             if 'p' in elements:
-                obj.add_pcd_to_scene(scene, location=[1.5*width, 0, idx*stack_dist], point_size=1e-5*width)
+                obj.add_pcd_to_scene(scene, location=[1.5*width, 0, idx * stack_dist / skip], point_size=1e-5*width, **p_props)
 
                 if 'k' in elements:
-                    obj.add_kps_to_scene(scene, kps_names, location=[1.5*width, 0, idx*stack_dist], radius=0.02*width)
+                    obj.add_kps_to_scene(scene, kps_names, location=[1.5*width, 0, idx * stack_dist / skip], radius=0.02*width, **k_props)
+
+            if ('m' not in elements) and ('p' not in elements):
+                if 'k' in elements:
+                    obj.add_kps_to_scene(scene, kps_names, location=[0, 0, idx * stack_dist / skip], radius=0.02*width, **k_props)
             
         scene.camera_position = 'zy'
         scene.camera.azimuth = 45
@@ -253,7 +257,7 @@ class Obj4d_Kps(Obj4d):
         scene.enable_parallel_projection()
         scene.show()
 
-    def gif_animate(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None, elements: str = 'mpk'):
+    def gif_animate(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None, elements: str = 'mpk', m_props: dict = {}, k_props: dict = {}, p_props: dict = {}):
         """Illustrate the 4D object.
         
         Parameters
@@ -279,16 +283,20 @@ class Obj4d_Kps(Obj4d):
             width = obj.get_width()
 
             if 'm' in elements:
-                obj.add_mesh_to_scene(scene)
+                obj.add_mesh_to_scene(scene, **m_props)
 
                 if 'k' in elements:
-                    obj.add_kps_to_scene(scene, kps_names, radius=0.02*width)
+                    obj.add_kps_to_scene(scene, kps_names, radius=0.02*width, **k_props)
 
             if 'p' in elements:
-                obj.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-3*width)
+                obj.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-3*width, **p_props)
 
                 if 'k' in elements:
-                    obj.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
+                    obj.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0], **k_props)
+
+            if ('m' not in elements) and ('p' not in elements):
+                if 'k' in elements:
+                    obj.add_kps_to_scene(scene, kps_names, radius=0.02*width, **k_props)
             
             scene.camera_position = 'xy'
             scene.write_frame()
