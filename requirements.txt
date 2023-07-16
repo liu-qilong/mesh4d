@@ -1,4 +1,4 @@
-# python packages
+# dependencies
 open3d
 pyvista
 probreg

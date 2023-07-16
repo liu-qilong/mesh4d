@@ -3,6 +3,9 @@
 .idea/
 __pycache__/
 
+# setuptool
+*.egg-info
+
 # raw data
 dataset/
 data/

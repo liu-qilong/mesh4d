@@ -115,7 +115,7 @@ class Obj4d(object):
         scene.enable_parallel_projection()
         scene.show()
 
-    def gif_animate(self, output_folder: str = "output/", filename: str = "obj4d", elements: str = 'mp', m_props: dict = {}, k_props: dict = {}, p_props: dict = {}):
+    def animate(self, output_folder: str = "output/", filename: str = "obj4d", file_type: str = 'mp4', fps: int = 12, mp4_quality: int = 5, elements: str = 'mp', m_props: dict = {}, k_props: dict = {}, p_props: dict = {}):
         """Illustrate the 4D object.
         
         Parameters
@@ -124,11 +124,29 @@ class Obj4d(object):
             the output folder of the generated :code:`.gif` file.
         filename
             the output filename of the generated :code:`.gif` file.
+        filetype
+            output :code:`gif` or :code:`mp4`.
+        fps
+            tbf
         elements
             tbf
+
+        Attention
+        ---
+        To export :code:`.mp4` video:
+        ::
+        
+            pip install imageio[ffmpeg]
         """
         scene = pv.Plotter()
-        scene.open_gif(os.path.join(output_folder, filename))
+
+        if file_type == 'gif':
+            scene.open_gif(os.path.join(output_folder, filename) + '.gif', framerate=fps)
+        elif file_type == 'mp4':
+            scene.open_moive(os.path.join(output_folder, filename) + '.mp4', framerate=fps, quality=mp4_quality)
+        else:
+            print('invalid file type')
+            return
         
         plot_num = len(self.obj_ls)
 
@@ -257,7 +275,7 @@ class Obj4d_Kps(Obj4d):
         scene.enable_parallel_projection()
         scene.show()
 
-    def gif_animate(self, output_folder: str = "output/", filename: str = "obj4d", kps_names: Union[None, list, tuple] = None, elements: str = 'mpk', m_props: dict = {}, k_props: dict = {}, p_props: dict = {}):
+    def animate(self, output_folder: str = "output/", filename: str = "obj4d", file_type: str = 'mp4', fps: int = 12, mp4_quality: int = 5, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk', m_props: dict = {}, k_props: dict = {}, p_props: dict = {}):
         """Illustrate the 4D object.
         
         Parameters
@@ -266,13 +284,33 @@ class Obj4d_Kps(Obj4d):
             the output folder of the generated :code:`.gif` file.
         filename
             the output filename of the generated :code:`.gif` file.
+        filetype
+            output :code:`gif` or :code:`mp4`.
         kps_names
             a list of names of the :class:`~mesh4d.kps.Kps` objects to be shown. Noted that a :class:`~mesh4d.kps.Kps` object's name is its keyword in :attr:`self.kps_group`.
+        fps
+            tbf
+        mp4_quality
+            tbf
         elements
             tbf
+
+        Attention
+        ---
+        To export :code:`.mp4` video:
+        ::
+        
+            pip install imageio[ffmpeg]
         """
         scene = pv.Plotter()
-        scene.open_gif(os.path.join(output_folder, filename + '.gif'))
+        
+        if file_type == 'gif':
+            scene.open_gif(os.path.join(output_folder, filename) + '.gif', fps=fps)
+        elif file_type == 'mp4':
+            scene.open_movie(os.path.join(output_folder, filename) + '.mp4', framerate=fps, quality=mp4_quality)
+        else:
+            print('invalid file type')
+            return
 
         plot_num = len(self.obj_ls)
 
