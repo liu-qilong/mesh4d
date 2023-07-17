@@ -92,7 +92,7 @@ class Obj4d(object):
         for obj in objs:
             self.obj_ls.append(obj)
 
-    def show(self, elements: str = 'mp', stack_dist: float = 1000, zoom_rate: float = 3.5, window_size: list = [2000, 800], skip: int = 1, m_props: dict = {}, p_props: dict = {}):
+    def show(self, elements: str = 'mp', stack_dist: float = 1000, zoom_rate: float = 3.5, window_size: list = [2000, 800], skip: int = 1, m_props: dict = {}, p_props: dict = {}, is_save: bool = False, export_folder: str = '', export_name: str = 'screeenshot'):
         """tbf"""
         scene = pv.Plotter()
         plot_num = len(self.obj_ls)
@@ -113,7 +113,17 @@ class Obj4d(object):
         scene.camera.zoom(zoom_rate)
         scene.window_size = window_size
         scene.enable_parallel_projection()
+
         scene.show()
+
+        if is_save:
+            export_path = os.path.join(export_folder, f'{export_name}.png')
+            scene.update()
+            scene.screenshot(export_path)
+            
+            if mesh4d.output_msg:
+                print("export image: {}".format(export_path))
+            
 
     def animate(self, output_folder: str = "output/", filename: str = "obj4d", file_type: str = 'mp4', fps: int = 12, mp4_quality: int = 5, elements: str = 'mp', m_props: dict = {}, k_props: dict = {}, p_props: dict = {}):
         """Illustrate the 4D object.
@@ -242,7 +252,7 @@ class Obj4d_Kps(Obj4d):
 
         return markerset
     
-    def show(self, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk', stack_dist: float = 1000, zoom_rate: float = 3.5, window_size: list = [2000, 800], skip: int = 1, m_props: dict = {}, k_props: dict = {}, p_props: dict = {}):
+    def show(self, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk', stack_dist: float = 1000, zoom_rate: float = 3.5, window_size: list = [2000, 800], skip: int = 1, m_props: dict = {}, k_props: dict = {}, p_props: dict = {}, is_save: bool = False, export_folder: str = '', export_name: str = 'screeenshot'):
         """tbf"""
         scene = pv.Plotter()
         plot_num = len(self.obj_ls)
@@ -273,7 +283,15 @@ class Obj4d_Kps(Obj4d):
         scene.camera.zoom(zoom_rate)
         scene.window_size = window_size
         scene.enable_parallel_projection()
-        scene.show()
+        scene.show(interactive_update=True)
+
+        if is_save:
+            export_path = os.path.join(export_folder, f'{export_name}.png')
+            scene.update()
+            scene.screenshot(export_path)
+            
+            if mesh4d.output_msg:
+                print("export image: {}".format(export_path))
 
     def animate(self, output_folder: str = "output/", filename: str = "obj4d", file_type: str = 'mp4', fps: int = 12, mp4_quality: int = 5, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk', m_props: dict = {}, k_props: dict = {}, p_props: dict = {}):
         """Illustrate the 4D object.

@@ -84,7 +84,7 @@ def show_obj3d_diff(obj1: Type[obj3d.Obj3d], obj2: Type[obj3d.Obj3d], kps_names:
     scene.show()
 
 
-def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, values: Iterable, k_nbr: int = 10, distance_upper_bound: float = 50, max_threshold: Union[float, None] = None, min_threshold: Union[float, None] = None, cmap: str = "cool", is_save: bool = False, export_folder: str = '', export_name: str = 'screeenshot', **kwargs):
+def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, values: Iterable, k_nbr: int = 10, max_threshold: Union[float, None] = None, min_threshold: Union[float, None] = None, cmap: str = "cool", is_save: bool = False, export_folder: str = '', export_name: str = 'screeenshot', **kwargs):
     """Show the 3D mesh with a value mask.
 
     Parameters
@@ -97,8 +97,6 @@ def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, valu
         An iterable containing the values to assign to the mesh vertices based on their nearest point in `points`.
     k_nbr : int, optional
         The number of nearest neighbors to consider when assigning values to the mesh vertices. Default is 10.
-    distance_upper_bound
-        Maximum distance when masking the values to the mesh cell. Default is 50.
     max_threshold : float or None, optional
         The maximum value to include in the mask. Any values greater than this threshold will be replaced with the threshold value. Default is None.
     min_threshold : float or None, optional
@@ -151,8 +149,9 @@ def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, valu
     scene.camera_position = 'xy'
 
     if is_save:
-        export_path = os.path.join(export_folder, '{}.png'.format(export_name))
+        export_path = os.path.join(export_folder, f'{export_name}.png')
         scene.show(screenshot=export_path)
+
         if mesh4d.output_msg:
             print("export image: {}".format(export_path))
 
