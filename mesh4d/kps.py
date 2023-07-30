@@ -179,15 +179,6 @@ class Marker(object):
 
     Note
     ---
-    `Class Attributes`
-
-    cls.cab_s
-        rotation matrix :math:`\\boldsymbol R \in \mathbb{R}^{3 \\times 3}` stored in (3, 3) :class:`numpy.array` used for converting Vicon coordinates to 3dMD coordinates.
-    cls.cab_r
-        scaling rate :math:`s \in \mathbb{R}` stored in a :class:`float` variable used for converting Vicon coordinates to 3dMD coordinates.
-    cls.cab_t
-        translation vector :math:`\\boldsymbol t \in \mathbb{R}^{3}` stored in (3, ) :class:`numpy.array` used for converting Vicon coordinates to 3dMD coordinates.
-
     self.name
         The name of the marker.
     self.start_time
@@ -215,12 +206,8 @@ class Marker(object):
     ---
     In other parts of the package, points coordinates storing in :class:`numpy.array` are usually in the shape of (N, 3), while here we adopt (3, N), for the convenience of data interpolation :meth:`interp_field`.
     """
-    trans_cab = None
 
     def __init__(self, name: str, start_time: float = 0, fps: int = 100):
-        if self.trans_cab is None:
-            self.load_cab_rst()
-
         self.name = name
         self.start_time = start_time
         self.fps = fps
@@ -233,27 +220,8 @@ class Marker(object):
         self.x_field = None
         self.y_field = None
         self.z_field = None
-    
-    @classmethod
-    def load_cab_rst(cls):
-        """Load the calibration parameters from Vicon to 3dMD coordination system.
-        """
-        try:
-            mod_path = os.path.dirname(mesh4d.__file__)
-            cls.trans_cab = field.Trans_Rigid(source_obj=None, target_obj=None)
-            
-            cls.trans_cab.rot = np.load(os.path.join(mod_path, 'config/calibrate/r.npy'))
-            cls.trans_cab.scale = np.load(os.path.join(mod_path, 'config/calibrate/s.npy'))
-            cls.trans_cab.t = np.load(os.path.join(mod_path, 'config/calibrate/t.npy'))
 
-            if mesh4d.output_msg:
-                print('calibration parameters loaded')
-
-        except:
-            if mesh4d.output_msg:
-                print('marker calibration parameters not found\nwhen filling data, please use convert=False mode')
-
-    def append_data(self, coord: np.array, speed: float = 0, accel: float = 0, convert: bool = True):
+    def append_data(self, coord: np.array, speed: float = 0, accel: float = 0):
         """Append a frame of coordinates, speed, and acceleration data. after transforming to 3dMD coordinates.
 
         Parameters
@@ -264,19 +232,11 @@ class Marker(object):
             the speed storing in a :class:`float`. Default as :code:`0`.
         accel
             the acceleration storing in a :class:`float`. Default as :code:`0`.
-        convert
-            implement coordinates conversion or not. Default as :code:`True`. Noted that conversion include transformation from Vicon to 3dMD coordinates.
         """
         # adjust array layout
         coord = np.expand_dims(coord, axis=0).T
         speed = np.expand_dims(speed, axis=0)
         accel = np.expand_dims(accel, axis=0)
-
-        # transform to 3dMD coordinates
-        if convert:
-            coord = self.trans_cab.shift_points(coord).T
-            speed = self.trans_cab.scale * speed
-            accel = self.trans_cab.scale * accel
 
         # if self.coord, self.speed, and self.accel haven't been initialised, initialise them
         # otherwise, append the newly arrived data to its end
@@ -295,7 +255,7 @@ class Marker(object):
         else:
             self.accel = np.concatenate((self.accel, accel), axis=0)
 
-    def fill_data(self, data_input: np.array, convert: bool = True):
+    def fill_data(self, data_input: np.array):
         """Fill coordinates, speed, and acceleration data of all frames after transforming to 3dMD coordinates. Noted that the first calling fills the coordinates data, the second calling fills the speed data, and the third calling fills the acceleration data, respectively.
 
         Parameters
@@ -305,16 +265,10 @@ class Marker(object):
             - (3, N) :class:`numpy.array` when loading coordinates data.
             - Or (N, ) :class:`numpy.array` for loading speed data or acceleration data.
 
-        convert
-            implement coordinates conversion or not. Default as :code:`True`. Noted that conversion include transformation from Vicon to 3dMD coordinates.
-
         Attention
         ---
         Other than appending data frame by frame, as :meth:`append_data` does, it's more convenient to load the data at one go when data loading data from a parsed Vicon motion capture data (:meth:`MarkerSet.load_from_vicon`). This method is designed for this purpose. Usually the end user don't need to call this method manually.
         """
-        if convert:
-            data_input = self.trans_cab.shift_points(data_input.T).T
-
         if self.coord is None:
             self.coord = data_input
         elif self.speed is None:
@@ -428,7 +382,7 @@ class Marker(object):
 
         for idx in range(frame_num_new):
             time = self.start_time + idx / fps_new
-            marker.append_data(coord=self.get_time_coord(time), convert=False)
+            marker.append_data(coord=self.get_time_coord(time))
 
         return marker
 
@@ -616,7 +570,7 @@ class MarkerSet(object):
     def __init__(self):
         self.markers = {}
 
-    def load_from_vicon(self, filedir: str, convert: bool = True):
+    def load_from_vicon(self, filedir: str, trans_cab: Union[None, field.Trans_Rigid] = None):
         """Load and parse data from :code:`.csv` file exported from the Vicon motion capture system.
 
         Parameters
@@ -627,8 +581,8 @@ class MarkerSet(object):
             .. attention::
                 Noted that the original unit of 3dMD raw data is millimetre (mm).
         
-        convert
-            implement the coordinates conversion or not.
+        trans_cab
+            tbf
         """
         # trigger calibration parameters loading
         Marker('None')
@@ -666,7 +620,11 @@ class MarkerSet(object):
                     # fill the following 3 columns' X, Y, Z values into the point's object
                     try:
                         data_input = df.loc[2:, col_name:col_names[col_id+2]].to_numpy(dtype=float).transpose()
-                        self.markers[point_name].fill_data(data_input, convert=convert)
+
+                        if trans_cab is not None:
+                            data_input = trans_cab.shift_points(data_input.T).T
+
+                        self.markers[point_name].fill_data(data_input)
 
                     except:
                         if mesh4d.output_msg:
@@ -682,6 +640,21 @@ class MarkerSet(object):
         
         if mesh4d.output_msg:
             print("loaded 1 vicon file: {}".format(filedir))
+
+    def load_from_array(self, array: np.array, fps: int = 120, trans_cab: Union[None, field.Trans_Rigid] = None):
+        """tbf"""
+        self.fps = fps
+        point_num = array.shape[1]
+
+        for point_idx in range(point_num):
+            self.markers[point_idx] = Marker(name=point_idx, fps=self.fps)
+
+        for points in array:
+            if trans_cab is not None:
+                points = trans_cab.shift_points(points)
+
+            for point_idx in range(point_num):
+                self.markers[point_idx].append_data(points[point_idx])
 
     def interp_field(self, **kwargs):
         """After loading Vicon motion capture data, the :class:`MarkerSet` object only carries the key points' coordinates in discrete frames. To access the coordinates at any specific time, it's necessary to call :meth:`interp_field`.

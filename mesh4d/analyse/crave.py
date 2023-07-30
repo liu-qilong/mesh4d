@@ -164,7 +164,7 @@ def landmarks_labelling(
     landmarks.fps = mesh_fps/stride
 
     for point_idx in range(point_num):
-        point_name = 'marker {}'.format(point_idx)
+        point_name = f'marker {point_idx}'
         landmarks.markers[point_name] = kps.Marker(name=point_name, fps=landmarks.fps)
 
     file_idx = start
@@ -179,7 +179,7 @@ def landmarks_labelling(
             # update file_idx to label the next mesh
             for point_idx in range(point_num):
                 point_name = 'marker {}'.format(point_idx)
-                landmarks.markers[point_name].append_data(points[point_idx], convert=False)
+                landmarks.markers[point_name].append_data(points[point_idx])
             
             print("extracted points:\n{}\n".format(points))
             file_idx = file_idx + stride
