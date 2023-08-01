@@ -549,6 +549,9 @@ class Obj4d_Deform(Obj4d_Kps):
         """
         self.obj_ls[start_id].attach_kps(name, kps)
 
+        track_num = 0
+        total_num = len(self.obj_ls)
+
         # track forward
         for idx in range(start_id + 1, len(self.obj_ls)):
             previous_obj = self.obj_ls[idx - 1]
@@ -557,6 +560,11 @@ class Obj4d_Deform(Obj4d_Kps):
 
             current_obj = self.obj_ls[idx]
             current_obj.attach_kps(name, current_kps)
+
+            if mesh4d.output_msg:
+                track_num = track_num + 1
+                percent = (track_num + 1) / total_num
+                utils.progress_bar(percent, back_str=" complete virtual landmark tracking at the {}-th frame".format(idx))
 
         # track backward
         """
@@ -568,4 +576,9 @@ class Obj4d_Deform(Obj4d_Kps):
 
             current_obj = self.obj_ls[idx]
             current_obj.attach_kps(name, current_kps)
+
+            if mesh4d.output_msg:
+                track_num = track_num + 1
+                percent = track_num / total_num
+                utils.progress_bar(percent, back_str=" complete virtual landmark tracking at the {}-th frame".format(idx))
         """
