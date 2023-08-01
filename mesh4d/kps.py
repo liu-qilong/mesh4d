@@ -641,19 +641,29 @@ class MarkerSet(object):
         if mesh4d.output_msg:
             print("loaded 1 vicon file: {}".format(filedir))
 
-    def load_from_array(self, array: np.array, fps: int = 120, trans_cab = None):
-        """tbf"""
+    def load_from_array(self, array: np.array, index: Union[None, list, tuple] = None, fps: int = 120, trans_cab = None):
+        """tbf
+        array layout (frame, marker, axis)
+        """
         self.fps = fps
         point_num = array.shape[1]
 
-        for point_idx in range(point_num):
-            points = array[:, point_idx, :]
+        for idx in range(point_num):
+            points = array[:, idx, :]
 
             if trans_cab is not None:
                 points = trans_cab.shift_points(points)
 
-            self.markers[point_idx] = Marker(name=point_idx, fps=self.fps)
-            self.markers[point_idx].fill_data(points.T)
+            if index is None:
+                self.markers[idx] = Marker(name=idx, fps=self.fps)
+                self.markers[idx].fill_data(points.T)
+
+            elif len(index) == point_num:
+                self.markers[index[idx]] = Marker(name=index[idx], fps=self.fps)
+                self.markers[index[idx]].fill_data(points.T)
+
+            else:
+                raise ValueError('length of index and point number must be the same')
 
     def interp_field(self, **kwargs):
         """After loading Vicon motion capture data, the :class:`MarkerSet` object only carries the key points' coordinates in discrete frames. To access the coordinates at any specific time, it's necessary to call :meth:`interp_field`.
@@ -717,6 +727,20 @@ class MarkerSet(object):
             kps.add_point(name, coord)
 
         return kps
+    
+    def to_array(self) -> tuple:
+        """tbf"""
+        index = []
+        array_ls = []
+
+        for name, marker in self.markers.items():
+            index.append(name)
+            array_ls.append(marker.coord.T)
+
+        # (marker, frame, axis) -> (frame, marker, axis)
+        array = np.swapaxes(np.array(array_ls), 0, 1)
+
+        return array, index
     
     def extract(self, marker_names: Iterable[str]) -> MarkerSet:
         """Return the assembled marker set with extracted markers. Noted that the original marker set won't be altered.
