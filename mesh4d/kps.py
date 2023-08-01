@@ -641,20 +641,19 @@ class MarkerSet(object):
         if mesh4d.output_msg:
             print("loaded 1 vicon file: {}".format(filedir))
 
-    def load_from_array(self, array: np.array, fps: int = 120, trans_cab: Union[None, field.Trans_Rigid] = None):
+    def load_from_array(self, array: np.array, fps: int = 120, trans_cab = None):
         """tbf"""
         self.fps = fps
         point_num = array.shape[1]
 
         for point_idx in range(point_num):
-            self.markers[point_idx] = Marker(name=point_idx, fps=self.fps)
+            points = array[:, point_idx, :]
 
-        for points in array:
             if trans_cab is not None:
                 points = trans_cab.shift_points(points)
 
-            for point_idx in range(point_num):
-                self.markers[point_idx].append_data(points[point_idx])
+            self.markers[point_idx] = Marker(name=point_idx, fps=self.fps)
+            self.markers[point_idx].fill_data(points.T)
 
     def interp_field(self, **kwargs):
         """After loading Vicon motion capture data, the :class:`MarkerSet` object only carries the key points' coordinates in discrete frames. To access the coordinates at any specific time, it's necessary to call :meth:`interp_field`.
