@@ -1,6 +1,7 @@
 # dependencies
 open3d
 pyvista
+imageio[ffmpeg]
 probreg
 numpy
 pandas

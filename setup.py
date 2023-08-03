@@ -16,6 +16,7 @@ setup(
 	install_requires=[
 		'open3d',
         'pyvista',
+        'imageio[ffmpeg]'
         'probreg',
         'numpy',
         'pandas',
