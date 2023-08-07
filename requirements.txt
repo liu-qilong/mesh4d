@@ -1,7 +1,6 @@
 # dependencies
 open3d
-pyvista
-imageio[ffmpeg]
+pyvista[all]
 probreg
 numpy
 pandas
@@ -10,9 +9,6 @@ matplotlib
 
 # jupyter notebook
 ipykernel
-nbconvert
-trame
-ipywidgets
 
 # sphinx packages
 sphinx_copybutton

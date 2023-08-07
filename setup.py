@@ -15,8 +15,7 @@ setup(
 	packages=['mesh4d'],
 	install_requires=[
 		'open3d',
-        'pyvista',
-        'imageio[ffmpeg]'
+        'pyvista[all]',
         'probreg',
         'numpy',
         'pandas',
