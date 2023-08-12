@@ -106,7 +106,7 @@ class Trans(object):
         mesh_deform.points = self.shift_points(mesh_deform.points, **kwargs)
         return mesh_deform
 
-    def show(self):
+    def show(self) -> pv.Plotter:
         """Illustrate the estimated transformation.
 
         Attention
@@ -116,7 +116,9 @@ class Trans(object):
         scene = pv.Plotter()
         self.add_to_scene(scene)
         scene.camera_position = 'xy'
-        scene.show()
+        scene.show(interactive_update=True)
+
+        return scene
 
     def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), **kwargs) -> pv.Plotter:
         """Illustrate the estimated transformation.

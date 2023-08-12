@@ -136,7 +136,7 @@ class Obj3d(object):
         right = measure.points_get_min_bound(self.get_vertices())[0]
         return left - right
 
-    def show(self, elements: str = 'mp'):
+    def show(self, elements: str = 'mp') -> pv.Plotter:
         """Show the loaded mesh and the sampled point cloud.
 
         Parameters
@@ -162,7 +162,9 @@ class Obj3d(object):
             self.add_pcd_to_scene(scene, location=[1.5*width, 0, 0], point_size=1e-6*width)
 
         scene.camera_position = 'xy'
-        scene.show()
+        scene.show(interactive_update=True)
+
+        return scene
 
     def add_mesh_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), show_edges: bool =True, **kwargs) -> pv.Plotter:
         """Add the visualisation of the mesh to a :class:`pyvista.Plotter` scene.
@@ -261,7 +263,7 @@ class Obj3d_Kps(Obj3d):
         kps = markerset.get_time_coord(time)
         self.attach_kps(name, kps)
 
-    def show(self, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk'):
+    def show(self, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk') -> pv.Plotter:
         """Show the loaded mesh, the sampled point cloud, and the key points attached to it.
 
         Parameters
@@ -295,7 +297,9 @@ class Obj3d_Kps(Obj3d):
                 self.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
 
         scene.camera_position = 'xy'
-        scene.show()
+        scene.show(interactive_update=True)
+
+        return scene
 
     def add_kps_to_scene(self, scene: pv.Plotter, kps_names: Union[None, tuple, list] = None, location: np.array = np.array((0, 0, 0)), color: Union[None, str] = None, **kwargs) -> pv.Plotter:
         """Add the visualisation of key points to a :class:`pyvista.Plotter` scene.
@@ -418,7 +422,7 @@ class Obj3d_Deform(Obj3d_Kps):
 
         return deform_obj
 
-    def show_deform(self, kps_names: Union[None, list, tuple] = None, mode: str = 'nonrigid', cmap: str = "cool"):
+    def show_deform(self, kps_names: Union[None, list, tuple] = None, mode: str = 'nonrigid', cmap: str = "cool") -> pv.Plotter:
         """Illustrate the mesh, the sampled point cloud, and the key points after the estimated deformation.
         
         - The mesh will be coloured with the distance of deformation. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
@@ -478,7 +482,9 @@ class Obj3d_Deform(Obj3d_Kps):
         deform_obj.add_kps_to_scene(scene, kps_names, radius=0.02*width, location=[1.5*width, 0, 0])
         
         scene.camera_position = 'xy'
-        scene.show()
+        scene.show(interactive_update=True)
+
+        return scene
 
     def offset_rotate(self):
         """Offset the rotation according to the estimated rigid transformation.

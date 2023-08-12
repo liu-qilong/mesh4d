@@ -124,14 +124,16 @@ class Kps(object):
         }
         return diff_dict
 
-    def show(self):
+    def show(self) -> pv.Plotter:
         """Illustrate the key points object.
         """
         scene = pv.Plotter()
         self.add_to_scene(scene)
 
         scene.camera_position = 'xy'
-        scene.show()
+        scene.show(interactive_update=True)
+        
+        return scene
 
     def add_to_scene(self, scene: pv.Plotter, location: np.array = np.array((0, 0, 0)), radius: float = 1, **kwargs) -> pv.Plotter:
         """Add the visualisation of current object to a :class:`pyvista.Plotter` scene.
@@ -514,14 +516,16 @@ class Marker(object):
         scene.add_mesh(dots.translate(location, inplace=False), color=color, **kwargs)
         scene.add_mesh(lines, color=color, line_width=trace_width, opacity=trace_op)
 
-    def show(self):
+    def show(self) -> pv.Plotter:
         """Illustrate the key points object.
         """
         scene = pv.Plotter()
         self.add_to_scene(scene)
 
         scene.camera_position = 'xy'
-        scene.show()
+        scene.show(interactive_update=True)
+
+        return scene
 
 
 class MarkerSet(object):
@@ -924,11 +928,13 @@ class MarkerSet(object):
                 seed = seed + 1
             marker.add_to_scene(scene=scene, location=location, trace_fps=trace_fps, trace_width=trace_width, trace_op=trace_op, radius=radius, color=color, **kwargs)
 
-    def show(self):
+    def show(self) -> pv.Plotter:
         """Illustrate the key points object.
         """
         scene = pv.Plotter()
         self.add_to_scene(scene)
 
         scene.camera_position = 'xy'
-        scene.show()
+        scene.show(interactive_update=True)
+
+        return scene

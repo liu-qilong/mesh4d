@@ -41,7 +41,7 @@ def np2pvpcd(points: np.array, **kwargs) -> pv.core.pointset.PolyData:
     return pvpcd
 
 
-def show_obj3d_diff(obj1: Type[obj3d.Obj3d], obj2: Type[obj3d.Obj3d], kps_names: Union[None, tuple, list] = None, cmap: str = "cool", op2: float = 0.2):
+def show_obj3d_diff(obj1: Type[obj3d.Obj3d], obj2: Type[obj3d.Obj3d], kps_names: Union[None, tuple, list] = None, cmap: str = "cool", op2: float = 0.2) -> pv.Plotter:
     """Illustrate the difference of two 3D object:
 
     :attr:`obj1` mesh will be coloured according to each of its points' distance to :attr:`obj2` mesh. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
@@ -81,10 +81,12 @@ def show_obj3d_diff(obj1: Type[obj3d.Obj3d], obj2: Type[obj3d.Obj3d], kps_names:
         obj2.add_kps_to_scene(scene, kps_names, color="green", radius=0.02*width)
 
     scene.camera_position = 'xy'
-    scene.show()
+    scene.show(interactive_update=True)
+
+    return scene
 
 
-def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, values: Iterable, k_nbr: int = 10, max_threshold: Union[float, None] = None, min_threshold: Union[float, None] = None, cmap: str = "cool", is_save: bool = False, export_folder: str = '', export_name: str = 'screeenshot', **kwargs):
+def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, values: Iterable, k_nbr: int = 10, max_threshold: Union[float, None] = None, min_threshold: Union[float, None] = None, cmap: str = "cool", is_save: bool = False, export_folder: str = '', export_name: str = 'screeenshot', **kwargs) -> pv.Plotter:
     """Show the 3D mesh with a value mask.
 
     Parameters
@@ -150,13 +152,13 @@ def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, valu
 
     if is_save:
         export_path = os.path.join(export_folder, f'{export_name}.png')
-        scene.show(screenshot=export_path)
+        scene.show(screenshot=export_path, interactive_update=True)
 
         if mesh4d.output_msg:
             print("export image: {}".format(export_path))
 
     else:
-        scene.show()
+        scene.show(interactive_update=True)
 
     # filter out the values out of the threshold
     if mesh4d.output_msg:
@@ -173,3 +175,5 @@ def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, valu
 
     if mesh4d.output_msg:
         print("after thresholding: {} - {}".format(np.min(value_mask), np.max(value_mask)))
+
+    return scene
