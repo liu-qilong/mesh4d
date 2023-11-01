@@ -645,11 +645,12 @@ class MarkerSet(object):
         if mesh4d.output_msg:
             print("loaded 1 vicon file: {}".format(filedir))
 
-    def load_from_array(self, array: np.array, index: Union[None, list, tuple] = None, fps: int = 120, trans_cab = None):
+    def load_from_array(self, array: np.array, index: Union[None, list, tuple] = None, start_time: float = 0.0, fps: int = 120, trans_cab = None):
         """tbf
         array layout (frame, marker, axis)
         """
         self.fps = fps
+        self.start_time = start_time
         point_num = array.shape[1]
 
         for idx in range(point_num):
@@ -659,7 +660,7 @@ class MarkerSet(object):
                 points = trans_cab.shift_points(points)
 
             if index is None:
-                self.markers[idx] = Marker(name=idx, fps=self.fps)
+                self.markers[idx] = Marker(name=idx, start_time=self.start_time, fps=self.fps)
                 self.markers[idx].fill_data(points.T)
 
             elif len(index) == point_num:
