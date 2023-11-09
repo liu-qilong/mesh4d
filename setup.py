@@ -1,3 +1,4 @@
+# python -m pip install --editable .
 from setuptools import setup
 
 setup(
