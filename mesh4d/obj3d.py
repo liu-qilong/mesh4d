@@ -554,6 +554,7 @@ def load_mesh_series(
         start: int = 0,
         end: int = 1,
         stride: int = 1,
+        load_texture: bool = True
     ) -> tuple:
     """ Load a series of obj files from a folder.
     
@@ -594,7 +595,9 @@ def load_mesh_series(
     for n in range(start, end + 1, stride):
         filedir = files[n]
         mesh_ls.append(pv.read(filedir))
-        texture_ls.append(pv.read_texture(filedir.replace('.obj', '.jpg')))
+
+        if load_texture:
+            texture_ls.append(pv.read_texture(filedir.replace('.obj', '.jpg')))
         
         if mesh4d.output_msg:
             percent = (n + 1) / (end - start + 1)
