@@ -150,7 +150,7 @@ class Obj4d(object):
         
             pip install imageio[ffmpeg]
         """
-        scene = pv.Plotter()
+        scene = pv.Plotter(off_screen=True)
 
         if file_type == 'gif':
             scene.open_gif(os.path.join(output_folder, filename) + '.gif', framerate=fps)
@@ -323,7 +323,7 @@ class Obj4d_Kps(Obj4d):
         
             pip install imageio[ffmpeg]
         """
-        scene = pv.Plotter()
+        scene = pv.Plotter(off_screen=True)
         
         if file_type == 'gif':
             scene.open_gif(os.path.join(output_folder, filename) + '.gif', fps=fps)
