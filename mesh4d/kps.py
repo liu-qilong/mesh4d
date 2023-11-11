@@ -124,14 +124,22 @@ class Kps(object):
         }
         return diff_dict
 
-    def show(self) -> pv.Plotter:
+    def show(self, off_screen: bool = False, is_export: bool = False, export_folder: str = '', export_name: str = 'screeenshot') -> pv.Plotter:
         """Illustrate the key points object.
         """
-        scene = pv.Plotter()
+        scene = pv.Plotter(off_screen=off_screen)
         self.add_to_scene(scene)
 
         scene.camera_position = 'xy'
         scene.show(interactive_update=True)
+
+        if is_export:
+            export_path = os.path.join(export_folder, f'{export_name}.png')
+            scene.update()
+            scene.screenshot(export_path)
+            
+            if mesh4d.output_msg:
+                print("export image: {}".format(export_path))
         
         return scene
 
@@ -516,14 +524,22 @@ class Marker(object):
         scene.add_mesh(dots.translate(location, inplace=False), color=color, **kwargs)
         scene.add_mesh(lines, color=color, line_width=trace_width, opacity=trace_op)
 
-    def show(self) -> pv.Plotter:
+    def show(self, off_screen: bool = False, is_export: bool = False, export_folder: str = '', export_name: str = 'screeenshot') -> pv.Plotter:
         """Illustrate the key points object.
         """
-        scene = pv.Plotter()
+        scene = pv.Plotter(off_screen=off_screen)
         self.add_to_scene(scene)
 
         scene.camera_position = 'xy'
         scene.show(interactive_update=True)
+
+        if is_export:
+            export_path = os.path.join(export_folder, f'{export_name}.png')
+            scene.update()
+            scene.screenshot(export_path)
+            
+            if mesh4d.output_msg:
+                print("export image: {}".format(export_path))
 
         return scene
 
@@ -929,13 +945,21 @@ class MarkerSet(object):
                 seed = seed + 1
             marker.add_to_scene(scene=scene, location=location, trace_fps=trace_fps, trace_width=trace_width, trace_op=trace_op, radius=radius, color=color, **kwargs)
 
-    def show(self) -> pv.Plotter:
+    def show(self, off_screen: bool = False, is_export: bool = False, export_folder: str = '', export_name: str = 'screeenshot') -> pv.Plotter:
         """Illustrate the key points object.
         """
-        scene = pv.Plotter()
+        scene = pv.Plotter(off_screen=off_screen)
         self.add_to_scene(scene)
 
         scene.camera_position = 'xy'
         scene.show(interactive_update=True)
+
+        if is_export:
+            export_path = os.path.join(export_folder, f'{export_name}.png')
+            scene.update()
+            scene.screenshot(export_path)
+            
+            if mesh4d.output_msg:
+                print("export image: {}".format(export_path))
 
         return scene

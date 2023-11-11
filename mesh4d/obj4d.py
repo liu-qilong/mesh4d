@@ -92,9 +92,9 @@ class Obj4d(object):
         for obj in objs:
             self.obj_ls.append(obj)
 
-    def show(self, elements: str = 'mp', stack_dist: float = 1000, zoom_rate: float = 3.5, window_size: list = [2000, 800], skip: int = 1, m_props: dict = {}, p_props: dict = {}, is_save: bool = False, export_folder: str = '', export_name: str = 'screeenshot') -> pv.Plotter:
+    def show(self, off_screen: bool = False, elements: str = 'mp', stack_dist: float = 1000, zoom_rate: float = 3.5, window_size: list = [2000, 800], skip: int = 1, m_props: dict = {}, p_props: dict = {}, is_export: bool = False, export_folder: str = '', export_name: str = 'screeenshot') -> pv.Plotter:
         """tbf"""
-        scene = pv.Plotter()
+        scene = pv.Plotter(off_screen=off_screen)
         plot_num = len(self.obj_ls)
 
         for idx in range(0, plot_num, skip):
@@ -116,7 +116,7 @@ class Obj4d(object):
 
         scene.show(interactive_update=True)
 
-        if is_save:
+        if is_export:
             export_path = os.path.join(export_folder, f'{export_name}.png')
             scene.update()
             scene.screenshot(export_path)
@@ -127,12 +127,12 @@ class Obj4d(object):
         return scene
             
 
-    def animate(self, output_folder: str = "output/", filename: str = "obj4d", file_type: str = 'mp4', fps: int = 12, mp4_quality: int = 5, elements: str = 'mp', m_props: dict = {}, k_props: dict = {}, p_props: dict = {}):
+    def animate(self, export_folder: str = "output/", filename: str = "obj4d", file_type: str = 'mp4', fps: int = 12, mp4_quality: int = 5, elements: str = 'mp', m_props: dict = {}, k_props: dict = {}, p_props: dict = {}):
         """Illustrate the 4D object.
         
         Parameters
         ---
-        output_folder
+        export_folder
             the output folder of the generated :code:`.gif` file.
         filename
             the output filename of the generated :code:`.gif` file.
@@ -153,9 +153,9 @@ class Obj4d(object):
         scene = pv.Plotter(off_screen=True)
 
         if file_type == 'gif':
-            scene.open_gif(os.path.join(output_folder, filename) + '.gif', framerate=fps)
+            scene.open_gif(os.path.join(export_folder, filename) + '.gif', framerate=fps)
         elif file_type == 'mp4':
-            scene.open_moive(os.path.join(output_folder, filename) + '.mp4', framerate=fps, quality=mp4_quality)
+            scene.open_moive(os.path.join(export_folder, filename) + '.mp4', framerate=fps, quality=mp4_quality)
         else:
             print('invalid file type')
             return
@@ -254,9 +254,9 @@ class Obj4d_Kps(Obj4d):
 
         return markerset
     
-    def show(self, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk', stack_dist: float = 1000, zoom_rate: float = 3.5, window_size: list = [2000, 800], skip: int = 1, m_props: dict = {}, k_props: dict = {}, p_props: dict = {}, is_save: bool = False, export_folder: str = '', export_name: str = 'screeenshot') -> pv.Plotter:
+    def show(self, off_screen: bool = False, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk', stack_dist: float = 1000, zoom_rate: float = 3.5, window_size: list = [2000, 800], skip: int = 1, m_props: dict = {}, k_props: dict = {}, p_props: dict = {}, is_export: bool = False, export_folder: str = '', export_name: str = 'screeenshot') -> pv.Plotter:
         """tbf"""
-        scene = pv.Plotter()
+        scene = pv.Plotter(off_screen=off_screen)
         plot_num = len(self.obj_ls)
 
         for idx in range(0, plot_num, skip):
@@ -286,7 +286,7 @@ class Obj4d_Kps(Obj4d):
         scene.enable_parallel_projection()
         scene.show(interactive_update=True)
 
-        if is_save:
+        if is_export:
             export_path = os.path.join(export_folder, f'{export_name}.png')
             scene.update()
             scene.screenshot(export_path)
@@ -296,12 +296,12 @@ class Obj4d_Kps(Obj4d):
 
         return scene
 
-    def animate(self, output_folder: str = "output/", filename: str = "obj4d", file_type: str = 'mp4', fps: int = 12, mp4_quality: int = 5, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk', m_props: dict = {}, k_props: dict = {}, p_props: dict = {}, k_radius_factor: float = 0.02):
+    def animate(self, export_folder: str = "output/", filename: str = "obj4d", file_type: str = 'mp4', fps: int = 12, mp4_quality: int = 5, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk', m_props: dict = {}, k_props: dict = {}, p_props: dict = {}, k_radius_factor: float = 0.02):
         """Illustrate the 4D object.
         
         Parameters
         ---
-        output_folder
+        export_folder
             the output folder of the generated :code:`.gif` file.
         filename
             the output filename of the generated :code:`.gif` file.
@@ -326,9 +326,9 @@ class Obj4d_Kps(Obj4d):
         scene = pv.Plotter(off_screen=True)
         
         if file_type == 'gif':
-            scene.open_gif(os.path.join(output_folder, filename) + '.gif', fps=fps)
+            scene.open_gif(os.path.join(export_folder, filename) + '.gif', fps=fps)
         elif file_type == 'mp4':
-            scene.open_movie(os.path.join(output_folder, filename) + '.mp4', framerate=fps, quality=mp4_quality)
+            scene.open_movie(os.path.join(export_folder, filename) + '.mp4', framerate=fps, quality=mp4_quality)
         else:
             print('invalid file type')
             return

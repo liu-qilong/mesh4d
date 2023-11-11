@@ -106,17 +106,25 @@ class Trans(object):
         mesh_deform.points = self.shift_points(mesh_deform.points, **kwargs)
         return mesh_deform
 
-    def show(self) -> pv.Plotter:
+    def show(self, off_screen: bool = False, is_export: bool = False, export_folder: str = '', export_name: str = 'screeenshot') -> pv.Plotter:
         """Illustrate the estimated transformation.
 
         Attention
         ---
         This method is leave blank intentionally.
         """
-        scene = pv.Plotter()
+        scene = pv.Plotter(off_screen=off_screen)
         self.add_to_scene(scene)
         scene.camera_position = 'xy'
         scene.show(interactive_update=True)
+
+        if is_export:
+            export_path = os.path.join(export_folder, f'{export_name}.png')
+            scene.update()
+            scene.screenshot(export_path)
+            
+            if mesh4d.output_msg:
+                print("export image: {}".format(export_path))
 
         return scene
 

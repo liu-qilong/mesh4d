@@ -136,7 +136,7 @@ class Obj3d(object):
         right = measure.points_get_min_bound(self.get_vertices())[0]
         return left - right
 
-    def show(self, elements: str = 'mp') -> pv.Plotter:
+    def show(self, off_screen: bool = False, elements: str = 'mp', is_export: bool = False, export_folder: str = '', export_name: str = 'screeenshot') -> pv.Plotter:
         """Show the loaded mesh and the sampled point cloud.
 
         Parameters
@@ -151,7 +151,7 @@ class Obj3d(object):
             import pyvista as pv
             pv.set_jupyter_backend('static')
         """
-        scene = pv.Plotter()
+        scene = pv.Plotter(off_screen=off_screen)
 
         width = self.get_width()
 
@@ -163,6 +163,14 @@ class Obj3d(object):
 
         scene.camera_position = 'xy'
         scene.show(interactive_update=True)
+
+        if is_export:
+            export_path = os.path.join(export_folder, f'{export_name}.png')
+            scene.update()
+            scene.screenshot(export_path)
+            
+            if mesh4d.output_msg:
+                print("export image: {}".format(export_path))
 
         return scene
 
@@ -263,7 +271,7 @@ class Obj3d_Kps(Obj3d):
         kps = markerset.get_time_coord(time)
         self.attach_kps(name, kps)
 
-    def show(self, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk') -> pv.Plotter:
+    def show(self, off_screen: bool = False, kps_names: Union[None, list, tuple] = None, elements: str = 'mpk', is_export: bool = False, export_folder: str = '', export_name: str = 'screeenshot') -> pv.Plotter:
         """Show the loaded mesh, the sampled point cloud, and the key points attached to it.
 
         Parameters
@@ -280,7 +288,7 @@ class Obj3d_Kps(Obj3d):
             import pyvista as pv
             pv.set_jupyter_backend('static')
         """
-        scene = pv.Plotter()
+        scene = pv.Plotter(off_screen=off_screen)
 
         width = self.get_width()
 
@@ -298,6 +306,14 @@ class Obj3d_Kps(Obj3d):
 
         scene.camera_position = 'xy'
         scene.show(interactive_update=True)
+
+        if is_export:
+            export_path = os.path.join(export_folder, f'{export_name}.png')
+            scene.update()
+            scene.screenshot(export_path)
+            
+            if mesh4d.output_msg:
+                print("export image: {}".format(export_path))
 
         return scene
 

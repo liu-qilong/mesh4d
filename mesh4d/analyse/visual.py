@@ -41,7 +41,7 @@ def np2pvpcd(points: np.array, **kwargs) -> pv.core.pointset.PolyData:
     return pvpcd
 
 
-def show_obj3d_diff(obj1: Type[obj3d.Obj3d], obj2: Type[obj3d.Obj3d], kps_names: Union[None, tuple, list] = None, cmap: str = "cool", op2: float = 0.2) -> pv.Plotter:
+def show_obj3d_diff(obj1: Type[obj3d.Obj3d], obj2: Type[obj3d.Obj3d], kps_names: Union[None, tuple, list] = None, cmap: str = "cool", op2: float = 0.2, off_screen: bool = False) -> pv.Plotter:
     """Illustrate the difference of two 3D object:
 
     :attr:`obj1` mesh will be coloured according to each of its points' distance to :attr:`obj2` mesh. The mapping between distance and color is controlled by :attr:`cmap` argument. Noted that in default setting, light bule indicates small deformation and purple indicates large deformation.
@@ -62,7 +62,7 @@ def show_obj3d_diff(obj1: Type[obj3d.Obj3d], obj2: Type[obj3d.Obj3d], kps_names:
     op2
         the opacity of the second 3D object.
     """
-    scene = pv.Plotter()
+    scene = pv.Plotter(off_screen=off_screen)
     
     tree = KDTree(obj2.mesh.points)
     d_kdtree, _ = tree.query(obj1.mesh.points)
@@ -86,7 +86,7 @@ def show_obj3d_diff(obj1: Type[obj3d.Obj3d], obj2: Type[obj3d.Obj3d], kps_names:
     return scene
 
 
-def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, values: Iterable, k_nbr: int = 10, max_threshold: Union[float, None] = None, min_threshold: Union[float, None] = None, cmap: str = "cool", is_save: bool = False, export_folder: str = '', export_name: str = 'screeenshot', **kwargs) -> pv.Plotter:
+def show_mesh_value_mask( mesh: pv.core.pointset.PolyData, points: Iterable, values: Iterable, k_nbr: int = 10, max_threshold: Union[float, None] = None, min_threshold: Union[float, None] = None, cmap: str = "cool", off_screen: bool = False, is_export: bool = False, export_folder: str = '', export_name: str = 'screeenshot', **kwargs) -> pv.Plotter:
     """Show the 3D mesh with a value mask.
 
     Parameters
@@ -108,7 +108,7 @@ def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, valu
         
         .. seealso::
             For full list of supported color map, please refer to `Choosing Colormaps in Matplotlib <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
-    is_save
+    is_export
         weather save the generated figure or not.
     export_folder
         The folder to save the figure.
@@ -146,11 +146,11 @@ def show_mesh_value_mask(mesh: pv.core.pointset.PolyData, points: Iterable, valu
     # plot the mesh mask with the values
     mesh["distances"] = value_mask
 
-    scene = pv.Plotter()
+    scene = pv.Plotter(off_screen=off_screen)
     scene.add_mesh(mesh, cmap=cmap, **kwargs)
     scene.camera_position = 'xy'
 
-    if is_save:
+    if is_export:
         export_path = os.path.join(export_folder, f'{export_name}.png')
         scene.show(screenshot=export_path, interactive_update=True)
 
