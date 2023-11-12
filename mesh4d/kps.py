@@ -835,7 +835,7 @@ class MarkerSet(object):
             dist_ls.append(diff['dist'])
 
             if mesh4d.output_msg:
-                print("estimated error of frame {}: {}".format(name, diff['diff_str']))
+                print("estimated error of marker {}: {}".format(name, diff['diff_str']))
 
         # estimate the overall difference
         dist_array = np.array(dist_ls).reshape((-1,))
