@@ -370,7 +370,7 @@ class Marker(object):
 
         return coord_interp
 
-    def reslice(self, fps_new: int = 120):
+    def reslice(self, fps: int = 120, start_time: Union[None, float] = None, end_time: Union[None, float] = None):
         """Return the marker object re-slicing to another frame rate. Noted that the original object won't be altered.
         
         Attention
@@ -379,19 +379,25 @@ class Marker(object):
 
         Parameters
         ---
-        fps_new
+        fps
             the new frame rate (frames per second)
         """
+        if fps is None:
+            fps = self.fps
+
+        if start_time is None:
+            start_time = self.start_time
+
+        if end_time is None:
+            end_time = self.start_time + self.get_duration()
+
         marker = Marker(
             name=self.name,
-            start_time=self.start_time,
-            fps=fps_new,
+            start_time=start_time,
+            fps=fps,
             )
         
-        frame_num_new = int(self.get_duration() * fps_new) + 1
-
-        for idx in range(frame_num_new):
-            time = self.start_time + idx / fps_new
+        for time in np.arange(start_time, end_time + 1/fps, 1/fps):
             marker.append_data(coord=self.get_time_coord(time))
 
         return marker
@@ -855,7 +861,7 @@ class MarkerSet(object):
 
         return overall_diff_dict
 
-    def reslice(self, fps_new: int):
+    def reslice(self, fps: int, start_time: Union[None, float] = None, end_time: Union[None, float] = None):
         """Return the marker set object re-slicing to another frame rate. Noted that the original object won't be altered.
 
         Attention
@@ -864,12 +870,12 @@ class MarkerSet(object):
         
         Parameters
         ---
-        fps_new
+        fps
             the new frame rate (frames per second)"""
         markerset = MarkerSet()
 
         for name in self.markers.keys():
-            markerset.markers[name] = self.markers[name].reslice(fps_new)
+            markerset.markers[name] = self.markers[name].reslice(fps, start_time, end_time)
 
         return markerset
 
