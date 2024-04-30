@@ -10,7 +10,7 @@ import mesh4d.config.param
 from mesh4d import kps, utils, obj4d
 from mesh4d.analyse import measure
 
-def obj_pick_points(filedir: str, point_names: Union[Iterable[str], None] = None, use_texture: bool = False, is_save: bool = False, save_folder: str = 'output/', save_name: str = 'points', pre_points: Union[None, np.array] = None) -> np.array:
+def obj_pick_points(filedir: str, point_names: Union[Iterable[str], None] = None, use_texture: bool = False, show_coord: bool = False, is_save: bool = False, save_folder: str = 'output/', save_name: str = 'points', pre_points: Union[None, np.array] = None) -> np.array:
     """Manually pick points from 3D mesh loaded from a :code:`.obj` file. The picked points are stored in a (N, 3) :class:`numpy.array` and saved as :code:`.npy` :mod:`numpy` binary file.
 
     Parameters
@@ -82,8 +82,13 @@ def obj_pick_points(filedir: str, point_names: Union[Iterable[str], None] = None
             point_name = point_idx
 
         # scene.add_points(np.array([point]), color='r', point_size=10, render_points_as_spheres=True)
+        if show_coord:
+            label = [f"{point_name}@({point[0]:.2f}, {point[1]:.2f}, {point[2]:.2f})"]
+        else:
+            label = [f"{point_name}"]
+
         scene.add_point_labels(
-            point, [f"{point_name}@({point[0]:.2f}, {point[1]:.2f}, {point[2]:.2f})"], 
+            point, label, 
             font_size=30, point_size=30, shape='rounded_rect',
             point_color='goldenrod', render_points_as_spheres=True, always_visible=True,
             )
@@ -200,12 +205,14 @@ def landmarks_labelling(
 
     file_idx = start
     pre_points = None
+    files_labeled = []
 
     while (file_idx <= end) and (file_idx <= len(files)):
         file = files[file_idx - 1]
+        files_labeled.append(file)
         print("labelling mesh file: {}".format(file))
+
         points = obj_pick_points(filedir=file, use_texture=use_texture, point_names=point_names, pre_points=pre_points)
-        print(points)
 
         if len(points) == point_num:
             # if successfully label point_num points
@@ -245,6 +252,8 @@ def landmarks_labelling(
     if is_save:
         utils.save_pkl_object(landmarks, export_folder, export_name)
 
+    return landmarks, files_labeled
+
 
 def fix_pvmesh_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.PolyData():
     """Fix disconnection problem in :mod:`pyvista` mesh.
@@ -277,8 +286,8 @@ def fix_pvmesh_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.P
 def clip_with_contour(
     mesh_ls: Type[obj4d.Obj4d], 
     start_time: float, 
-    fps: float, 
     contour: Type[kps.MarkerSet], 
+    fps: float = None, 
     margin: float = 0, 
     invert: bool = False, 
     clip_bound: str = '',
@@ -293,6 +302,7 @@ def clip_with_contour(
         The starting time to use for the clipping process.
     fps
         The frames per second used for the clipping process.
+        If set as None, then the mesh and landmarks will be considered corresponding to each other frame-by-frame
     contour
         The contour (:class:`~mesh4d.kps.MarkerSet`) used to clip the meshes.
     margin
@@ -313,8 +323,12 @@ def clip_with_contour(
         mesh = mesh_ls[idx]
 
         # estimate contour plane
-        time = start_time + idx / fps
-        contour_points = contour.get_time_coord(time).get_points_coord()
+        if fps is None:
+            contour_points = contour.get_frame_coord(idx).get_points_coord()
+        else:
+            time = start_time + idx / fps
+            contour_points = contour.get_time_coord(time).get_points_coord()
+
         norm, center = measure.estimate_plane_from_points(contour_points)
 
         # clip the mesh with contour plane

@@ -616,7 +616,7 @@ def load_mesh_series(
             texture_ls.append(pv.read_texture(filedir.replace('.obj', '.jpg')))
         
         if mesh4d.output_msg:
-            percent = (n + 1) / (end - start + 1)
+            percent = (n - start + 1) / (end - start + 1)
             utils.progress_bar(percent, back_str=" loading: {}".format(filedir))
 
     return mesh_ls, texture_ls
