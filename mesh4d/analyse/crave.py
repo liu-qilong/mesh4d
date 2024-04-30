@@ -132,6 +132,7 @@ def landmarks_labelling(
     start: int = 1,
     end: int = 1,
     stride: int = 1,
+    file_type: str = 'obj',
     use_texture: bool = True,
     is_save: bool = True,
     export_folder: str = 'output/',
@@ -184,7 +185,7 @@ def landmarks_labelling(
         A MarkerSet object containing the labelled landmarks.
     """
     files = os.listdir(mesh_folder)
-    files = [os.path.join(mesh_folder, f) for f in files if '.obj' in f]
+    files = [os.path.join(mesh_folder, f) for f in files if file_type in f]
     files.sort()
 
     if point_names is not None:
