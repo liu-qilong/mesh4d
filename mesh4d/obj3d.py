@@ -570,6 +570,7 @@ def load_mesh_series(
         start: int = 0,
         end: int = 1,
         stride: int = 1,
+        data_type: str = '.obj',
         load_texture: bool = True
     ) -> tuple:
     """ Load a series of obj files from a folder.
@@ -602,7 +603,7 @@ def load_mesh_series(
         A list of :mod:`pyvista` texture.
     """
     files = os.listdir(folder)
-    files = [os.path.join(folder, f) for f in files if '.obj' in f]
+    files = [os.path.join(folder, f) for f in files if data_type in f]
     files.sort()
 
     mesh_ls = []
@@ -613,7 +614,7 @@ def load_mesh_series(
         mesh_ls.append(pv.read(filedir))
 
         if load_texture:
-            texture_ls.append(pv.read_texture(filedir.replace('.obj', '.jpg')))
+            texture_ls.append(pv.read_texture(filedir.replace(data_type, '.jpg')))
         
         if mesh4d.output_msg:
             percent = (n - start + 1) / (end - start + 1)

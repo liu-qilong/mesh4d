@@ -10,7 +10,17 @@ import mesh4d.config.param
 from mesh4d import kps, utils, obj4d
 from mesh4d.analyse import measure
 
-def obj_pick_points(filedir: str, point_names: Union[Iterable[str], None] = None, use_texture: bool = False, show_coord: bool = False, is_save: bool = False, save_folder: str = 'output/', save_name: str = 'points', pre_points: Union[None, np.array] = None) -> np.array:
+def obj_pick_points(
+        filedir: str, 
+        point_names: Union[Iterable[str], None] = None,
+        use_texture: bool = False, 
+        show_coord: bool = False, 
+        show_edges: bool = False,
+        is_save: bool = False, 
+        data_type: str = '.obj',
+        save_folder: str = 'output/', 
+        save_name: str = 'points', 
+        pre_points: Union[None, np.array] = None) -> np.array:
     """Manually pick points from 3D mesh loaded from a :code:`.obj` file. The picked points are stored in a (N, 3) :class:`numpy.array` and saved as :code:`.npy` :mod:`numpy` binary file.
 
     Parameters
@@ -69,10 +79,10 @@ def obj_pick_points(filedir: str, point_names: Union[Iterable[str], None] = None
     scene = pv.Plotter()
 
     if use_texture:
-        texture = pv.read_texture(filedir.replace('.obj', '.jpg'))
-        scene.add_mesh(mesh, texture=texture, show_edges=True)
+        texture = pv.read_texture(filedir.replace(data_type, '.jpg'))
+        scene.add_mesh(mesh, texture=texture, show_edges=show_edges)
     else:
-        scene.add_mesh(mesh, show_edges=True)
+        scene.add_mesh(mesh, show_edges=show_edges)
 
     # function for drawing point label
     def draw_label(point_idx, point):
@@ -132,7 +142,7 @@ def landmarks_labelling(
     start: int = 1,
     end: int = 1,
     stride: int = 1,
-    file_type: str = 'obj',
+    file_type: str = '.obj',
     use_texture: bool = True,
     is_save: bool = True,
     export_folder: str = 'output/',
