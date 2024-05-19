@@ -25,7 +25,7 @@ mesh4d.analyse.crave
       clip_with_contour
       fix_pvmesh_disconnect
       landmarks_labelling
-      obj_pick_points
+      mesh_pick_points
    
    
 

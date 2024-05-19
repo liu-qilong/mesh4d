@@ -10,7 +10,7 @@ import mesh4d.config.param
 from mesh4d import kps, utils, obj4d
 from mesh4d.analyse import measure
 
-def obj_pick_points(
+def mesh_pick_points(
         filedir: str, 
         point_names: Union[Iterable[str], None] = None,
         use_texture: bool = False, 
@@ -51,7 +51,7 @@ def obj_pick_points(
 
         from mesh4d import utils
 
-        utils.obj_pick_points(
+        utils.mesh_pick_points(
             filedir='mesh4d/data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj',
             use_texture=True,
             is_save=True,
@@ -91,7 +91,6 @@ def obj_pick_points(
         else:
             point_name = point_idx
 
-        # scene.add_points(np.array([point]), color='r', point_size=10, render_points_as_spheres=True)
         if show_coord:
             label = [f"{point_name}@({point[0]:.2f}, {point[1]:.2f}, {point[2]:.2f})"]
         else:
@@ -139,8 +138,8 @@ def landmarks_labelling(
     mesh_fps: int = 120,
     point_num: int = 1,
     point_names: Union[Iterable[str], None] = None,
-    start: int = 1,
-    end: int = 1,
+    start: int = 0,
+    end: int = 0,
     stride: int = 1,
     file_type: str = '.obj',
     use_texture: bool = True,
@@ -173,8 +172,7 @@ def landmarks_labelling(
         Attention
         ---
         Index begins from 0. The :code:`start`-th image is included in the loaded images.
-        Index begins from 0.
-    end: int, optional (default=1)
+    end: int, optional (default=0)
         end loading at the :code:`end`-th image.
         
         Attention
@@ -200,7 +198,7 @@ def landmarks_labelling(
 
     if point_names is not None:
         point_num = len(point_names)
-
+    
     # landmarks labelling
     landmarks = kps.MarkerSet()
     landmarks.fps = mesh_fps/stride
@@ -219,11 +217,11 @@ def landmarks_labelling(
     files_labeled = []
 
     while (file_idx <= end) and (file_idx <= len(files)):
-        file = files[file_idx - 1]
+        file = files[file_idx]
         files_labeled.append(file)
-        print("labelling mesh file: {}".format(file))
+        print(f"labelling mesh file: {file}")
 
-        points = obj_pick_points(filedir=file, use_texture=use_texture, point_names=point_names, pre_points=pre_points)
+        points = mesh_pick_points(filedir=file, use_texture=use_texture, point_names=point_names, pre_points=pre_points)
 
         if len(points) == point_num:
             # if successfully label point_num points

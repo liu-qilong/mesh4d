@@ -10,10 +10,10 @@ parent_dir = current_dir[:parent_dir.rfind(os.path.sep)]
 parent_dir = current_dir[:parent_dir.rfind(os.path.sep)]
 sys.path.insert(0, parent_dir)
 
-from mesh4d.analyse.crave import obj_pick_points
+from mesh4d.analyse.crave import mesh_pick_points
 
 # pick points
-obj_pick_points(
+mesh_pick_points(
     filedir='data/meshes/static_3markers/static_standing.000001.obj',
     use_texture=True,
     is_save=False,
