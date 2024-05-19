@@ -292,7 +292,7 @@ def fix_pvmesh_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.P
     return bodies[max_index].extract_surface()
 
 
-def clip_with_contour(
+def clip_meshes_with_contour(
     mesh_ls: Type[obj4d.Obj4d], 
     start_time: float, 
     contour: Type[kps.MarkerSet], 
@@ -338,27 +338,38 @@ def clip_with_contour(
             time = start_time + idx / fps
             contour_points = contour.get_time_coord(time).get_points_coord()
 
-        norm, center = measure.estimate_plane_from_points(contour_points)
-
-        # clip the mesh with contour plane
-        mesh_clip = mesh.clip(
-            norm, 
-            origin=center - margin * norm,
-            invert=invert,
-            )
-        
-        # estimate contour bound
-        max_bound = measure.points_get_max_bound(contour_points)
-        min_bound = measure.points_get_min_bound(contour_points)
-        max_margin = margin * (max_bound - center) / np.linalg.norm(max_bound - center)
-        min_margin = margin * (center - min_bound) / np.linalg.norm(center - min_bound)
-
-        for bound_symbol in clip_bound:
-            mesh_clip = mesh_clip.clip(bound_symbol, origin=max_bound + max_margin, invert=True)
-            mesh_clip = mesh_clip.clip(bound_symbol, origin=min_bound - min_margin, invert=False)
-
-        # remove disconnected parts
-        mesh_clip = fix_pvmesh_disconnect(mesh_clip)
+        mesh_clip = clip_mesh_with_contour(mesh, contour_points, margin, invert, clip_bound)
         mesh_clip_ls.append(mesh_clip)
 
     return mesh_clip_ls
+
+def clip_mesh_with_contour(
+    mesh: pv.core.pointset.PolyData, 
+    contour_points: np.array,   # (N, 3) points
+    margin: float = 0, 
+    invert: bool = False, 
+    clip_bound: str = '',
+    ) -> Iterable[pv.core.pointset.PolyData]:
+    """TK"""
+    # estimate contour plane
+    norm, center = measure.estimate_plane_from_points(contour_points)
+
+    # clip the mesh with contour plane
+    mesh_clip = mesh.clip(
+        norm, 
+        origin=center - margin * norm,
+        invert=invert,
+        )
+    
+    # estimate contour bound
+    max_bound = measure.points_get_max_bound(contour_points)
+    min_bound = measure.points_get_min_bound(contour_points)
+    max_margin = margin * (max_bound - center) / np.linalg.norm(max_bound - center)
+    min_margin = margin * (center - min_bound) / np.linalg.norm(center - min_bound)
+
+    for bound_symbol in clip_bound:
+        mesh_clip = mesh_clip.clip(bound_symbol, origin=max_bound + max_margin, invert=True)
+        mesh_clip = mesh_clip.clip(bound_symbol, origin=min_bound - min_margin, invert=False)
+
+    # remove disconnected parts and return
+    return fix_pvmesh_disconnect(mesh_clip)

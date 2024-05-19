@@ -737,7 +737,7 @@ class MarkerSet(object):
         Return
         ---
         :class:`numpy.array`
-            The structure of the returned array is :code:`array[marker_id][0-2 as x-z][time]`
+            The structure of the returned array is :code:`array[marker_id][0-2 as x-z]`
         
         Warnings
         ---
