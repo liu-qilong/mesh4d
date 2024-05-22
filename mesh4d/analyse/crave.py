@@ -236,7 +236,6 @@ def landmarks_labelling(
                 landmarks.markers[point_name].append_data(points[point_idx])
             
             print(f"extracted points:\n{points}")
-            print("proceed to the next frame")
             print("-"*20)
             file_idx = file_idx + stride
             pre_points = None
