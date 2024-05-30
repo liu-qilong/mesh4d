@@ -206,15 +206,13 @@ def landmarks_labelling(
         start = 0
 
     if end == None:
-        end = len(files)
+        end = len(files) - 1
 
     if point_names is None:
         point_names = [i for i in range(point_num)]
 
     if point_num is None:
         point_num = len(point_names)
-
-    print(start, end, point_names, point_num)
     
     # landmarks labelling
     landmarks = kps.MarkerSet()
@@ -280,7 +278,7 @@ def landmarks_labelling(
     return landmarks, files_labeled
 
 
-def fix_pvmesh_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.PolyData():
+def fix_pvmesh_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.PolyData:
     """Fix disconnection problem in :mod:`pyvista` mesh.
 
     - Split the mesh into variously connected meshes.
@@ -386,6 +384,24 @@ def clip_mesh_with_contour(
     for bound_symbol in clip_bound:
         mesh_clip = mesh_clip.clip(bound_symbol, origin=max_bound + max_margin, invert=True)
         mesh_clip = mesh_clip.clip(bound_symbol, origin=min_bound - min_margin, invert=False)
+
+    # remove disconnected parts and return
+    return fix_pvmesh_disconnect(mesh_clip)
+
+def clip_mesh_with_plane(
+    mesh: pv.core.pointset.PolyData, 
+    norm: np.array,
+    center: np.array,
+    margin: float = 0, 
+    invert: bool = False,
+    ) -> Iterable[pv.core.pointset.PolyData]:
+    """TK"""
+    # clip the mesh with contour plane
+    mesh_clip = mesh.clip(
+        norm, 
+        origin=center - margin * norm,
+        invert=invert,
+        )
 
     # remove disconnected parts and return
     return fix_pvmesh_disconnect(mesh_clip)
