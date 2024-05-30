@@ -136,10 +136,10 @@ def mesh_pick_points(
 def landmarks_labelling(
     mesh_folder: str,
     mesh_fps: int = 120,
-    point_num: int = 1,
-    point_names: Union[Iterable[str], None] = None,
-    start: int = 0,
-    end: int = 0,
+    point_names: Iterable[str] = None,
+    point_num: int = None,
+    start: int = None,
+    end: int = None,
     stride: int = 1,
     file_type: str = '.obj',
     use_texture: bool = True,
@@ -162,10 +162,15 @@ def landmarks_labelling(
         The folder path containing the 3D meshes to label.
     mesh_fps : int, optional (default=120)
         The original frame rate of the mesh files.
+    point_names: 
+        A list of names of the points to label.
     point_num : int, optional (default=1)
         The number of points to label on each mesh.
-    point_names: 
-        tbf
+
+        Attention
+        ---
+        Give either :code:`point_num` or :code:`point_names`. If both are given, make sure that they are consistent.
+
     start: int, optional (default=0)
         begin loading from the :code:`start`-th image.
         
@@ -196,8 +201,20 @@ def landmarks_labelling(
     files = [os.path.join(mesh_folder, f) for f in files if file_type in f]
     files.sort()
 
-    if point_names is not None:
+    # default values
+    if start == None:
+        start = 0
+
+    if end == None:
+        end = len(files)
+
+    if point_names is None:
+        point_names = [i for i in range(point_num)]
+
+    if point_num is None:
         point_num = len(point_names)
+
+    print(start, end, point_names, point_num)
     
     # landmarks labelling
     landmarks = kps.MarkerSet()
