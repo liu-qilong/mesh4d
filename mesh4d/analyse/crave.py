@@ -133,7 +133,43 @@ def mesh_pick_points(
     return points
 
 
-def landmarks_labelling(
+def mesh_pick_points_with_check(
+        file: str,
+        point_names: str = None,
+        **kwargs,
+        ):
+    """manual labeling of landmarks on a mesh sequence"""
+
+    # labelling
+    point_num = len(point_names)
+    pre_points = None
+
+    while(True):
+        points = mesh_pick_points(filedir=file, point_names=point_names, pre_points=pre_points, **kwargs)
+
+        if len(points) == point_num:
+            # if successfully label point_num points, break loop
+            
+            print(f"extracted points:\n{points}")
+            return points
+
+        elif len(points) < point_num:
+            # if the number of labelled points is less than point_num
+            # relabel the same mesh with the last labelled points being undone
+            print("undo the last labelled points")
+            print("-"*20)
+            pre_points = points[:-1]
+
+        else:
+            # otherwise continue to label the same mesh
+            # with all labelled points being undone
+            # p.s. when realizing that the order of labelling is wrong
+            # we can press Q immediately to break the labelling and trigger the relabelling procedure
+            print("undo all labelled points")
+            pre_points = None
+
+
+def markerset_labelling(
     mesh_folder: str,
     mesh_fps: int = 120,
     point_names: Iterable[str] = None,
@@ -142,10 +178,10 @@ def landmarks_labelling(
     end: int = None,
     stride: int = 1,
     file_type: str = '.obj',
-    use_texture: bool = True,
     is_save: bool = True,
     export_folder: str = 'output/',
     export_name: str = 'landmarks',
+    **kwargs,
     ) -> kps.MarkerSet:
     """
     Label landmarks on a set of 3D meshes in the given folder.
@@ -228,48 +264,18 @@ def landmarks_labelling(
         landmarks.markers[point_name] = kps.Marker(name=point_name, fps=landmarks.fps)
 
     file_idx = start
-    pre_points = None
     files_labeled = []
 
-    while (file_idx <= end) and (file_idx <= len(files)):
+    for file_idx in range(start, end+1, stride):
         file = files[file_idx]
         files_labeled.append(file)
+        print("-"*20)
         print(f"labelling mesh file: {file}")
 
-        points = mesh_pick_points(filedir=file, use_texture=use_texture, point_names=point_names, pre_points=pre_points)
+        points = mesh_pick_points_with_check(filedir=file, point_names=point_names, **kwargs)
 
-        if len(points) == point_num:
-            # if successfully label point_num points
-            # update file_idx to label the next mesh
-            for point_idx in range(point_num):
-                if (point_names is not None) and (point_idx < len(point_names)):
-                    point_name = point_names[point_idx]
-
-                else:
-                    point_name = point_idx
-
-                landmarks.markers[point_name].append_data(points[point_idx])
-            
-            print(f"extracted points:\n{points}")
-            print("-"*20)
-            file_idx = file_idx + stride
-            pre_points = None
-
-        elif len(points) < point_num:
-            # if the number of labelled points is less than point_num
-            # relabel the same mesh with the last labelled points being undone
-            print("undo the last labelled points")
-            print("-"*20)
-            pre_points = points[:-1]
-
-        else:
-            # otherwise continue to label the same mesh
-            # with all labelled points being undone
-            # p.s. when realizing that the order of labelling is wrong
-            # we can press Q immediately to break the labelling and trigger the relabelling procedure
-            print("undo all labelled points")
-            print("-"*20)
-            pre_points = None
+        for point_name in point_names:
+            landmarks.markers[point_name].append_data(points[point_idx])
             
     # save landmarks object
     if is_save:
