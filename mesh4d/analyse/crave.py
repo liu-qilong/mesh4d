@@ -284,7 +284,7 @@ def markerset_labelling(
     return landmarks, files_labeled
 
 
-def fix_pvmesh_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.PolyData:
+def fix_pvmesh_disconnect(mesh: pv.core.pointset.PolyData, selector_points: np.array = None) -> pv.core.pointset.PolyData:
     """Fix disconnection problem in :mod:`pyvista` mesh.
 
     - Split the mesh into variously connected meshes.
@@ -308,8 +308,21 @@ def fix_pvmesh_disconnect(mesh: pv.core.pointset.PolyData) -> pv.core.pointset.P
     point_nums = [len(body.points) for body in bodies]
     max_index = point_nums.index(max(point_nums))
 
-    # return the body with maximum number of points 
-    return bodies[max_index].extract_surface()
+    if selector_points is None:
+        # if there is no selector points
+        # return the body with maximum number of points 
+        return bodies[max_index].extract_surface()
+    
+    else:
+        # otherwise, return the body that is closest to the selector points
+        dist_ls = []
+
+        for body in bodies:
+            nearest_points = measure.nearest_points_from_plane(body.extract_surface(), selector_points)
+            dist_ls.append(np.linalg.norm(selector_points - nearest_points, axis=1).mean())
+
+        min_index = dist_ls.index(min(dist_ls))
+        return bodies[min_index].extract_surface()
 
 
 def clip_meshes_with_contour(
