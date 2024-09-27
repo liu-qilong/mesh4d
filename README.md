@@ -18,9 +18,22 @@ This package is developed for the data processing of the 3dMD 4D scanning system
 
 To facilitate human factor research, we deem it an important task to construct a hybrid system that can integrate the advantages and potentials of both systems. The motivation and the core value of this project can be described as *adding continuous spatial dynamic information to Vicon* or *adding discrete key points information to 3dMD*, leading to an advancing platform for human factor research in the domain of dynamic human activity.
 
+## Setup
+
+```
+git clone https://github.com/liu-qilong/mesh4d.git
+cd mesh4d
+conda create -n mesh4d
+conda activate mesh4d
+pip install -r requirements.txt
+python -m pip install --editable .
+```
+
 ## Development Notes
 
 ### Documentation
+
+> P.S. The documentation is out-of-date and will be updated soon.
 
 The documentation web pages can be found in `docs/build/html/`. Please open `index.html` to enter the documentation which provides comprehensive descriptions and working examples for each class and function we provided.
 
