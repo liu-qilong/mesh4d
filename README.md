@@ -23,7 +23,7 @@ To facilitate human factor research, we deem it an important task to construct a
 ```
 git clone https://github.com/liu-qilong/mesh4d.git
 cd mesh4d
-conda create -n mesh4d
+conda create -n mesh4d python=3.10
 conda activate mesh4d
 pip install -r requirements.txt
 python -m pip install --editable .
