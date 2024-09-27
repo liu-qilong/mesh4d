@@ -25,6 +25,6 @@ python -m pip install --editable .
 
 ## Overall structure
 
-![overall structure](https://github.com/TOB-KNPOB/Ultra-Motion-Capture/blob/main/docs/source/figures/overall_structure.png?raw=true)
+![overall structure](https://github.com/liu-qilong/mesh4d/blob/main/gallery/overall-structure.png?raw=true)
 
 _P.S. The solid arrow pointing from `class A` to `class B` indicates that `class B` is derived from `class A`, while the dotted arrow indicates that a `class A` object contains a `class B` object as an attribute._
