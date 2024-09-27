@@ -21,59 +21,6 @@ def mesh_pick_points(
         save_folder: str = 'output/', 
         save_name: str = 'points', 
         pre_points: Union[None, np.array] = None) -> np.array:
-    """Manually pick points from 3D mesh loaded from a :code:`.obj` file. The picked points are stored in a (N, 3) :class:`numpy.array` and saved as :code:`.npy` :mod:`numpy` binary file.
-
-    Parameters
-    ---
-    filedir
-        The directory of the :code:`.obj` file.
-    point_names
-        tbf
-    use_texture
-        Whether use the :code:`.obj` file's texture file or not. If set as :code:`True`, the texture will be loaded and rendered.
-    is_save
-        save the points as local :code:`.npy` file or not. Default as :code:`False`.
-    save_folder
-        The folder for saving :code:`.npy` binary file.
-    save_name
-        The name of the saved :code:`.npy` binary file.
-    pre_points
-        tbf
-
-    Returns
-    ---
-    :class:`numpy.array`
-        (N, 3) :class:`numpy.array` storing the picked points' coordinates.
-
-    Example
-    ---
-    One application of this function is preparing data for **calibration between 3dMD scanning system and the Vicon motion capture system**: Firstly, we acquire the markers' coordinates from the 3dMD scanning image. Then it can be compared with the Vicon data, leading to the reveal of the transformation parameters between two system's coordinates. ::
-
-        from mesh4d import utils
-
-        utils.mesh_pick_points(
-            filedir='mesh4d/data/6kmh_softbra_8markers_1/speed_6km_soft_bra.000001.obj',
-            use_texture=True,
-            is_save=True,
-            save_folder='mesh4d/config/calibrate/',
-            save_name='points_3dmd_test',
-        )
-
-    Dragging the scene to adjust perspective and clicking the marker points in the scene. Press :code:`q` to quite the interactive window and then the picked point's coordinates will be stored in a (N, 3) :class:`numpy.array` and saved as :code:`conf/calibrate/points_3dmd.npy`. Terminal will also print the saved :class:`numpy.array` for your reference.
-
-        The remaining procedure to completed the calibration is realised in the following Jupyter notebook script:
-
-        :code:`config/calibrate/calibrate_vicon_3dmd.ipynb`
-
-    .. seealso::
-
-        About the :code:`.npy` :mod:`numpy` binary file: 
-        `numpy.save <https://numpy.org/doc/stable/reference/generated/numpy.save.html>`_ 
-        `numpy.load <https://numpy.org/doc/stable/reference/generated/numpy.load.html>`_ 
-
-        About point picking feature provided by the :mod:`pyvista` package: 
-        `Picking a Point on the Surface of a Mesh - PyVista <https://docs.pyvista.org/examples/02-sceneot/surface-picking.html>`_
-    """
     # load obj mesh
     mesh = pv.read(filedir)
     scene = pv.Plotter()
@@ -138,8 +85,6 @@ def mesh_pick_points_with_check(
         point_names: str = None,
         **kwargs,
         ):
-    """manual labeling of landmarks on a mesh sequence"""
-
     # labelling
     point_num = len(point_names)
     pre_points = None
@@ -183,56 +128,6 @@ def markerset_labelling(
     export_name: str = 'landmarks',
     **kwargs,
     ) -> kps.MarkerSet:
-    """
-    Label landmarks on a set of 3D meshes in the given folder.
-
-    Tip
-    ---
-    When finished labelling a frame, press :code:`Q` to proceed. The algorithm will check if the point number is the same as :code:`point_num`. If matched, the labelling procedure will proceed to next frame of mesh , otherwise the same frame will be reopened for labelling.
-
-    Therefore, if we realize that the locations or the order of labelling is wrong, we can click on random positions to make sure that the selected landmarks number doesn't match :code:`point_num`, and then press :code:`Q` to break the labelling and trigger the relabelling procedure of the same frame of mesh.
-
-    Parameters
-    ----------
-    mesh_folder : str
-        The folder path containing the 3D meshes to label.
-    mesh_fps : int, optional (default=120)
-        The original frame rate of the mesh files.
-    point_names: 
-        A list of names of the points to label.
-    point_num : int, optional (default=1)
-        The number of points to label on each mesh.
-
-        Attention
-        ---
-        Give either :code:`point_num` or :code:`point_names`. If both are given, make sure that they are consistent.
-
-    start: int, optional (default=0)
-        begin loading from the :code:`start`-th image.
-        
-        Attention
-        ---
-        Index begins from 0. The :code:`start`-th image is included in the loaded images.
-    end: int, optional (default=0)
-        end loading at the :code:`end`-th image.
-        
-        Attention
-        ---
-        Index begins from 0. The :code:`end`-th image is included in the loaded images.
-    stride : int, optional (default=1)
-        The stride used to skip over meshes when labelling.
-    is_save : bool, optional (default=True)
-        Whether to save the labelled landmarks to disk.
-    export_folder : str, optional (default='output/')
-        The folder to save the labelled landmarks to, if :code:`is_save` is True.
-    export_name : str, optional (default='landmarks')
-        The filename to save the labelled landmarks, if :code:`is_save` is True.
-
-    Returns
-    -------
-    kps.MarkerSet
-        A MarkerSet object containing the labelled landmarks.
-    """
     files = os.listdir(mesh_folder)
     files = [os.path.join(mesh_folder, f) for f in files if file_type in f]
     files.sort()
@@ -285,21 +180,6 @@ def markerset_labelling(
 
 
 def fix_pvmesh_disconnect(mesh: pv.core.pointset.PolyData, selector_points: np.array = None) -> pv.core.pointset.PolyData:
-    """Fix disconnection problem in :mod:`pyvista` mesh.
-
-    - Split the mesh into variously connected meshes.
-    - Return the connected mesh with biggest point number.
-
-    Parameters
-    ---
-    mesh
-        :mod:`pyvista` mesh.
-
-    Returns
-    ---
-    :mod:`pyvista`
-        the fully connected mesh.
-    """
     # split the mesh into different bodies according to the connectivity
     clean = mesh.clean()
     bodies = clean.split_bodies()
@@ -334,31 +214,6 @@ def clip_meshes_with_contour(
     invert: bool = False, 
     clip_bound: str = '',
     ) -> Iterable[pv.core.pointset.PolyData]:
-    """Clip meshes with a given contour plane and bounding box.
-
-    Parameters
-    ---
-    mesh_ls
-        The list of meshes to be clipped.
-    start_time
-        The starting time to use for the clipping process.
-    fps
-        The frames per second used for the clipping process.
-        If set as None, then the mesh and landmarks will be considered corresponding to each other frame-by-frame
-    contour
-        The contour (:class:`~mesh4d.kps.MarkerSet`) used to clip the meshes.
-    margin
-        The margin factor used to extend the bounding box. Defaults to 0.
-    invert
-        Whether to invert the clipping plane. Defaults to :code:`False`.
-    clip_bound
-        The clip bound axis used to clip the meshes. For example, :code:`xy` represents bounding the meshes with the highest and lowest positions of the contour in x and y axis. Defaults to ''.
-
-    Returns
-    ---
-    Iterable[pv.core.pointset.PolyData]
-        The list of clipped meshes.
-    """
     mesh_clip_ls = []
 
     for idx in range(len(mesh_ls)):
@@ -383,7 +238,6 @@ def clip_mesh_with_contour(
     invert: bool = False, 
     clip_bound: str = '',
     ) -> Iterable[pv.core.pointset.PolyData]:
-    """TK"""
     # estimate contour plane
     norm, center = measure.estimate_plane_from_points(contour_points)
 
@@ -414,7 +268,6 @@ def clip_mesh_with_plane(
     margin: float = 0, 
     invert: bool = False,
     ) -> Iterable[pv.core.pointset.PolyData]:
-    """TK"""
     # clip the mesh with contour plane
     mesh_clip = mesh.clip(
         norm, 

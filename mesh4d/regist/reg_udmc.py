@@ -1,4 +1,3 @@
-"""Replace the simple nearest point alignment displacement field estimation workflow with Radial Basis Function (RBF) based approach."""
 from __future__ import annotations
 from typing import Type, Union, Iterable
 
@@ -27,19 +26,6 @@ class Trans_Nonrigid_UdMC(field.Trans_Nonrigid):
 
 class Obj4d_UdMC(obj4d.Obj4d_Deform):
     def regist(self, landmark_name: str, **kwargs):
-        """Implement registration among 3D objects in :attr:`self.obj_ls`.
-
-        Parameters
-        ---
-        landmark_name
-            the keyword of the controlling landmarks in :attr:`self.kps_group`.
-
-            Warning
-            -----
-            The landmarks marker set object must have been attach to the object (:meth:`~mesh4d.obj4d.load_markerset`) before registration.
-        **kwargs
-            configuration parameters for the registration and the configuration parameters of the base classes (:class:`Obj3d` and :class:`Obj3d_Kps`)'s :meth:`add_obj` method can be passed in via :code:`**kwargs`.
-        """
         reg_num = len(self.obj_ls)
         
         for idx in range(reg_num):
