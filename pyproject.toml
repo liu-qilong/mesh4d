@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mesh4d"
-version = "0.4"
+version = "0.4.1"
 description = "Toolkit for 4D (3D + T) data visualisation, operation, and dynamic dense-registration. Extents the existing concepts of 3D mesh toolkit to a 4D mesh toolkit."
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.7"
@@ -31,4 +31,4 @@ Repository = "https://github.com/liu-qilong/mesh4d"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["mesh4d"]
+include = ["mesh4d*"]
