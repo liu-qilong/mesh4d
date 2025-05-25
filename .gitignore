@@ -5,6 +5,7 @@ __pycache__/
 
 # setuptool
 *.egg-info
+dist/
 
 # raw data
 dataset/

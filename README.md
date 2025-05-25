@@ -1,4 +1,4 @@
-# `mesh4d`
+# mesh4d
 
 ## Introduction
 
